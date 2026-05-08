@@ -2,7 +2,6 @@
   <Project Path="BE/BE.csproj" Id="e7f82989-8908-4919-9472-14b6ce9d9b1a" />
   <Project Path="BLL/BLL.csproj" Id="0f7ae0c2-3063-493f-bb4e-fa2760d79694" />
   <Project Path="DAL/DAL.csproj" Id="e236d8e2-c1ee-46b5-bab6-d1142fab6940" />
-  <Project Path="ORM/ORM.csproj" Id="4da7c346-46f2-4387-9798-32de750775a1" />
   <Project Path="Servicios/Servicios.csproj" Id="0765b71f-27d8-452b-8d0e-756ca8800f82" />
   <Project Path="UI/UI.csproj" />
 </Solution>

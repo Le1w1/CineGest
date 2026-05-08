@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BE\BE.csproj" />
-    <ProjectReference Include="..\ORM\ORM.csproj" />
     <ProjectReference Include="..\Servicios\Servicios.csproj" />
   </ItemGroup>
 
