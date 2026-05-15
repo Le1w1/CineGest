@@ -46,7 +46,7 @@
             // lblTitulo
             // 
             lblTitulo.Font = new Font("Segoe UI", 20F);
-            lblTitulo.Location = new Point(124, 9);
+            lblTitulo.Location = new Point(134, 9);
             lblTitulo.Name = "lblTitulo";
             lblTitulo.Size = new Size(136, 37);
             lblTitulo.TabIndex = 0;
@@ -55,7 +55,7 @@
             // lblSubtitulo
             // 
             lblSubtitulo.Font = new Font("Segoe UI", 13F);
-            lblSubtitulo.Location = new Point(114, 46);
+            lblSubtitulo.Location = new Point(124, 46);
             lblSubtitulo.Name = "lblSubtitulo";
             lblSubtitulo.Size = new Size(146, 34);
             lblSubtitulo.TabIndex = 1;
@@ -131,9 +131,9 @@
             // lblMensaje
             // 
             lblMensaje.ForeColor = Color.Red;
-            lblMensaje.Location = new Point(170, 436);
+            lblMensaje.Location = new Point(68, 419);
             lblMensaje.Name = "lblMensaje";
-            lblMensaje.Size = new Size(38, 15);
+            lblMensaje.Size = new Size(243, 53);
             lblMensaje.TabIndex = 9;
             lblMensaje.Text = "label1";
             lblMensaje.TextAlign = ContentAlignment.MiddleCenter;
