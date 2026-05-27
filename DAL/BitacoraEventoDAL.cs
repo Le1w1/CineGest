@@ -23,37 +23,14 @@ namespace DAL
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
                 string query = @"
-                    INSERT INTO BitacoraEvento
-                    (
-                        IdUsuario,
-                        Usuario,
-                        FechaHora,
-                        Modulo,
-                        Accion,
-                        Criticidad,
-                        Resultado,
-                        Descripcion
-                    )
-                    VALUES
-                    (
-                        @IdUsuario,
-                        @Usuario,
-                        @FechaHora,
-                        @Modulo,
-                        @Accion,
-                        @Criticidad,
-                        @Resultado,
-                        @Descripcion
-                    )";
+                    INSERT INTO BitacoraEvento(IdUsuario,Usuario,FechaHora,Modulo,Accion,Criticidad,Resultado,Descripcion)
+                    VALUES(@IdUsuario,@Usuario,@FechaHora,@Modulo,@Accion,@Criticidad,@Resultado,@Descripcion)";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
                 {
-                    if (evento.IdUsuario <= 0)
-                    {
-                        comando.Parameters.Add("@IdUsuario", SqlDbType.Int).Value = DBNull.Value;
-                    }
-                    else
-                    {
+                    if (evento.IdUsuario <= 0) comando.Parameters.Add("@IdUsuario", SqlDbType.Int).Value = DBNull.Value;
+                    
+                    else{
                         comando.Parameters.Add("@IdUsuario", SqlDbType.Int).Value = evento.IdUsuario;
                     }
 

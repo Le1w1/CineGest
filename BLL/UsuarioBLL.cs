@@ -57,11 +57,12 @@ namespace BLL
 
             string hashIngresado = _cripto.ObtenerHashSha256(contraseñia);
 
+            # region "Intentos fallidos y bloquear"     
+            
             if (hashIngresado != usuario.PasswordHash)
             {
                 _usuarioDAL.IncrementarIntentosFallidos(usuario.IdUsuario);
-                usuario.IntentosFallidos++;
-                
+                usuario.IntentosFallidos++;               
                 _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Login","Inicio de sesión","Alta","Fallido", "El usuario ingresó una contraseña incorrecta.");
 
                 if (usuario.IntentosFallidos >= 3)
@@ -75,13 +76,12 @@ namespace BLL
                 throw new Exception("Las credenciales ingresadas son incorrectas.");
             }
 
+            #endregion
+
             _usuarioDAL.ReiniciarIntentosFallidos(usuario.IdUsuario);
 
             SM.Instancia.IniciarSesion(usuario);
-
-            _bitacoraEventoBLL.Registrar(
-            usuario.IdUsuario, usuario.NombreUsuario,"Login","Inicio de sesión", "Alta", "Exitoso", "El usuario inició sesión correctamente");
-
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario,"Login","Inicio de sesión", "Alta", "Exitoso", "El usuario inició sesión correctamente");
             return usuario;
         }
     
