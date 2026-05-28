@@ -213,5 +213,17 @@ namespace BLL
             return Regex.IsMatch(nombreUsuario, patron);
         }
         #endregion
+
+        public List<Usuario> ListarUsuarios(string filtro)
+        {
+            if (string.IsNullOrWhiteSpace(filtro))
+            {
+                filtro = "ACTIVOS";
+            }
+
+            filtro = filtro.Trim().ToUpper();
+
+            return _usuarioDAL.ListarUsuarios(filtro);
+        }
     }
 }

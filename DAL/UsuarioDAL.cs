@@ -188,5 +188,58 @@ namespace DAL
         }
 
         #endregion
+
+        public List<Usuario> ListarUsuarios(string filtro)
+        {
+            List<Usuario> usuarios = new List<Usuario>();
+
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"
+                SELECT IdUsuario,Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave
+                FROM Usuario";
+
+                if (filtro == "ACTIVOS")
+                {
+                    query += " WHERE Activo = 1 AND Bloqueado = 0";
+                }
+                else if (filtro == "BLOQUEADOS")
+                {
+                    query += " WHERE Bloqueado = 1";
+                }
+
+                query += " ORDER BY Apellido, Nombre";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    conexion.Open();
+
+                    using (SqlDataReader reader = comando.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Usuario usuario = new Usuario
+                            {
+                                IdUsuario = Convert.ToInt32(reader["IdUsuario"]),
+                                Nombre = reader["Nombre"].ToString(),
+                                Apellido = reader["Apellido"].ToString(),
+                                DNI = reader["DNI"].ToString(),
+                                Email = reader["Email"].ToString(),
+                                NombreUsuario = reader["NombreUsuario"].ToString(),
+                                PasswordHash = reader["PasswordHash"].ToString(),
+                                Activo = Convert.ToBoolean(reader["Activo"]),
+                                Bloqueado = Convert.ToBoolean(reader["Bloqueado"]),
+                                IntentosFallidos = Convert.ToInt32(reader["IntentosFallidos"]),
+                                DebeCambiarClave = Convert.ToBoolean(reader["DebeCambiarClave"])
+                            };
+
+                            usuarios.Add(usuario);
+                        }
+                    }
+                }
+            }
+
+            return usuarios;
+        }
     }
 }
