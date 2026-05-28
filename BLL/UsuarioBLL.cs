@@ -188,6 +188,84 @@ namespace BLL
             _bitacoraEventoBLL.Registrar(administrador.IdUsuario,administrador.NombreUsuario,"Administrador","Crear Usuario","Alta","Exitoso","El administrador creó el usuario: " + nombreUsuario);
         }
 
+        public void ModificarUsuario(int idUsuario,string nombre,string apellido,string dni,string email,string nombreUsuario,bool activo,bool bloqueado)
+        {
+            nombre = (nombre ?? string.Empty).Trim();
+            apellido = (apellido ?? string.Empty).Trim();
+            dni = (dni ?? string.Empty).Trim();
+            email = (email ?? string.Empty).Trim();
+            nombreUsuario = (nombreUsuario ?? string.Empty).Trim();
+
+            if (idUsuario <= 0)throw new Exception("Debe seleccionar un usuario para modificar.");
+         
+            #region "Validaciones con REGEX y de Unicidad"
+
+            if (string.IsNullOrWhiteSpace(nombre) ||string.IsNullOrWhiteSpace(apellido) ||string.IsNullOrWhiteSpace(dni) ||string.IsNullOrWhiteSpace(email) ||string.IsNullOrWhiteSpace(nombreUsuario))
+            {
+                throw new Exception("Debe completar todos los campos obligatorios.");
+            }
+
+            if (!EsNombreOApellidoValido(nombre))
+            {
+                throw new Exception("El nombre solo puede contener letras y debe tener entre 2 y 50 caracteres.");
+            }
+
+            if (!EsNombreOApellidoValido(apellido))
+            {
+                throw new Exception("El apellido solo puede contener letras y debe tener entre 2 y 50 caracteres.");
+            }
+
+            if (!EsDNIValido(dni))
+            {
+                throw new Exception("Debe ingresar un DNI válido.");
+            }
+
+            if (!EsEmailValido(email))
+            {
+                throw new Exception("El email ingresado no tiene un formato válido.");
+            }
+
+            if (!EsNombreUsuarioValido(nombreUsuario))
+            {
+                throw new Exception("El nombre de usuario debe tener entre 4 y 30 caracteres y solo puede contener letras, números, punto, guion o guion bajo.");
+            }
+
+            if (_usuarioDAL.ExisteEmailEnOtroUsuario(email, idUsuario))
+            {
+                throw new Exception("El email ya se encuentra registrado por otro usuario.");
+            }
+
+            if (_usuarioDAL.ExisteDNIEnOtroUsuario(dni, idUsuario))
+            {
+                throw new Exception("El DNI ya se encuentra registrado por otro usuario.");
+            }
+
+            if (_usuarioDAL.ExisteNombreUsuarioEnOtroUsuario(nombreUsuario, idUsuario))
+            {
+                throw new Exception("El nombre de usuario ya se encuentra registrado por otro usuario.");
+            }
+            #endregion
+
+            Usuario usuarioModificado = new Usuario
+            {
+                IdUsuario = idUsuario,
+                Nombre = nombre,
+                Apellido = apellido,
+                DNI = dni,
+                Email = email,
+                NombreUsuario = nombreUsuario,
+                Activo = activo,
+                Bloqueado = bloqueado
+            };
+
+            _usuarioDAL.Modificar(usuarioModificado);
+
+            Usuario administrador = SM.Instancia.UsuarioActual;
+
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario,administrador.NombreUsuario,"Administrador","Modificar Usuario","Alta","Exitoso","El administrador modificó el usuario: " + nombreUsuario);
+        }
+
+
         #region "Validaciones con REGEX"
         private bool EsNombreOApellidoValido(string valor)
         {
@@ -216,10 +294,7 @@ namespace BLL
 
         public List<Usuario> ListarUsuarios(string filtro)
         {
-            if (string.IsNullOrWhiteSpace(filtro))
-            {
-                filtro = "ACTIVOS";
-            }
+            if (string.IsNullOrWhiteSpace(filtro)) filtro = "ACTIVOS";
 
             filtro = filtro.Trim().ToUpper();
 
