@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BLL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,11 +13,13 @@ namespace UI
 {
     public partial class frmAdministrador : Form
     {
+        private readonly UsuarioBLL _usuarioBLL;
         public frmAdministrador()
         {
             InitializeComponent();
             dgvUsuarios.ClearSelection();
             txtNombre.Focus();
+            _usuarioBLL = new UsuarioBLL();
         }
 
 
@@ -55,7 +58,18 @@ namespace UI
 
         private void btnCrearUsuario_Click(object sender, EventArgs e)
         {
-            MostrarMensaje("Funcionalidad pendiente: Crear Usuario.");
+            try
+            {
+                _usuarioBLL.CrearUsuario(txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,txtNombreUsuario.Text,chkActivo.Checked,chkBloqueado.Checked);
+              
+                LimpiarCampos();
+                lblMensaje.Text = "Usuario creado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                lblMensaje.Text = ex.Message;
+                MessageBox.Show(ex.Message,"Crear Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+            }
         }
 
         private void btnModificarUsuario_Click(object sender, EventArgs e)

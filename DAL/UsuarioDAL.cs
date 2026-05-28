@@ -24,7 +24,7 @@ namespace DAL
 
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
-               string query = @"
+                string query = @"
                     SELECT IdUsuario, Nombre, Apellido, DNI, Email, NombreUsuario, PasswordHash,
                     Activo, Bloqueado, IntentosFallidos, DebeCambiarClave 
                     FROM Usuario WHERE Email = @Email";
@@ -103,5 +103,90 @@ namespace DAL
                 }
             }
         }
+
+        public void Insertar(Usuario usuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"
+            INSERT INTO Usuario
+            (
+                Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave
+            )
+            VALUES
+            (
+                @Nombre,@Apellido,@DNI,@Email,@NombreUsuario,@PasswordHash,@Activo,@Bloqueado,@IntentosFallidos,@DebeCambiarClave
+            )";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@Nombre", usuario.Nombre);
+                    comando.Parameters.AddWithValue("@Apellido", usuario.Apellido);
+                    comando.Parameters.AddWithValue("@DNI", usuario.DNI);
+                    comando.Parameters.AddWithValue("@Email", usuario.Email);
+                    comando.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
+                    comando.Parameters.AddWithValue("@PasswordHash", usuario.PasswordHash);
+                    comando.Parameters.AddWithValue("@Activo", usuario.Activo);
+                    comando.Parameters.AddWithValue("@Bloqueado", usuario.Bloqueado);
+                    comando.Parameters.AddWithValue("@IntentosFallidos", usuario.IntentosFallidos);
+                    comando.Parameters.AddWithValue("@DebeCambiarClave", usuario.DebeCambiarClave);
+
+                    conexion.Open();
+                    comando.ExecuteNonQuery();
+                }
+            }
+        }
+
+        #region "Validaciones de existencia"
+        public bool ExistePorEmail(string email)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"SELECT COUNT(1) FROM Usuario WHERE Email = @Email";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@Email", email);
+                    conexion.Open();
+                    int cantidad = Convert.ToInt32(comando.ExecuteScalar());
+                    return cantidad > 0;
+                }
+            }
+
+        }
+
+        public bool ExistePorDNI(string dni)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"SELECT COUNT(1) FROM Usuario WHERE DNI = @DNI";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@DNI", dni);
+                    conexion.Open();
+                    int cantidad = Convert.ToInt32(comando.ExecuteScalar());
+                    return cantidad > 0;
+                }
+            }
+        }
+
+        public bool ExistePorNombreUsuario(string nombreUsuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"SELECT COUNT(1) FROM Usuario WHERE NombreUsuario = @NombreUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@NombreUsuario", nombreUsuario);
+                    conexion.Open();
+                    int cantidad = Convert.ToInt32(comando.ExecuteScalar());
+                    return cantidad > 0;
+                }
+            }
+        }
+
+        #endregion
     }
 }
