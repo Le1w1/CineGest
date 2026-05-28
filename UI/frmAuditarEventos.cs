@@ -50,6 +50,7 @@ namespace UI
             ConfigurarCombos();
             ConfigurarEstadoInicial();
         }
+        #region "Confiracion de Estados y Combos"
         private void ConfigurarEstadoInicial()
         {
             DtpFechaDesde.Value = DateTime.Today;
@@ -60,14 +61,13 @@ namespace UI
             dgvEventos.DataSource = null;
             dgvEventos.ClearSelection();
         }
-
         private void ConfigurarCombos()
         {
             cmbModulo.Items.Clear();
             cmbModulo.Items.Add("Todos");
             cmbModulo.Items.Add("Login");
             cmbModulo.Items.Add("Logout");
-            cmbModulo.Items.Add("Usuario");
+            cmbModulo.Items.Add("Administrador");
             cmbModulo.Items.Add("Bitácora");
             cmbModulo.SelectedIndex = 0;
 
@@ -84,6 +84,8 @@ namespace UI
             cmbResultado.Items.Add("Fallido");
             cmbResultado.SelectedIndex = 0;
         }
+        #endregion
+
         private void BuscarEventos()
         {
             try
@@ -97,13 +99,7 @@ namespace UI
                 string criticidad = cmbCriticidad.SelectedItem.ToString();
                 string resultado = cmbResultado.SelectedItem.ToString();
 
-                List<BitacoraEvento> eventos = _bitacoraEventoBLL.ObtenerEventos(
-                    fechaDesde,
-                    fechaHasta,
-                    usuario,
-                    modulo,
-                    criticidad,
-                    resultado);
+                List<BitacoraEvento> eventos = _bitacoraEventoBLL.ObtenerEventos(fechaDesde,fechaHasta,usuario,modulo,criticidad,resultado);
 
                 dgvEventos.DataSource = null;
                 dgvEventos.DataSource = eventos;
@@ -121,11 +117,7 @@ namespace UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    ex.Message,
-                    "CineGest",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message,"CineGest",MessageBoxButtons.OK,MessageBoxIcon.Warning);
             }
         }
 

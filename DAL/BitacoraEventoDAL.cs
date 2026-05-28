@@ -47,37 +47,22 @@ namespace DAL
                 }
             }
         }
-        public List<BitacoraEvento> ObtenerEventos(
-    DateTime fechaDesde,
-    DateTime fechaHasta,
-    string usuario,
-    string modulo,
-    string criticidad,
-    string resultado)
+        public List<BitacoraEvento> ObtenerEventos(DateTime fechaDesde,DateTime fechaHasta,string usuario,string modulo,string criticidad,string resultado)
         {
             List<BitacoraEvento> eventos = new List<BitacoraEvento>();
 
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
                 string consulta = @"
-            SELECT 
-                IdEvento,
-                IdUsuario,
-                Usuario,
-                FechaHora,
-                Modulo,
-                Accion,
-                Criticidad,
-                Resultado,
-                Descripcion
-            FROM BitacoraEvento
-            WHERE FechaHora >= @FechaDesde
+              SELECT IdEvento,IdUsuario,Usuario,FechaHora,Modulo,Accion,Criticidad,Resultado,Descripcion
+              FROM BitacoraEvento
+              WHERE FechaHora >= @FechaDesde
               AND FechaHora < @FechaHasta
               AND (@Usuario = '' OR Usuario LIKE '%' + @Usuario + '%')
               AND (@Modulo = 'Todos' OR Modulo = @Modulo)
               AND (@Criticidad = 'Todas' OR Criticidad = @Criticidad)
               AND (@Resultado = 'Todos' OR Resultado = @Resultado)
-            ORDER BY FechaHora DESC";
+              ORDER BY FechaHora DESC";
 
                 using (SqlCommand comando = new SqlCommand(consulta, conexion))
                 {
@@ -97,11 +82,7 @@ namespace DAL
                             BitacoraEvento evento = new BitacoraEvento
                             {
                                 IdEvento = Convert.ToInt32(reader["IdEvento"]),
-
-                                IdUsuario = reader["IdUsuario"] == DBNull.Value
-                                    ? 0
-                                    : Convert.ToInt32(reader["IdUsuario"]),
-
+                                IdUsuario = reader["IdUsuario"] == DBNull.Value? 0 : Convert.ToInt32(reader["IdUsuario"])
                                 Usuario = reader["Usuario"].ToString(),
                                 FechaHora = Convert.ToDateTime(reader["FechaHora"]),
                                 Modulo = reader["Modulo"].ToString(),
@@ -110,7 +91,6 @@ namespace DAL
                                 Resultado = reader["Resultado"].ToString(),
                                 Descripcion = reader["Descripcion"].ToString()
                             };
-
                             eventos.Add(evento);
                         }
                     }
