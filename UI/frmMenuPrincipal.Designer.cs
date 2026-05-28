@@ -33,15 +33,15 @@
             empleadoDeBoleteríaToolStripMenuItem = new ToolStripMenuItem();
             gerenciaToolStripMenuItem = new ToolStripMenuItem();
             gerenciaToolStripMenuItem1 = new ToolStripMenuItem();
-            administradorToolStripMenuItem = new ToolStripMenuItem();
+            mnuAdministrador = new ToolStripMenuItem();
             ayudaToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             lblUsuarioSesion = new ToolStripStatusLabel();
             lblEstadoSesion = new ToolStripStatusLabel();
             pnlInicio = new Panel();
+            tableLayoutPanel1 = new TableLayoutPanel();
             lblDescripcionInicio = new Label();
             lblTituloInicio = new Label();
-            tableLayoutPanel1 = new TableLayoutPanel();
             menuPrincipal.SuspendLayout();
             statusStrip1.SuspendLayout();
             pnlInicio.SuspendLayout();
@@ -50,8 +50,8 @@
             // 
             // menuPrincipal
             // 
-            menuPrincipal.BackColor = Color.PowderBlue;
-            menuPrincipal.Items.AddRange(new ToolStripItem[] { mnuSesion, empleadoDeBoleteríaToolStripMenuItem, gerenciaToolStripMenuItem, gerenciaToolStripMenuItem1, administradorToolStripMenuItem, ayudaToolStripMenuItem });
+            menuPrincipal.BackColor = Color.LightSkyBlue;
+            menuPrincipal.Items.AddRange(new ToolStripItem[] { mnuSesion, empleadoDeBoleteríaToolStripMenuItem, gerenciaToolStripMenuItem, gerenciaToolStripMenuItem1, mnuAdministrador, ayudaToolStripMenuItem });
             menuPrincipal.Location = new Point(0, 0);
             menuPrincipal.Name = "menuPrincipal";
             menuPrincipal.Size = new Size(800, 24);
@@ -83,11 +83,12 @@
             gerenciaToolStripMenuItem1.Size = new Size(65, 20);
             gerenciaToolStripMenuItem1.Text = "Gerencia";
             // 
-            // administradorToolStripMenuItem
+            // mnuAdministrador
             // 
-            administradorToolStripMenuItem.Name = "administradorToolStripMenuItem";
-            administradorToolStripMenuItem.Size = new Size(95, 20);
-            administradorToolStripMenuItem.Text = "Administrador";
+            mnuAdministrador.Name = "mnuAdministrador";
+            mnuAdministrador.Size = new Size(95, 20);
+            mnuAdministrador.Text = "Administrador";
+            mnuAdministrador.Click += administradorToolStripMenuItem_Click;
             // 
             // ayudaToolStripMenuItem
             // 
@@ -129,6 +130,25 @@
             pnlInicio.Size = new Size(800, 404);
             pnlInicio.TabIndex = 2;
             // 
+            // tableLayoutPanel1
+            // 
+            tableLayoutPanel1.BackColor = Color.PowderBlue;
+            tableLayoutPanel1.ColumnCount = 1;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Controls.Add(lblDescripcionInicio, 0, 2);
+            tableLayoutPanel1.Controls.Add(lblTituloInicio, 0, 1);
+            tableLayoutPanel1.Dock = DockStyle.Fill;
+            tableLayoutPanel1.Location = new Point(0, 0);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 5;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 30F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 15F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 8F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 35F));
+            tableLayoutPanel1.Size = new Size(800, 404);
+            tableLayoutPanel1.TabIndex = 2;
+            // 
             // lblDescripcionInicio
             // 
             lblDescripcionInicio.Dock = DockStyle.Fill;
@@ -150,24 +170,6 @@
             lblTituloInicio.TabIndex = 0;
             lblTituloInicio.Text = "Bienvenido a Cinegest";
             lblTituloInicio.TextAlign = ContentAlignment.MiddleCenter;
-            // 
-            // tableLayoutPanel1
-            // 
-            tableLayoutPanel1.ColumnCount = 1;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.Controls.Add(lblDescripcionInicio, 0, 2);
-            tableLayoutPanel1.Controls.Add(lblTituloInicio, 0, 1);
-            tableLayoutPanel1.Dock = DockStyle.Fill;
-            tableLayoutPanel1.Location = new Point(0, 0);
-            tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 5;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 30F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 15F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 8F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 35F));
-            tableLayoutPanel1.Size = new Size(800, 404);
-            tableLayoutPanel1.TabIndex = 2;
             // 
             // frmMenuPrincipal
             // 
@@ -200,7 +202,7 @@
         private ToolStripMenuItem empleadoDeBoleteríaToolStripMenuItem;
         private ToolStripMenuItem gerenciaToolStripMenuItem;
         private ToolStripMenuItem gerenciaToolStripMenuItem1;
-        private ToolStripMenuItem administradorToolStripMenuItem;
+        private ToolStripMenuItem mnuAdministrador;
         private ToolStripMenuItem ayudaToolStripMenuItem;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel lblUsuarioSesion;

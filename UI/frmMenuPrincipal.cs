@@ -51,5 +51,11 @@ namespace UI
                 this.Close();
             }
         }
+
+        private void administradorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmAdministrador formAdministrador = new frmAdministrador();
+            formAdministrador.ShowDialog();
+        }
     }
 }
