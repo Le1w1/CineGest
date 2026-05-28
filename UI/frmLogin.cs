@@ -23,8 +23,14 @@ namespace UI
                 var usuario = _usuarioBLL.Login(email, contrasenia);
 
                 lblMensaje.Text = string.Empty;
+                frmMenuPrincipal menu = new frmMenuPrincipal();
 
-                MessageBox.Show("Login correcto. Falta crear el Menú Principal.","CineGest",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                this.Hide();
+                menu.ShowDialog();
+                this.Show();
+
+                txtContrasenia.Clear();
+                txtEmail.Focus();
             }
             catch (Exception ex)
             {
