@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BLL
@@ -96,6 +97,133 @@ namespace BLL
 
             _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Logout", "Cierre de sesión", "Baja", "Exitoso", "El usuario cerró sesión correctamente");
             SM.Instancia.CerrarSesion(); 
+        }
+
+
+        public void CrearUsuario(string nombre,string apellido,string dni,string email,string nombreUsuario,bool activo,bool bloqueado)
+        {
+            nombre = (nombre ?? string.Empty).Trim();
+            apellido = (apellido ?? string.Empty).Trim();
+            dni = (dni ?? string.Empty).Trim();
+            email = (email ?? string.Empty).Trim();
+            nombreUsuario = (nombreUsuario ?? string.Empty).Trim();
+
+            if (string.IsNullOrWhiteSpace(nombre) ||
+                string.IsNullOrWhiteSpace(apellido) ||
+                string.IsNullOrWhiteSpace(dni) ||
+                string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(nombreUsuario))
+            {
+                throw new Exception("Debe completar todos los campos obligatorios.");
+            }
+
+            #region "Validaciones con REGEX"
+
+            if (!EsNombreOApellidoValido(nombre))
+            {
+                throw new Exception("El nombre solo puede contener letras y debe tener entre 2 y 50 caracteres.");
+            }
+
+            if (!EsNombreOApellidoValido(apellido))
+            {
+                throw new Exception("El apellido solo puede contener letras y debe tener entre 2 y 50 caracteres.");
+            }
+
+            if (!EsDNIValido(dni))
+            {
+                throw new Exception("Debe ingresar un DNI válido.");
+            }
+
+            if (!EsEmailValido(email))
+            {
+                throw new Exception("El email ingresado no tiene un formato válido.");
+            }
+
+            if (!EsNombreUsuarioValido(nombreUsuario))
+            {
+                throw new Exception("El nombre de usuario debe tener entre 4 y 30 caracteres y solo puede contener letras, números, punto, guion o guion bajo.");
+            }
+
+            #endregion
+
+            #region "Validaciones de unicidad"
+            if (_usuarioDAL.ExistePorEmail(email))
+            {
+                throw new Exception("El email ya se encuentra registrado.");
+            }
+
+            if (_usuarioDAL.ExistePorDNI(dni))
+            {
+                throw new Exception("El DNI ya se encuentra registrado.");
+            }
+
+            if (_usuarioDAL.ExistePorNombreUsuario(nombreUsuario))
+            {
+                throw new Exception("El nombre de usuario ya se encuentra registrado.");
+            }
+#endregion
+
+            string contraseniaInicial = apellido + dni;
+
+            string passwordHash = _cripto.ObtenerHashSha256(contraseniaInicial);
+
+            Usuario nuevoUsuario = new Usuario
+            {
+                Nombre = nombre,
+                Apellido = apellido,
+                DNI = dni,
+                Email = email,
+                NombreUsuario = nombreUsuario,
+                PasswordHash = passwordHash,
+                Activo = activo,
+                Bloqueado = bloqueado,
+                IntentosFallidos = 0,
+                DebeCambiarClave = true
+            };
+
+            _usuarioDAL.Insertar(nuevoUsuario);
+
+            Usuario administrador = SM.Instancia.UsuarioActual;
+
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario,administrador.NombreUsuario,"Administrador","Crear Usuario","Alta","Exitoso","El administrador creó el usuario: " + nombreUsuario);
+        }
+
+        #region "Validaciones con REGEX"
+        private bool EsNombreOApellidoValido(string valor)
+        {
+            string patron = @"^[\p{L}\s'-]{2,50}$";
+            return Regex.IsMatch(valor, patron);
+        }
+
+        private bool EsDNIValido(string dni)
+        {
+            string patron = @"^\d{7,8}$";
+            return Regex.IsMatch(dni, patron);
+        }
+
+        private bool EsEmailValido(string email)
+        {
+            string patron = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            return Regex.IsMatch(email, patron);
+        }
+
+        private bool EsNombreUsuarioValido(string nombreUsuario)
+        {
+            string patron = @"^[a-zA-Z0-9._-]{4,30}$";
+            return Regex.IsMatch(nombreUsuario, patron);
+        }
+        #endregion
+
+        public List<Usuario> ListarUsuarios(string filtro)
+        {
+            if (string.IsNullOrWhiteSpace(filtro))
+            {
+                filtro = "ACTIVOS";
+            }
+
+            filtro = filtro.Trim().ToUpper();
+
+            return _usuarioDAL.ListarUsuarios(filtro);
         }
     }
 }

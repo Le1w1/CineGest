@@ -34,7 +34,6 @@
             gerenciaToolStripMenuItem = new ToolStripMenuItem();
             gerenciaToolStripMenuItem1 = new ToolStripMenuItem();
             mnuAdministrador = new ToolStripMenuItem();
-            ayudaToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             lblUsuarioSesion = new ToolStripStatusLabel();
             lblEstadoSesion = new ToolStripStatusLabel();
@@ -51,7 +50,7 @@
             // menuPrincipal
             // 
             menuPrincipal.BackColor = Color.LightSkyBlue;
-            menuPrincipal.Items.AddRange(new ToolStripItem[] { mnuSesion, empleadoDeBoleteríaToolStripMenuItem, gerenciaToolStripMenuItem, gerenciaToolStripMenuItem1, mnuAdministrador, ayudaToolStripMenuItem });
+            menuPrincipal.Items.AddRange(new ToolStripItem[] { mnuSesion, empleadoDeBoleteríaToolStripMenuItem, gerenciaToolStripMenuItem, gerenciaToolStripMenuItem1, mnuAdministrador });
             menuPrincipal.Location = new Point(0, 0);
             menuPrincipal.Name = "menuPrincipal";
             menuPrincipal.Size = new Size(800, 24);
@@ -89,12 +88,6 @@
             mnuAdministrador.Size = new Size(95, 20);
             mnuAdministrador.Text = "Administrador";
             mnuAdministrador.Click += administradorToolStripMenuItem_Click;
-            // 
-            // ayudaToolStripMenuItem
-            // 
-            ayudaToolStripMenuItem.Name = "ayudaToolStripMenuItem";
-            ayudaToolStripMenuItem.Size = new Size(53, 20);
-            ayudaToolStripMenuItem.Text = "Ayuda";
             // 
             // statusStrip1
             // 
@@ -203,7 +196,6 @@
         private ToolStripMenuItem gerenciaToolStripMenuItem;
         private ToolStripMenuItem gerenciaToolStripMenuItem1;
         private ToolStripMenuItem mnuAdministrador;
-        private ToolStripMenuItem ayudaToolStripMenuItem;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel lblUsuarioSesion;
         private ToolStripStatusLabel lblEstadoSesion;

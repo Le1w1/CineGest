@@ -93,6 +93,7 @@
             rbTodos.TabIndex = 2;
             rbTodos.Text = "Todos";
             rbTodos.UseVisualStyleBackColor = true;
+            rbTodos.CheckedChanged += rbFiltros_CheckedChanged;
             // 
             // rbBloqueados
             // 
@@ -103,6 +104,7 @@
             rbBloqueados.TabIndex = 1;
             rbBloqueados.Text = "Bloqueados";
             rbBloqueados.UseVisualStyleBackColor = true;
+            rbBloqueados.CheckedChanged += rbFiltros_CheckedChanged;
             // 
             // rbActivos
             // 
@@ -115,6 +117,7 @@
             rbActivos.TabStop = true;
             rbActivos.Text = "Activos";
             rbActivos.UseVisualStyleBackColor = true;
+            rbActivos.CheckedChanged += rbFiltros_CheckedChanged;
             // 
             // lblCantidadUsuarios
             // 
