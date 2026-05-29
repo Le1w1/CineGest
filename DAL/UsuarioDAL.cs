@@ -89,6 +89,26 @@ namespace DAL
             }
         }
 
+        public void DesbloquearUsuario(int idUsuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"
+                UPDATE Usuario
+                SET Bloqueado = 0,IntentosFallidos = 0
+                WHERE IdUsuario = @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
+                    conexion.Open();
+                    int filasAfectadas = comando.ExecuteNonQuery();
+
+                    if (filasAfectadas == 0) throw new Exception("No se encontró el usuario a desbloquear.");
+
+                }
+            }
+        }
         public void ReiniciarIntentosFallidos(int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
