@@ -99,6 +99,44 @@ namespace BLL
             SM.Instancia.CerrarSesion(); 
         }
 
+        public bool ActivarDesactivarUsuario(int idUsuario)
+        {
+            if (idUsuario <= 0)
+            {
+                throw new Exception("Debe seleccionar un usuario para activar o desactivar.");
+            }
+
+            Usuario usuarioSeleccionado = _usuarioDAL.BuscarPorId(idUsuario);
+
+            if (usuarioSeleccionado == null)
+            {
+                throw new Exception("No se encontró el usuario seleccionado.");
+            }
+
+            bool nuevoEstado = !usuarioSeleccionado.Activo;
+
+            _usuarioDAL.CambiarEstadoActivo(idUsuario, nuevoEstado);
+
+            Usuario administrador = SM.Instancia.UsuarioActual;
+
+            string accion = nuevoEstado ? "Activar Usuario" : "Desactivar Usuario";
+
+            string descripcion = nuevoEstado
+                ? "El administrador activó el usuario: " + usuarioSeleccionado.NombreUsuario
+                : "El administrador desactivó el usuario: " + usuarioSeleccionado.NombreUsuario;
+
+            _bitacoraEventoBLL.Registrar(
+                administrador.IdUsuario,
+                administrador.NombreUsuario,
+                "Administrador",
+                accion,
+                "Alta",
+                "Exitoso",
+                descripcion);
+
+            return nuevoEstado;
+        }
+
 
         public void CrearUsuario(string nombre,string apellido,string dni,string email,string nombreUsuario,bool activo,bool bloqueado)
         {
