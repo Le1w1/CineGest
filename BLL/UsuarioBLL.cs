@@ -111,7 +111,7 @@ namespace BLL
 
             Usuario administrador = SM.Instancia.UsuarioActual;
 
-            string accion = nuevoEstado ? "Activar Usuario" : "Desactivar Usuario";
+            string accion = nuevoEstado ? "Activar Usuario" : "Desactivar Usuario";  //Si nuevoEstado es true  → accion = "Activar Usuario"
 
             string descripcion = nuevoEstado? "El administrador activó el usuario: " + usuarioSeleccionado.NombreUsuario: "El administrador desactivó el usuario: " + usuarioSeleccionado.NombreUsuario;
 
