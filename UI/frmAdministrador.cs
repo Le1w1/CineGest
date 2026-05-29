@@ -254,8 +254,35 @@ namespace UI
 
         private void btnDesbloquearUsuario_Click(object sender, EventArgs e)
         {
-            MostrarMensaje("Funcionalidad pendiente: Desbloquear Usuario.");
-        }
+            if (_usuarioSeleccionado == null)
+            {
+                lblMensaje.Text = "Debe seleccionar un usuario para desbloquear.";
+
+                MessageBox.Show("Debe seleccionar un usuario para desbloquear.", "Desbloquear Usuario", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                return;
+            }
+
+            DialogResult respuesta = MessageBox.Show("¿Desea desbloquear el usuario seleccionado?", "Desbloquear Usuario", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (respuesta != DialogResult.Yes) return;
+
+            try
+            {
+                _usuarioBLL.DesbloquearUsuario(_usuarioSeleccionado);
+                CargarUsuarios();
+                LimpiarCampos();
+
+                lblMensaje.Text = "Usuario desbloqueado correctamente.";
+
+                MessageBox.Show("Usuario desbloqueado correctamente.", "Desbloquear Usuario", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                lblMensaje.Text = ex.Message;
+                MessageBox.Show(ex.Message, "Desbloquear Usuario", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }        
 
         private void btnActivarDesactivarUsuario_Click(object sender, EventArgs e)
         {
