@@ -119,6 +119,44 @@ namespace BLL
             return nuevoEstado;
         }
 
+        public void CambiarClave(string claveActual, string nuevaClave, string confirmarClave)
+        {
+            if (!SM.Instancia.HaySesionActiva())
+            {
+                throw new Exception("No hay una sesión activa.");
+            }
+
+            if (nuevaClave != confirmarClave)
+            {
+                throw new Exception("La nueva clave y la confirmación no coinciden.");
+            }
+
+            Usuario usuario = SM.Instancia.UsuarioActual;
+
+            string hashClaveActual = _cripto.ObtenerHashSha256(claveActual);
+
+            if (hashClaveActual != usuario.PasswordHash)
+            {
+                _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Cambiar Clave", "Cambio de clave", "Alta", "Fallido", "El usuario ingresó una clave actual incorrecta.");
+
+                throw new Exception("La clave actual ingresada es incorrecta.");
+            }
+
+            string hashNuevaClave = _cripto.ObtenerHashSha256(nuevaClave);
+
+            if (hashNuevaClave == usuario.PasswordHash)
+            {
+                throw new Exception("La nueva clave no puede ser igual a la clave actual.");
+            }
+
+            _usuarioDAL.ActualizarPassword(usuario.IdUsuario, hashNuevaClave);
+
+            usuario.PasswordHash = hashNuevaClave;
+            usuario.DebeCambiarClave = false;
+
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Cambiar Clave", "Cambio de clave", "Alta", "Exitoso", "El usuario modificó su contraseña correctamente.");
+        }
+
         public void CrearUsuario(string nombre,string apellido,string dni,string email,string nombreUsuario,bool activo,bool bloqueado)
         {
             nombre = (nombre ?? string.Empty).Trim();
