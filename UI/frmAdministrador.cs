@@ -169,7 +169,6 @@ namespace UI
         private void LimpiarCampos()
         {
             _usuarioSeleccionado = null;
-
             txtNombre.Clear();
             txtApellido.Clear();
             txtDNI.Clear();
@@ -181,9 +180,9 @@ namespace UI
             btnActivarDesactivarUsuario.Text = "Activar / Desactivar Usuario";
             lblMensaje.Text = string.Empty;
 
+            dgvUsuarios.SelectionChanged -= dgvUsuarios_SelectionChanged;
             dgvUsuarios.ClearSelection();
-
-            txtNombre.Focus();
+            dgvUsuarios.SelectionChanged += dgvUsuarios_SelectionChanged;
         }
         private void MostrarMensaje(string mensaje)
         {
