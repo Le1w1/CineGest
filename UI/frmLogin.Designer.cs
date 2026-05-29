@@ -147,7 +147,7 @@
             AcceptButton = btnIngresar;
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.WhiteSmoke;
+            BackColor = Color.PowderBlue;
             CancelButton = btnSalir;
             ClientSize = new Size(404, 481);
             Controls.Add(lblTitulo);
