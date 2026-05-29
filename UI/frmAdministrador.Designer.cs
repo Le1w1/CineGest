@@ -263,6 +263,7 @@
             dgvUsuarios.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvUsuarios.Size = new Size(722, 183);
             dgvUsuarios.TabIndex = 1;
+            dgvUsuarios.SelectionChanged += dgvUsuarios_SelectionChanged;
             // 
             // btnCrearUsuario
             // 

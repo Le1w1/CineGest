@@ -137,6 +137,89 @@ namespace DAL
             }
         }
 
+        public void Modificar(Usuario usuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"
+                UPDATE [Usuario] SET Nombre = @Nombre, Apellido = @Apellido, DNI = @DNI, Email = @Email, NombreUsuario = @NombreUsuario,Activo = @Activo, Bloqueado = @Bloqueado 
+                WHERE IdUsuario = @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@IdUsuario", usuario.IdUsuario);
+                    comando.Parameters.AddWithValue("@Nombre", usuario.Nombre);
+                    comando.Parameters.AddWithValue("@Apellido", usuario.Apellido);
+                    comando.Parameters.AddWithValue("@DNI", usuario.DNI);
+                    comando.Parameters.AddWithValue("@Email", usuario.Email);
+                    comando.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
+                    comando.Parameters.AddWithValue("@Activo", usuario.Activo);
+                    comando.Parameters.AddWithValue("@Bloqueado", usuario.Bloqueado);
+
+                    conexion.Open();
+
+                    int filasAfectadas = comando.ExecuteNonQuery();
+
+                    if (filasAfectadas == 0) throw new Exception("No se encontró el usuario a modificar.");
+                    
+                }
+            }
+        }
+
+        public bool ExisteEmailEnOtroUsuario(string email, int idUsuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"SELECT COUNT(1) FROM Usuario WHERE Email = @Email AND IdUsuario <> @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@Email", email);
+                    comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
+
+                    conexion.Open();
+                    int cantidad = Convert.ToInt32(comando.ExecuteScalar());
+                    return cantidad > 0;
+                }
+            }
+        }
+
+        public bool ExisteDNIEnOtroUsuario(string dni, int idUsuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"SELECT COUNT(1) FROM Usuario WHERE DNI = @DNI AND IdUsuario <> @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@DNI", dni);
+                    comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
+
+                    conexion.Open();
+                    int cantidad = Convert.ToInt32(comando.ExecuteScalar());
+                    return cantidad > 0;
+                }
+            }
+        }
+
+        public bool ExisteNombreUsuarioEnOtroUsuario(string nombreUsuario, int idUsuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"SELECT COUNT(1) FROM Usuario WHERE NombreUsuario = @NombreUsuario AND IdUsuario <> @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@NombreUsuario", nombreUsuario);
+                    comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
+
+                    conexion.Open();
+                    int cantidad = Convert.ToInt32(comando.ExecuteScalar());
+                    return cantidad > 0;
+                }
+            }
+        }
+
         #region "Validaciones de existencia"
         public bool ExistePorEmail(string email)
         {

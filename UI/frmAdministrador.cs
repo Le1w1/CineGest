@@ -1,4 +1,5 @@
 ﻿using BLL;
+using Servicios;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +15,7 @@ namespace UI
     public partial class frmAdministrador : Form
     {
         private readonly UsuarioBLL _usuarioBLL;
+        private Usuario _usuarioSeleccionado;
         public frmAdministrador()
         {
             InitializeComponent();
@@ -138,9 +140,34 @@ namespace UI
             }
         }
         #endregion
+   
+        private void dgvUsuarios_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvUsuarios.CurrentRow == null) return;
+
+            Usuario usuario = dgvUsuarios.CurrentRow.DataBoundItem as Usuario;
+
+            if (usuario == null) return;
+
+            _usuarioSeleccionado = usuario;
+
+            txtNombre.Text = usuario.Nombre;
+            txtApellido.Text = usuario.Apellido;
+            txtDNI.Text = usuario.DNI;
+            txtEmail.Text = usuario.Email;
+            txtNombreUsuario.Text = usuario.NombreUsuario;
+
+            chkActivo.Checked = usuario.Activo;
+            chkBloqueado.Checked = usuario.Bloqueado;
+
+            lblMensaje.Text = "Usuario seleccionado: " + usuario.NombreUsuario;
+        }
+        
 
         private void LimpiarCampos()
         {
+            _usuarioSeleccionado = null;
+
             txtNombre.Clear();
             txtApellido.Clear();
             txtDNI.Clear();
@@ -192,8 +219,35 @@ namespace UI
 
         private void btnModificarUsuario_Click(object sender, EventArgs e)
         {
-            MostrarMensaje("Funcionalidad pendiente: Modificar Usuario.");
+            if (_usuarioSeleccionado == null)
+            {
+                lblMensaje.Text = "Debe seleccionar un usuario para modificar.";
+                MessageBox.Show("Debe seleccionar un usuario para modificar.","Modificar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                return;
+            }
 
+            DialogResult respuesta = MessageBox.Show("¿Desea modificar el usuario seleccionado?","Modificar Usuario",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+
+            if (respuesta == DialogResult.No) return; 
+
+            try
+            {
+                _usuarioBLL.ModificarUsuario(_usuarioSeleccionado.IdUsuario,txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,txtNombreUsuario.Text,chkActivo.Checked,chkBloqueado.Checked);
+
+                CargarUsuarios();
+
+                LimpiarCampos();
+
+                lblMensaje.Text = "Usuario modificado correctamente.";
+
+                MessageBox.Show("Usuario modificado correctamente.","Modificar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                lblMensaje.Text = ex.Message;
+
+                MessageBox.Show(ex.Message,"Modificar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+            }
         }
 
         private void btnDesbloquearUsuario_Click(object sender, EventArgs e)
