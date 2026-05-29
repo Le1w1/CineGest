@@ -47,5 +47,8 @@ namespace BLL
 
             return _bitacoraEventoDAL.ObtenerEventos(fechaDesdeConsulta,fechaHastaConsulta,usuario,modulo,criticidad,resultado);
         }
+
+
+       
     }
 }
