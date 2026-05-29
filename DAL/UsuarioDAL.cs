@@ -137,12 +137,78 @@ namespace DAL
             }
         }
 
+        public Usuario BuscarPorId(int idUsuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"
+            SELECT
+                IdUsuario,Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave
+            FROM Usuario
+            WHERE IdUsuario = @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
+                    conexion.Open();
+
+                    using (SqlDataReader reader = comando.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Usuario
+                            {
+                                IdUsuario = Convert.ToInt32(reader["IdUsuario"]),
+                                Nombre = reader["Nombre"].ToString(),
+                                Apellido = reader["Apellido"].ToString(),
+                                DNI = reader["DNI"].ToString(),
+                                Email = reader["Email"].ToString(),
+                                NombreUsuario = reader["NombreUsuario"].ToString(),
+                                PasswordHash = reader["PasswordHash"].ToString(),
+                                Activo = Convert.ToBoolean(reader["Activo"]),
+                                Bloqueado = Convert.ToBoolean(reader["Bloqueado"]),
+                                IntentosFallidos = Convert.ToInt32(reader["IntentosFallidos"]),
+                                DebeCambiarClave = Convert.ToBoolean(reader["DebeCambiarClave"])
+                            };
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public void CambiarEstadoActivo(int idUsuario, bool activo)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"
+            UPDATE Usuario
+            SET Activo = @Activo
+            WHERE IdUsuario = @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
+                    comando.Parameters.AddWithValue("@Activo", activo);
+                    conexion.Open();
+
+                    int filasAfectadas = comando.ExecuteNonQuery();
+
+                    if (filasAfectadas == 0)
+                    {
+                        throw new Exception("No se encontró el usuario a activar o desactivar.");
+                    }
+                }
+            }
+        }
+
         public void Modificar(Usuario usuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
                 string query = @"
-                UPDATE [Usuario] SET Nombre = @Nombre, Apellido = @Apellido, DNI = @DNI, Email = @Email, NombreUsuario = @NombreUsuario,Activo = @Activo, Bloqueado = @Bloqueado 
+                UPDATE Usuario SET Nombre = @Nombre, Apellido = @Apellido, DNI = @DNI, Email = @Email, NombreUsuario = @NombreUsuario,Activo = @Activo, Bloqueado = @Bloqueado 
                 WHERE IdUsuario = @IdUsuario";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
@@ -165,7 +231,7 @@ namespace DAL
                 }
             }
         }
-
+        #region "Validaciones de existencia en otros usuarios"
         public bool ExisteEmailEnOtroUsuario(string email, int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -219,6 +285,7 @@ namespace DAL
                 }
             }
         }
+        #endregion
 
         #region "Validaciones de existencia"
         public bool ExistePorEmail(string email)
@@ -290,7 +357,6 @@ namespace DAL
                 {
                     query += " WHERE Bloqueado = 1";
                 }
-
                 query += " ORDER BY Apellido, Nombre";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
@@ -321,7 +387,6 @@ namespace DAL
                     }
                 }
             }
-
             return usuarios;
         }
     }
