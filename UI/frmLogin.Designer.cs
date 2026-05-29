@@ -135,7 +135,6 @@
             lblMensaje.Name = "lblMensaje";
             lblMensaje.Size = new Size(243, 53);
             lblMensaje.TabIndex = 9;
-            lblMensaje.Text = "label1";
             lblMensaje.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // errorProviderLogin
