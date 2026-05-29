@@ -58,6 +58,7 @@ namespace DAL
                 return usuario;
             }
         }
+
         public void IncrementarIntentosFallidos(int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -103,6 +104,7 @@ namespace DAL
                 }
             }
         }
+
          public void ActualizarPassword(int idUsuario, string nuevoPasswordHash)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
