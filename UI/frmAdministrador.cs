@@ -24,6 +24,7 @@ namespace UI
             _usuarioBLL = new UsuarioBLL();
             ConfigurarGrillaUsuarios();
             CargarUsuarios();
+            ConfigurarModoCreacion();
 
         }
 
@@ -38,7 +39,8 @@ namespace UI
 
                 dgvUsuarios.DataSource = null;
                 dgvUsuarios.DataSource = usuarios;
-
+                 lblNombreUsuario.Visible = false;
+    txtNombreUsuario.Visible = false;
                 lblCantidadUsuarios.Text = "Número de Usuarios: " + usuarios.Count;
                 lblMensaje.Text = string.Empty;
 
@@ -54,6 +56,23 @@ namespace UI
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
             }
+        }
+
+        private void ConfigurarModoCreacion()
+        {
+            _usuarioSeleccionado = null;
+
+            lblNombreUsuario.Visible = false;
+            txtNombreUsuario.Visible = false;
+            txtNombreUsuario.Clear();
+
+            btnActivarDesactivarUsuario.Text = "Activar / Desactivar Usuario";
+        }
+
+        private void ConfigurarModoEdicion()
+        {
+            lblNombreUsuario.Visible = true;
+            txtNombreUsuario.Visible = true;
         }
         private string ObtenerFiltroSeleccionado()
         {
@@ -151,6 +170,7 @@ namespace UI
 
             _usuarioSeleccionado = usuario;
 
+            ConfigurarModoEdicion();
             txtNombre.Text = usuario.Nombre;
             txtApellido.Text = usuario.Apellido;
             txtDNI.Text = usuario.DNI;
@@ -183,6 +203,8 @@ namespace UI
             dgvUsuarios.SelectionChanged -= dgvUsuarios_SelectionChanged;
             dgvUsuarios.ClearSelection();
             dgvUsuarios.SelectionChanged += dgvUsuarios_SelectionChanged;
+            ConfigurarModoCreacion();
+            txtNombre.Focus();
         }
         private void MostrarMensaje(string mensaje)
         {
@@ -205,8 +227,7 @@ namespace UI
         {
             try
             {
-                _usuarioBLL.CrearUsuario(txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,txtNombreUsuario.Text,chkActivo.Checked,chkBloqueado.Checked);
-              
+                _usuarioBLL.CrearUsuario(txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,chkActivo.Checked,chkBloqueado.Checked);
                 LimpiarCampos();
                 CargarUsuarios();
                 lblMensaje.Text = "Usuario creado correctamente.";

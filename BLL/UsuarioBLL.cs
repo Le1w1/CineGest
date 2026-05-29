@@ -170,22 +170,21 @@ namespace BLL
             _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Cambiar Clave", "Cambio de clave", "Alta", "Exitoso", "El usuario modificó su contraseña correctamente.");
         }
 
-        public void CrearUsuario(string nombre,string apellido,string dni,string email,string nombreUsuario,bool activo,bool bloqueado)
+        public void CrearUsuario(string nombre,string apellido,string dni,string email,bool activo,bool bloqueado)
         {
             nombre = (nombre ?? string.Empty).Trim();
             apellido = (apellido ?? string.Empty).Trim();
             dni = (dni ?? string.Empty).Trim();
             email = (email ?? string.Empty).Trim();
-            nombreUsuario = (nombreUsuario ?? string.Empty).Trim();
 
             if (string.IsNullOrWhiteSpace(nombre) ||
                 string.IsNullOrWhiteSpace(apellido) ||
                 string.IsNullOrWhiteSpace(dni) ||
-                string.IsNullOrWhiteSpace(email) ||
-                string.IsNullOrWhiteSpace(nombreUsuario))
+                string.IsNullOrWhiteSpace(email))
             {
                 throw new Exception("Debe completar todos los campos obligatorios.");
             }
+            string nombreSinEspacios = GenerarNombreUsuario(nombre, dni);
 
             #region "Validaciones con REGEX"
 
@@ -209,7 +208,7 @@ namespace BLL
                 throw new Exception("El email ingresado no tiene un formato válido.");
             }
 
-            if (!EsNombreUsuarioValido(nombreUsuario))
+            if (!EsNombreUsuarioValido(nombreSinEspacios))
             {
                 throw new Exception("El nombre de usuario debe tener entre 4 y 30 caracteres y solo puede contener letras, números, punto, guion o guion bajo.");
             }
@@ -227,13 +226,14 @@ namespace BLL
                 throw new Exception("El DNI ya se encuentra registrado.");
             }
 
-            if (_usuarioDAL.ExistePorNombreUsuario(nombreUsuario))
+            if (_usuarioDAL.ExistePorNombreUsuario(nombreSinEspacios))
             {
                 throw new Exception("El nombre de usuario ya se encuentra registrado.");
             }
 #endregion
 
             string contraseniaInicial = apellido + dni;
+
 
             string passwordHash = _cripto.ObtenerHashSha256(contraseniaInicial);
 
@@ -243,7 +243,7 @@ namespace BLL
                 Apellido = apellido,
                 DNI = dni,
                 Email = email,
-                NombreUsuario = nombreUsuario,
+                NombreUsuario = nombreSinEspacios,
                 PasswordHash = passwordHash,
                 Activo = activo,
                 Bloqueado = bloqueado,
@@ -255,7 +255,7 @@ namespace BLL
 
             Usuario administrador = SM.Instancia.UsuarioActual;
 
-            _bitacoraEventoBLL.Registrar(administrador.IdUsuario,administrador.NombreUsuario,"Administrador","Crear Usuario","Alta","Exitoso","El administrador creó el usuario: " + nombreUsuario);
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario,administrador.NombreUsuario,"Administrador","Crear Usuario","Alta","Exitoso","El administrador creó el usuario: " + nombreSinEspacios);
         }
 
         public void ModificarUsuario(int idUsuario,string nombre,string apellido,string dni,string email,string nombreUsuario,bool activo,bool bloqueado)
@@ -355,9 +355,14 @@ namespace BLL
             return Regex.IsMatch(email, patron);
         }
 
+        private string GenerarNombreUsuario(string nombre, string dni)
+        {
+            string nombreSinEspacios = Regex.Replace(nombre.Trim(), @"\s+", "");
+            return nombreSinEspacios + dni;
+        }
         private bool EsNombreUsuarioValido(string nombreUsuario)
         {
-            string patron = @"^[a-zA-Z0-9._-]{4,30}$";
+            string patron = @"^[\p{L}0-9._-]{4,100}$";
             return Regex.IsMatch(nombreUsuario, patron);
         }
         #endregion

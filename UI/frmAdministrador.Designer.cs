@@ -37,8 +37,6 @@
             gbDatosUsuario = new GroupBox();
             chkBloqueado = new CheckBox();
             chkActivo = new CheckBox();
-            txtNombreUsuario = new TextBox();
-            lblNombreUsuario = new Label();
             txtEmail = new TextBox();
             txtDNI = new TextBox();
             lblEmail = new Label();
@@ -56,6 +54,8 @@
             btnVolver = new Button();
             lblMensaje = new Label();
             btnAuditarBitacora = new Button();
+            txtNombreUsuario = new TextBox();
+            lblNombreUsuario = new Label();
             gbFiltros.SuspendLayout();
             gbDatosUsuario.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvUsuarios).BeginInit();
@@ -132,10 +132,10 @@
             // gbDatosUsuario
             // 
             gbDatosUsuario.BackColor = Color.LightSkyBlue;
-            gbDatosUsuario.Controls.Add(chkBloqueado);
-            gbDatosUsuario.Controls.Add(chkActivo);
             gbDatosUsuario.Controls.Add(txtNombreUsuario);
             gbDatosUsuario.Controls.Add(lblNombreUsuario);
+            gbDatosUsuario.Controls.Add(chkBloqueado);
+            gbDatosUsuario.Controls.Add(chkActivo);
             gbDatosUsuario.Controls.Add(txtEmail);
             gbDatosUsuario.Controls.Add(txtDNI);
             gbDatosUsuario.Controls.Add(lblEmail);
@@ -153,7 +153,7 @@
             // 
             // chkBloqueado
             // 
-            chkBloqueado.Location = new Point(457, 100);
+            chkBloqueado.Location = new Point(444, 100);
             chkBloqueado.Name = "chkBloqueado";
             chkBloqueado.RightToLeft = RightToLeft.No;
             chkBloqueado.Size = new Size(136, 23);
@@ -172,21 +172,6 @@
             chkActivo.TabIndex = 11;
             chkActivo.Text = "Activo";
             chkActivo.UseVisualStyleBackColor = true;
-            // 
-            // txtNombreUsuario
-            // 
-            txtNombreUsuario.Location = new Point(150, 97);
-            txtNombreUsuario.Name = "txtNombreUsuario";
-            txtNombreUsuario.Size = new Size(160, 23);
-            txtNombreUsuario.TabIndex = 10;
-            // 
-            // lblNombreUsuario
-            // 
-            lblNombreUsuario.Location = new Point(20, 100);
-            lblNombreUsuario.Name = "lblNombreUsuario";
-            lblNombreUsuario.Size = new Size(120, 23);
-            lblNombreUsuario.TabIndex = 8;
-            lblNombreUsuario.Text = "Nombre Usuario:";
             // 
             // txtEmail
             // 
@@ -344,6 +329,21 @@
             btnAuditarBitacora.UseVisualStyleBackColor = true;
             btnAuditarBitacora.Click += btnAuditarBitacora_Click;
             // 
+            // txtNombreUsuario
+            // 
+            txtNombreUsuario.Location = new Point(150, 100);
+            txtNombreUsuario.Name = "txtNombreUsuario";
+            txtNombreUsuario.Size = new Size(160, 23);
+            txtNombreUsuario.TabIndex = 14;
+            // 
+            // lblNombreUsuario
+            // 
+            lblNombreUsuario.Location = new Point(20, 103);
+            lblNombreUsuario.Name = "lblNombreUsuario";
+            lblNombreUsuario.Size = new Size(120, 23);
+            lblNombreUsuario.TabIndex = 13;
+            lblNombreUsuario.Text = "Nombre de Usuario:";
+            // 
             // frmAdministrador
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -392,8 +392,6 @@
         private Label lblApellido;
         private Label lblNombre;
         private DataGridView dgvUsuarios;
-        private TextBox txtNombreUsuario;
-        private Label lblNombreUsuario;
         private TextBox txtEmail;
         private TextBox txtDNI;
         private Label lblEmail;
@@ -408,5 +406,7 @@
         private Button btnVolver;
         private Label lblMensaje;
         private Button btnAuditarBitacora;
+        private TextBox txtNombreUsuario;
+        private Label lblNombreUsuario;
     }
 }
