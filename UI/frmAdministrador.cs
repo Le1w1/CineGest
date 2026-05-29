@@ -159,9 +159,7 @@ namespace UI
 
             chkActivo.Checked = usuario.Activo;
             chkBloqueado.Checked = usuario.Bloqueado;
-            btnActivarDesactivarUsuario.Text = usuario.Activo
-    ? "Desactivar Usuario"
-    : "Activar Usuario";
+            btnActivarDesactivarUsuario.Text = usuario.Activo? "Desactivar Usuario": "Activar Usuario";
 
             lblMensaje.Text = "Usuario seleccionado: " + usuario.NombreUsuario;
 
@@ -257,7 +255,6 @@ namespace UI
         private void btnDesbloquearUsuario_Click(object sender, EventArgs e)
         {
             MostrarMensaje("Funcionalidad pendiente: Desbloquear Usuario.");
-
         }
 
         private void btnActivarDesactivarUsuario_Click(object sender, EventArgs e)
@@ -265,58 +262,34 @@ namespace UI
             if (_usuarioSeleccionado == null)
             {
                 lblMensaje.Text = "Debe seleccionar un usuario para activar o desactivar.";
-
-                MessageBox.Show(
-                    "Debe seleccionar un usuario para activar o desactivar.",
-                    "Activar / Desactivar Usuario",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show("Debe seleccionar un usuario para activar o desactivar.","Activar / Desactivar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
 
                 return;
             }
 
             string accion = _usuarioSeleccionado.Activo ? "desactivar" : "activar";
 
-            DialogResult respuesta = MessageBox.Show(
-                "¿Desea " + accion + " el usuario seleccionado?",
-                "Activar / Desactivar Usuario",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show("¿Desea " + accion + " el usuario seleccionado?","Activar / Desactivar Usuario",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
 
-            if (respuesta == DialogResult.No)
-            {
-                return;
-            }
+            if (respuesta == DialogResult.No)return;
 
             try
             {
                 bool quedoActivo = _usuarioBLL.ActivarDesactivarUsuario(_usuarioSeleccionado.IdUsuario);
 
                 CargarUsuarios();
-
                 LimpiarCampos();
-
-                string mensaje = quedoActivo
-                    ? "Usuario activado correctamente."
-                    : "Usuario desactivado correctamente.";
+                string mensaje = quedoActivo? "Usuario activado correctamente.": "Usuario desactivado correctamente.";
 
                 lblMensaje.Text = mensaje;
 
-                MessageBox.Show(
-                    mensaje,
-                    "Activar / Desactivar Usuario",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(mensaje,"Activar / Desactivar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
 
-                MessageBox.Show(
-                    ex.Message,
-                    "Activar / Desactivar Usuario",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message,"Activar / Desactivar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
             }
         }
 

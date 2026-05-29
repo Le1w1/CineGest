@@ -143,24 +143,13 @@ namespace DAL
             {
                 string query = @"
             SELECT
-                IdUsuario,
-                Nombre,
-                Apellido,
-                DNI,
-                Email,
-                NombreUsuario,
-                PasswordHash,
-                Activo,
-                Bloqueado,
-                IntentosFallidos,
-                DebeCambiarClave
+                IdUsuario,Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave
             FROM Usuario
             WHERE IdUsuario = @IdUsuario";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
                 {
                     comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
-
                     conexion.Open();
 
                     using (SqlDataReader reader = comando.ExecuteReader())
@@ -202,7 +191,6 @@ namespace DAL
                 {
                     comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
                     comando.Parameters.AddWithValue("@Activo", activo);
-
                     conexion.Open();
 
                     int filasAfectadas = comando.ExecuteNonQuery();
@@ -220,7 +208,7 @@ namespace DAL
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
                 string query = @"
-                UPDATE [Usuario] SET Nombre = @Nombre, Apellido = @Apellido, DNI = @DNI, Email = @Email, NombreUsuario = @NombreUsuario,Activo = @Activo, Bloqueado = @Bloqueado 
+                UPDATE Usuario SET Nombre = @Nombre, Apellido = @Apellido, DNI = @DNI, Email = @Email, NombreUsuario = @NombreUsuario,Activo = @Activo, Bloqueado = @Bloqueado 
                 WHERE IdUsuario = @IdUsuario";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
@@ -243,7 +231,7 @@ namespace DAL
                 }
             }
         }
-
+        #region "Validaciones de existencia en otros usuarios"
         public bool ExisteEmailEnOtroUsuario(string email, int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -297,6 +285,7 @@ namespace DAL
                 }
             }
         }
+        #endregion
 
         #region "Validaciones de existencia"
         public bool ExistePorEmail(string email)
@@ -368,7 +357,6 @@ namespace DAL
                 {
                     query += " WHERE Bloqueado = 1";
                 }
-
                 query += " ORDER BY Apellido, Nombre";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
@@ -399,7 +387,6 @@ namespace DAL
                     }
                 }
             }
-
             return usuarios;
         }
     }
