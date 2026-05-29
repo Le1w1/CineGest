@@ -135,7 +135,6 @@
             lblMensaje.Name = "lblMensaje";
             lblMensaje.Size = new Size(243, 53);
             lblMensaje.TabIndex = 9;
-            lblMensaje.Text = "label1";
             lblMensaje.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // errorProviderLogin
@@ -147,7 +146,7 @@
             AcceptButton = btnIngresar;
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.WhiteSmoke;
+            BackColor = Color.PowderBlue;
             CancelButton = btnSalir;
             ClientSize = new Size(404, 481);
             Controls.Add(lblTitulo);
