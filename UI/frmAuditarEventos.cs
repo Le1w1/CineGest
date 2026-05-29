@@ -20,7 +20,6 @@ namespace UI
         {
             InitializeComponent();
             _bitacoraEventoBLL = new BitacoraEventoBLL();
-
         }
 
         private void btnBuscar_Click(object sender, EventArgs e)
