@@ -43,13 +43,10 @@ namespace UI
         private void mnuSesion_Click(object sender, EventArgs e)
         {
             frmSesion formSesion = new frmSesion();
-            formSesion.ShowDialog(); // Al abrir el formulario de sesión, se muestra como un diálogo modal,
-                                     // lo que significa que el usuario debe interactuar con él antes de volver al formulario principal.
+            formSesion.ShowDialog();
 
-            if (formSesion.SesionCerrada)   //al cerrar sesion, se cierra el frmMenuPrincipal tambien
-            {
-                this.Close();
-            }
+            if (formSesion.ReLoginExitoso)CargarDatosSesion();return;
+            if (formSesion.SesionCerrada)this.Close();
         }
 
         private void administradorToolStripMenuItem_Click(object sender, EventArgs e)

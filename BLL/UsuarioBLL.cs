@@ -85,7 +85,78 @@ namespace BLL
             _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario,"Login","Inicio de sesión", "Alta", "Exitoso", "El usuario inició sesión correctamente");
             return usuario;
         }
-    
+
+        public Usuario ReLogin(string email, string contrasenia)
+        {
+            if (!SM.Instancia.HaySesionActiva())throw new Exception("No hay una sesión activa para realizar Re-Login.");
+
+            if (string.IsNullOrWhiteSpace(email)) throw new Exception("Debe ingresar Email.");
+
+            if (string.IsNullOrWhiteSpace(contrasenia))throw new Exception("Debe ingresar Contraseña.");
+
+            Usuario usuarioActual = SM.Instancia.UsuarioActual;
+
+            email = email.Trim().ToLower();
+
+            Usuario usuarioNuevo = _usuarioDAL.BuscarPorEmail(email);
+
+            if (usuarioNuevo == null)
+            {
+                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario,"Re-Login","Cambio de usuario","Media","Fallido","Intento de Re-Login con un email inexistente.");
+
+                throw new Exception("Las credenciales ingresadas son incorrectas.");
+            }
+
+            if (!usuarioNuevo.Activo)
+            {
+                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario,"Re-Login","Cambio de usuario","Media","Fallido","Intento de Re-Login con una cuenta inactiva.");
+
+                throw new Exception("La cuenta se encuentra inactiva. Contacte al Administrador.");
+            }
+
+            if (usuarioNuevo.Bloqueado)
+            {
+                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario,"Re-Login","Cambio de usuario","Alta","Fallido","Intento de Re-Login con una cuenta bloqueada.");
+
+                throw new Exception("La cuenta se encuentra bloqueada. Contacte al Administrador.");
+            }
+
+            string hashIngresado = _cripto.ObtenerHashSha256(contrasenia);
+
+            if (hashIngresado != usuarioNuevo.PasswordHash)
+            {
+                _usuarioDAL.IncrementarIntentosFallidos(usuarioNuevo.IdUsuario);
+                usuarioNuevo.IntentosFallidos++;
+
+                _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario,"Re-Login","Cambio de usuario","Alta","Fallido","El usuario ingresó una contraseña incorrecta durante el Re-Login.");
+
+                if (usuarioNuevo.IntentosFallidos >= 3)
+                {
+                    _usuarioDAL.Bloquear(usuarioNuevo.IdUsuario);
+
+                    _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario,"Re-Login","Bloqueo de cuenta","Alta","Exitoso","La cuenta fue bloqueada por superar la cantidad de intentos permitidos durante el Re-Login.");
+
+                    throw new Exception("La cuenta fue bloqueada por superar la cantidad de intentos permitidos.");
+                }
+
+                throw new Exception("Las credenciales ingresadas son incorrectas.");
+            }
+
+            if (usuarioNuevo.IdUsuario == usuarioActual.IdUsuario)
+            {
+                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario,"Re-Login","Cambio de usuario","Media","Fallido","Intento de Re-Login con el mismo usuario actualmente logueado.");
+
+                throw new Exception("No puede realizar Re-Login con el mismo usuario. Debe ingresar con un usuario diferente.");
+            }
+
+            _usuarioDAL.ReiniciarIntentosFallidos(usuarioNuevo.IdUsuario);
+
+            SM.Instancia.IniciarSesion(usuarioNuevo);
+
+            _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario,"Re-Login","Cambio de usuario","Alta","Exitoso","Se reemplazó la sesión del usuario " + usuarioActual.NombreUsuario + " por " + usuarioNuevo.NombreUsuario + ".");
+
+            return usuarioNuevo;
+        }
         public void Logout()
         {
             if (!SM.Instancia.HaySesionActiva())

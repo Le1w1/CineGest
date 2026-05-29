@@ -16,6 +16,8 @@ namespace UI
     {
         private readonly UsuarioBLL _usuarioBLL;
         public bool SesionCerrada { get; private set; }
+        public bool ReLoginExitoso { get; private set; }
+
         public frmSesion()
         {
             InitializeComponent();
@@ -24,7 +26,7 @@ namespace UI
 
         private void btnCerrarSesion_Click(object sender, EventArgs e)
         {
-            DialogResult respuesta = MessageBox.Show("¿Desea cerrar la sesión actual?","Cerrar sesión",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show("¿Desea cerrar la sesión actual?", "Cerrar sesión", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (respuesta == DialogResult.Yes)
             {
@@ -37,7 +39,7 @@ namespace UI
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "CineGest", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }   
+                }
             }
         }
 
@@ -50,6 +52,24 @@ namespace UI
         private void btnVolver_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void btnReLogin_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                _usuarioBLL.ReLogin(txtEmail.Text,txtContraseña.Text);
+
+                ReLoginExitoso = true;
+
+                MessageBox.Show("Re-Login realizado correctamente.","Re-Login",MessageBoxButtons.OK,MessageBoxIcon.Information);
+
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message,"Re-Login",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+            }
         }
     }
 }
