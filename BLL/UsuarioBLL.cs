@@ -119,6 +119,19 @@ namespace BLL
             return nuevoEstado;
         }
 
+        public void DesbloquearUsuario(Usuario usuarioSeleccionado)
+        {
+            if (usuarioSeleccionado == null) throw new Exception("Debe seleccionar un usuario para desbloquear.");
+            if (!usuarioSeleccionado.Bloqueado) throw new Exception("El usuario seleccionado no se encuentra bloqueado.");
+
+
+            _usuarioDAL.DesbloquearUsuario(usuarioSeleccionado.IdUsuario);
+
+            Usuario administrador = SM.Instancia.UsuarioActual;
+
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Desbloquear Usuario", "Alta", "Exitoso", "El administrador desbloqueó el usuario: " + usuarioSeleccionado.NombreUsuario);
+        }
+
         public void CambiarClave(string claveActual, string nuevaClave, string confirmarClave)
         {
             if (!SM.Instancia.HaySesionActiva())
