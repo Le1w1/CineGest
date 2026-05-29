@@ -43,8 +43,8 @@ namespace UI
 
         private void btnCambiarClave_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Funcionalidad pendiente de implementación: Cambiar Clave.",
-            "CineGest", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            frmCambiarClave formCambiarClave = new frmCambiarClave();
+            formCambiarClave.ShowDialog();
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
