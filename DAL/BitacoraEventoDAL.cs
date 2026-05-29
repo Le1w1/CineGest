@@ -82,7 +82,7 @@ namespace DAL
                             BitacoraEvento evento = new BitacoraEvento
                             {
                                 IdEvento = Convert.ToInt32(reader["IdEvento"]),
-                                IdUsuario = reader["IdUsuario"] == DBNull.Value? 0 : Convert.ToInt32(reader["IdUsuario"])
+                                IdUsuario = reader["IdUsuario"] == DBNull.Value? 0 : Convert.ToInt32(reader["IdUsuario"]),
                                 Usuario = reader["Usuario"].ToString(),
                                 FechaHora = Convert.ToDateTime(reader["FechaHora"]),
                                 Modulo = reader["Modulo"].ToString(),
