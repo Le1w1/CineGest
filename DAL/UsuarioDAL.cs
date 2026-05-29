@@ -103,6 +103,25 @@ namespace DAL
                 }
             }
         }
+         public void ActualizarPassword(int idUsuario, string nuevoPasswordHash)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"
+                                 UPDATE Usuario
+                                 SET PasswordHash = @PasswordHash, DebeCambiarClave = 0
+                                 WHERE IdUsuario = @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.Add("@PasswordHash", SqlDbType.Char, 64).Value = nuevoPasswordHash;
+                    comando.Parameters.Add("@IdUsuario", SqlDbType.Int).Value = idUsuario;
+
+                    conexion.Open();
+                    comando.ExecuteNonQuery();
+                }
+            }
+        }
 
         public void Insertar(Usuario usuario)
         {
