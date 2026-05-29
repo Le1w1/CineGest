@@ -85,5 +85,17 @@ namespace BLL
             return usuario;
         }
     
+
+        public void Logout()
+        {
+            if (!SM.Instancia.HaySesionActiva())
+            {
+                throw new Exception("No hay una sesión activa para cerrar.");
+            }
+            Usuario usuario = SM.Instancia.UsuarioActual;
+
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Logout", "Cierre de sesión", "Baja", "Exitoso", "El usuario cerró sesión correctamente");
+            SM.Instancia.CerrarSesion(); 
+        }
     }
 }
