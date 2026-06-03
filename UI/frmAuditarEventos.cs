@@ -294,20 +294,14 @@ namespace UI
             }
         }
 
+        #region "Imprimir y Exportar a PDF"
         private void btnImprimir_Click(object sender, EventArgs e)
         {
-            List<DataGridViewRow> filas = dgvEventos.Rows
-                .Cast<DataGridViewRow>()
-                .Where(f => !f.IsNewRow)
-                .ToList();
+            List<DataGridViewRow> filas = dgvEventos.Rows.Cast<DataGridViewRow>().Where(f => !f.IsNewRow).ToList();
 
             if (filas.Count == 0)
             {
-                MessageBox.Show(
-                    "No hay eventos para exportar.",
-                    "Auditar Eventos",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show("No hay eventos para exportar.","Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Warning);
 
                 return;
             }
@@ -331,10 +325,7 @@ namespace UI
                     lblMensaje.Text = "PDF exportado correctamente.";
 
                     DialogResult respuesta = MessageBox.Show(
-                        "PDF exportado correctamente.\n¿Desea abrir el archivo?",
-                        "Auditar Eventos",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Information);
+                        "PDF exportado correctamente.\n¿Desea abrir el archivo?","Auditar Eventos",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
 
                     if (respuesta == DialogResult.Yes)
                     {
@@ -346,10 +337,7 @@ namespace UI
                 catch (Exception ex)
                 {
                     MessageBox.Show(
-                        "No se pudo exportar el PDF.\n" + ex.Message,
-                        "Auditar Eventos",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                        "No se pudo exportar el PDF.\n" + ex.Message,"Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 }
             }
 
@@ -371,10 +359,7 @@ namespace UI
 
                 documento.Open();
 
-                BaseFont baseFont = BaseFont.CreateFont(
-                    BaseFont.HELVETICA,
-                    BaseFont.CP1252,
-                    BaseFont.NOT_EMBEDDED);
+                BaseFont baseFont = BaseFont.CreateFont(BaseFont.HELVETICA,BaseFont.CP1252,BaseFont.NOT_EMBEDDED);
 
                 ITextFont fuenteTitulo = new ITextFont(baseFont, 16, ITextFont.BOLD);
                 ITextFont fuenteSubtitulo = new ITextFont(baseFont, 11, ITextFont.BOLD);
@@ -387,41 +372,23 @@ namespace UI
                 titulo.SpacingAfter = 10;
                 documento.Add(titulo);
 
-                documento.Add(new ITextParagraph(
-                    "Fecha de exportación: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
-                    fuenteNormal));
+                documento.Add(new ITextParagraph("Fecha de exportación: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),fuenteNormal));
 
-                documento.Add(new ITextParagraph(
-                    "Eventos exportados: " + dgvEventos.Rows.Cast<DataGridViewRow>().Count(f => !f.IsNewRow),
-                    fuenteNormal));
+                documento.Add(new ITextParagraph("Eventos exportados: " + dgvEventos.Rows.Cast<DataGridViewRow>().Count(f => !f.IsNewRow),fuenteNormal));
 
                 documento.Add(new ITextParagraph(" ", fuenteNormal));
 
                 documento.Add(new ITextParagraph("Filtros aplicados", fuenteSubtitulo));
 
-                documento.Add(new ITextParagraph(
-                    "Fecha desde: " + DtpFechaDesde.Value.ToString("dd/MM/yyyy") +
-                    " | Fecha hasta: " + dtpFechaHasta.Value.ToString("dd/MM/yyyy"),
-                    fuenteNormal));
+                documento.Add(new ITextParagraph("Fecha desde: " + DtpFechaDesde.Value.ToString("dd/MM/yyyy") + " | Fecha hasta: " + dtpFechaHasta.Value.ToString("dd/MM/yyyy"),fuenteNormal));
 
-                documento.Add(new ITextParagraph(
-                    "Login: " + ObtenerTextoFiltro(txtUsuario.Text) +
-                    " | Módulo: " + cmbModulo.Text +
-                    " | Evento: " + cmbAccion.Text,
-                    fuenteNormal));
+                documento.Add(new ITextParagraph("Login: " + ObtenerTextoFiltro(txtUsuario.Text) + " | Módulo: " + cmbModulo.Text + " | Evento: " + cmbAccion.Text, fuenteNormal));
 
-                documento.Add(new ITextParagraph(
-                    "Criticidad: " + cmbCriticidad.Text +
-                    " | Resultado: " + cmbResultado.Text +
-                    " | Descripción: " + ObtenerTextoFiltro(txtDescripcion.Text),
-                    fuenteNormal));
+                documento.Add(new ITextParagraph("Criticidad: " + cmbCriticidad.Text + " | Resultado: " + cmbResultado.Text + " | Descripción: " + ObtenerTextoFiltro(txtDescripcion.Text),fuenteNormal));
 
                 if (!string.IsNullOrWhiteSpace(txtNombre.Text) || !string.IsNullOrWhiteSpace(txtApellido.Text))
                 {
-                    documento.Add(new ITextParagraph(
-                        "Usuario seleccionado - Nombre: " + ObtenerTextoFiltro(txtNombre.Text) +
-                        " | Apellido: " + ObtenerTextoFiltro(txtApellido.Text),
-                        fuenteNormal));
+                    documento.Add(new ITextParagraph("Usuario seleccionado - Nombre: " + ObtenerTextoFiltro(txtNombre.Text) +" | Apellido: " + ObtenerTextoFiltro(txtApellido.Text),fuenteNormal));
                 }
 
                 documento.Add(new ITextParagraph(" ", fuenteNormal));
@@ -429,9 +396,7 @@ namespace UI
                 PdfPTable tabla = new PdfPTable(columnas.Count);
                 tabla.WidthPercentage = 100;
 
-                float[] anchos = columnas
-                    .Select(c => (float)Math.Max(c.Width, 60))
-                    .ToArray();
+                float[] anchos = columnas.Select(c => (float)Math.Max(c.Width, 60)).ToArray();
 
                 tabla.SetWidths(anchos);
 
@@ -515,5 +480,6 @@ namespace UI
 
             return valor.Trim();
         }
+        #endregion
     }
 }
