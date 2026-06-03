@@ -25,5 +25,17 @@ namespace Servicios
         public string Resultado { get; set; }
 
         public string Descripcion { get; set; }
+
+        public string Fecha
+        {
+            get { return FechaHora.ToString("dd/MM/yyyy"); }
+        }
+
+        public string Hora
+        {
+            get { return FechaHora.ToString("HH:mm:ss"); }
+        }
+        public string Nombre { get; set; }
+        public string Apellido { get; set; }
     }
 }

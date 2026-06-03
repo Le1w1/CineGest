@@ -34,21 +34,39 @@ namespace BLL
             _bitacoraEventoDAL.Registrar(evento);
         }
         
-        public List<BitacoraEvento> ObtenerEventos(DateTime fechaDesde,DateTime fechaHasta,string usuario,string modulo,string criticidad,string resultado)
+        public List<BitacoraEvento> ObtenerEventos(DateTime fechaDesde,
+    DateTime fechaHasta,
+    string usuario,
+    string modulo,
+    string accion,
+    string criticidad,
+    string resultado,
+    string descripcion)
         {
-            if (fechaDesde.Date > fechaHasta.Date)throw new Exception("La fecha desde no puede ser mayor a la fecha hasta.");
+            if (fechaDesde.Date > fechaHasta.Date)
+            {
+                throw new Exception("La fecha desde no puede ser mayor a la fecha hasta.");
+            }
 
-            DateTime fechaDesdeConsulta = fechaDesde.Date;
-            DateTime fechaHastaConsulta = fechaHasta.Date.AddDays(1);
+            usuario = (usuario ?? string.Empty).Trim();
+            modulo = (modulo ?? string.Empty).Trim();
+            accion = (accion ?? string.Empty).Trim();
+            criticidad = (criticidad ?? string.Empty).Trim();
+            resultado = (resultado ?? string.Empty).Trim();
+            descripcion = (descripcion ?? string.Empty).Trim();
 
-            if (usuario == null) usuario = string.Empty;
-
-            usuario = usuario.Trim();
-
-            return _bitacoraEventoDAL.ObtenerEventos(fechaDesdeConsulta,fechaHastaConsulta,usuario,modulo,criticidad,resultado);
+            return _bitacoraEventoDAL.ObtenerEventos(
+                fechaDesde,
+                fechaHasta,
+                usuario,
+                modulo,
+                accion,
+                criticidad,
+                resultado,
+                descripcion);
         }
 
 
-       
+
     }
 }

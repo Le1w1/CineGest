@@ -15,11 +15,18 @@ namespace UI
     public partial class frmAuditarEventos : Form
     {
         private readonly BitacoraEventoBLL _bitacoraEventoBLL;
+        private readonly UsuarioBLL _usuarioBLL;
 
         public frmAuditarEventos()
         {
             InitializeComponent();
             _bitacoraEventoBLL = new BitacoraEventoBLL();
+            _usuarioBLL = new UsuarioBLL();
+        }
+
+        private void dgvEventos_SelectionChanged(object sender, EventArgs e)
+        {
+            CargarNombreApellidoDesdeEventoSeleccionado();
         }
 
         private void btnBuscar_Click(object sender, EventArgs e)
@@ -30,13 +37,21 @@ namespace UI
         private void btnLimpiar_Click(object sender, EventArgs e)
         {
             txtUsuario.Clear();
+            txtNombre.Clear();
+            txtApellido.Clear();
+            txtDescripcion.Clear();
+
+            DtpFechaDesde.Value = DateTime.Today.AddDays(-3);
+            dtpFechaHasta.Value = DateTime.Today;
 
             cmbModulo.SelectedIndex = 0;
+            cmbAccion.SelectedIndex = 0;
             cmbCriticidad.SelectedIndex = 0;
             cmbResultado.SelectedIndex = 0;
 
             lblMensaje.Text = string.Empty;
-            dgvEventos.DataSource = null;
+
+            BuscarEventos();
         }
 
         private void btnVolver_Click(object sender, EventArgs e)
@@ -48,27 +63,68 @@ namespace UI
         {
             ConfigurarCombos();
             ConfigurarEstadoInicial();
+            BuscarEventos();
+        }
+
+        private void CargarDatosUsuario()
+        {
+            txtNombre.Clear();
+            txtApellido.Clear();
+
+            string login = txtUsuario.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(login))
+            {
+                return;
+            }
+
+            Usuario usuario = _usuarioBLL.BuscarPorNombreUsuario(login);
+
+            if (usuario == null)
+            {
+                return;
+            }
+
+            txtNombre.Text = usuario.Nombre;
+            txtApellido.Text = usuario.Apellido;
         }
         #region "Confiracion de Estados y Combos"
         private void ConfigurarEstadoInicial()
         {
-            DtpFechaDesde.Value = DateTime.Today;
+
+            DtpFechaDesde.Value = DateTime.Today.AddDays(-3);
             dtpFechaHasta.Value = DateTime.Today;
+
+            txtNombre.Clear();
+            txtApellido.Clear();
+
+            txtNombre.ReadOnly = true;
+            txtApellido.ReadOnly = true;
 
             lblMensaje.Text = string.Empty;
 
             dgvEventos.DataSource = null;
             dgvEventos.ClearSelection();
         }
+
         private void ConfigurarCombos()
         {
             cmbModulo.Items.Clear();
             cmbModulo.Items.Add("Todos");
-            cmbModulo.Items.Add("Login");
-            cmbModulo.Items.Add("Logout");
-            cmbModulo.Items.Add("Administrador");
-            cmbModulo.Items.Add("Bitácora");
+            cmbModulo.Items.Add("Usuarios");
+            cmbModulo.Items.Add("Perfiles");
             cmbModulo.SelectedIndex = 0;
+
+            cmbAccion.Items.Clear();
+            cmbAccion.Items.Add("Todos");
+            cmbAccion.Items.Add("Inicio de sesión");
+            cmbAccion.Items.Add("Cierre de sesión");
+            cmbAccion.Items.Add("Crear Usuario");
+            cmbAccion.Items.Add("Modificar Usuario");
+            cmbAccion.Items.Add("Activar Usuario");
+            cmbAccion.Items.Add("Desactivar Usuario");
+            cmbAccion.Items.Add("Desbloquear Usuario");
+            cmbAccion.SelectedIndex = 0;
 
             cmbCriticidad.Items.Clear();
             cmbCriticidad.Items.Add("Todas");
@@ -91,41 +147,95 @@ namespace UI
             {
                 lblMensaje.Text = string.Empty;
 
-                DateTime fechaDesde = DtpFechaDesde.Value;
-                DateTime fechaHasta = dtpFechaHasta.Value;
+                DateTime fechaDesde = DtpFechaDesde.Value.Date;
+                DateTime fechaHasta = dtpFechaHasta.Value.Date;
+
                 string usuario = txtUsuario.Text.Trim();
                 string modulo = cmbModulo.SelectedItem.ToString();
+                string accion = cmbAccion.SelectedItem.ToString();
                 string criticidad = cmbCriticidad.SelectedItem.ToString();
                 string resultado = cmbResultado.SelectedItem.ToString();
+                string descripcion = txtDescripcion.Text.Trim();
 
-                List<BitacoraEvento> eventos = _bitacoraEventoBLL.ObtenerEventos(fechaDesde,fechaHasta,usuario,modulo,criticidad,resultado);
+                List<BitacoraEvento> eventos = _bitacoraEventoBLL.ObtenerEventos(
+                    fechaDesde,
+                    fechaHasta,
+                    usuario,
+                    modulo,
+                    accion,
+                    criticidad,
+                    resultado,
+                    descripcion);
 
                 dgvEventos.DataSource = null;
                 dgvEventos.DataSource = eventos;
 
                 ConfigurarColumnasGrilla();
 
-                if (eventos.Count == 0)
+                if (eventos.Count > 0)
                 {
-                    lblMensaje.Text = "No se encontraron eventos con los filtros ingresados.";
+                    dgvEventos.ClearSelection();
+                    dgvEventos.Rows[0].Selected = true;
+                    dgvEventos.CurrentCell = dgvEventos.Rows[0].Cells["Usuario"];
+
+                    CargarNombreApellidoDesdeEventoSeleccionado();
                 }
                 else
                 {
-                    lblMensaje.Text = "Eventos encontrados: " + eventos.Count;
+                    txtNombre.Clear();
+                    txtApellido.Clear();
                 }
+
+                lblMensaje.Text = eventos.Count == 0
+                    ? "No se encontraron eventos con los filtros ingresados."
+                    : "Eventos encontrados: " + eventos.Count;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message,"CineGest",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    ex.Message,
+                    "CineGest",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
             }
+        }
+        private void CargarNombreApellidoDesdeEventoSeleccionado()
+        {
+            txtNombre.Clear();
+            txtApellido.Clear();
+
+            if (dgvEventos.CurrentRow == null)
+            {
+                return;
+            }
+
+            BitacoraEvento evento = dgvEventos.CurrentRow.DataBoundItem as BitacoraEvento;
+
+            if (evento == null)
+            {
+                return;
+            }
+
+            txtNombre.Text = evento.Nombre;
+            txtApellido.Text = evento.Apellido;
         }
 
         private void ConfigurarColumnasGrilla()
         {
+            dgvEventos.ReadOnly = true;
+            dgvEventos.AllowUserToAddRows = false;
+            dgvEventos.AllowUserToDeleteRows = false;
+            dgvEventos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvEventos.MultiSelect = false;
+            dgvEventos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+
+            int orden = 0;
+
             if (dgvEventos.Columns.Contains("IdEvento"))
             {
                 dgvEventos.Columns["IdEvento"].HeaderText = "ID";
                 dgvEventos.Columns["IdEvento"].Width = 50;
+                dgvEventos.Columns["IdEvento"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("IdUsuario"))
@@ -133,43 +243,85 @@ namespace UI
                 dgvEventos.Columns["IdUsuario"].Visible = false;
             }
 
-            if (dgvEventos.Columns.Contains("FechaHora"))
-            {
-                dgvEventos.Columns["FechaHora"].HeaderText = "Fecha / Hora";
-                dgvEventos.Columns["FechaHora"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
-            }
-
             if (dgvEventos.Columns.Contains("Usuario"))
             {
-                dgvEventos.Columns["Usuario"].HeaderText = "Usuario";
+                dgvEventos.Columns["Usuario"].HeaderText = "Login";
+                dgvEventos.Columns["Usuario"].Width = 110;
+                dgvEventos.Columns["Usuario"].DisplayIndex = orden++;
+            }
+
+            if (dgvEventos.Columns.Contains("Nombre"))
+            {
+                dgvEventos.Columns["Nombre"].Visible = false;
+            }
+
+            if (dgvEventos.Columns.Contains("Apellido"))
+            {
+                dgvEventos.Columns["Apellido"].Visible = false;
+            }
+
+            if (dgvEventos.Columns.Contains("FechaHora"))
+            {
+                dgvEventos.Columns["FechaHora"].Visible = false;
+            }
+
+            if (dgvEventos.Columns.Contains("Fecha"))
+            {
+                dgvEventos.Columns["Fecha"].HeaderText = "Fecha";
+                dgvEventos.Columns["Fecha"].Width = 100;
+                dgvEventos.Columns["Fecha"].DisplayIndex = orden++;
+            }
+
+            if (dgvEventos.Columns.Contains("Hora"))
+            {
+                dgvEventos.Columns["Hora"].HeaderText = "Hora";
+                dgvEventos.Columns["Hora"].Width = 90;
+                dgvEventos.Columns["Hora"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Modulo"))
             {
                 dgvEventos.Columns["Modulo"].HeaderText = "Módulo";
+                dgvEventos.Columns["Modulo"].Width = 120;
+                dgvEventos.Columns["Modulo"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Accion"))
             {
-                dgvEventos.Columns["Accion"].HeaderText = "Acción";
+                dgvEventos.Columns["Accion"].HeaderText = "Evento";
+                dgvEventos.Columns["Accion"].Width = 150;
+                dgvEventos.Columns["Accion"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Criticidad"))
             {
                 dgvEventos.Columns["Criticidad"].HeaderText = "Criticidad";
+                dgvEventos.Columns["Criticidad"].Width = 100;
+                dgvEventos.Columns["Criticidad"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Resultado"))
             {
                 dgvEventos.Columns["Resultado"].HeaderText = "Resultado";
+                dgvEventos.Columns["Resultado"].Width = 100;
+                dgvEventos.Columns["Resultado"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Descripcion"))
             {
                 dgvEventos.Columns["Descripcion"].HeaderText = "Descripción";
+                dgvEventos.Columns["Descripcion"].Width = 350;
+                dgvEventos.Columns["Descripcion"].DisplayIndex = orden++;
             }
+        }
 
-            dgvEventos.ClearSelection();
+        private void btnImprimir_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+      "Funcionalidad pendiente: Imprimir auditoría de eventos.",
+      "Auditar Eventos",
+      MessageBoxButtons.OK,
+      MessageBoxIcon.Information);
         }
     }
 }

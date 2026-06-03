@@ -42,11 +42,22 @@ namespace UI
 
         private void mnuSesion_Click(object sender, EventArgs e)
         {
-            frmSesion formSesion = new frmSesion();
-            formSesion.ShowDialog();
+            
+                frmSesion formSesion = new frmSesion();
+                formSesion.ShowDialog();
 
-            if (formSesion.ReLoginExitoso)CargarDatosSesion();return;
-            if (formSesion.SesionCerrada)this.Close();
+                if (formSesion.ReLoginExitoso)
+                {
+                    CargarDatosSesion();
+                    return;
+                }
+
+                if (formSesion.SesionCerrada)
+                {
+                    this.Close();
+                    return;
+                }
+            
         }
 
         private void administradorToolStripMenuItem_Click(object sender, EventArgs e)

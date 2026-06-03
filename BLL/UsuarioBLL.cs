@@ -446,5 +446,17 @@ namespace BLL
 
             return _usuarioDAL.ListarUsuarios(filtro);
         }
+
+        public Usuario BuscarPorNombreUsuario(string nombreUsuario)
+        {
+            nombreUsuario = (nombreUsuario ?? string.Empty).Trim();
+
+            if (string.IsNullOrWhiteSpace(nombreUsuario))
+            {
+                return null;
+            }
+
+            return _usuarioDAL.BuscarPorNombreUsuario(nombreUsuario);
+        }
     }
 }
