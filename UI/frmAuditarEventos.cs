@@ -66,28 +66,7 @@ namespace UI
             BuscarEventos();
         }
 
-        private void CargarDatosUsuario()
-        {
-            txtNombre.Clear();
-            txtApellido.Clear();
-
-            string login = txtUsuario.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(login))
-            {
-                return;
-            }
-
-            Usuario usuario = _usuarioBLL.BuscarPorNombreUsuario(login);
-
-            if (usuario == null)
-            {
-                return;
-            }
-
-            txtNombre.Text = usuario.Nombre;
-            txtApellido.Text = usuario.Apellido;
-        }
+        
         #region "Confiracion de Estados y Combos"
         private void ConfigurarEstadoInicial()
         {
@@ -111,19 +90,22 @@ namespace UI
         {
             cmbModulo.Items.Clear();
             cmbModulo.Items.Add("Todos");
-            cmbModulo.Items.Add("Usuarios");
-            cmbModulo.Items.Add("Perfiles");
+            cmbModulo.Items.Add("Usuario");
+            cmbModulo.Items.Add("Administrador");
             cmbModulo.SelectedIndex = 0;
 
             cmbAccion.Items.Clear();
             cmbAccion.Items.Add("Todos");
             cmbAccion.Items.Add("Inicio de sesión");
             cmbAccion.Items.Add("Cierre de sesión");
+            cmbAccion.Items.Add("Cambio de usuario");
+            cmbAccion.Items.Add("Bloqueo de cuenta");
             cmbAccion.Items.Add("Crear Usuario");
             cmbAccion.Items.Add("Modificar Usuario");
             cmbAccion.Items.Add("Activar Usuario");
             cmbAccion.Items.Add("Desactivar Usuario");
             cmbAccion.Items.Add("Desbloquear Usuario");
+            cmbAccion.Items.Add("Cambio de clave");
             cmbAccion.SelectedIndex = 0;
 
             cmbCriticidad.Items.Clear();
@@ -157,15 +139,7 @@ namespace UI
                 string resultado = cmbResultado.SelectedItem.ToString();
                 string descripcion = txtDescripcion.Text.Trim();
 
-                List<BitacoraEvento> eventos = _bitacoraEventoBLL.ObtenerEventos(
-                    fechaDesde,
-                    fechaHasta,
-                    usuario,
-                    modulo,
-                    accion,
-                    criticidad,
-                    resultado,
-                    descripcion);
+                List<BitacoraEvento> eventos = _bitacoraEventoBLL.ObtenerEventos(fechaDesde,fechaHasta,usuario,modulo,accion,criticidad,resultado,descripcion);
 
                 dgvEventos.DataSource = null;
                 dgvEventos.DataSource = eventos;
@@ -186,17 +160,11 @@ namespace UI
                     txtApellido.Clear();
                 }
 
-                lblMensaje.Text = eventos.Count == 0
-                    ? "No se encontraron eventos con los filtros ingresados."
-                    : "Eventos encontrados: " + eventos.Count;
+                lblMensaje.Text = eventos.Count == 0 ? "No se encontraron eventos con los filtros ingresados.": "Eventos encontrados: " + eventos.Count;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    ex.Message,
-                    "CineGest",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message,"CineGest",MessageBoxButtons.OK,MessageBoxIcon.Warning);
             }
         }
         private void CargarNombreApellidoDesdeEventoSeleccionado()
@@ -233,9 +201,8 @@ namespace UI
 
             if (dgvEventos.Columns.Contains("IdEvento"))
             {
-                dgvEventos.Columns["IdEvento"].HeaderText = "ID";
-                dgvEventos.Columns["IdEvento"].Width = 50;
-                dgvEventos.Columns["IdEvento"].DisplayIndex = orden++;
+                dgvEventos.Columns["IdEvento"].Visible = false;
+
             }
 
             if (dgvEventos.Columns.Contains("IdUsuario"))
@@ -317,11 +284,7 @@ namespace UI
 
         private void btnImprimir_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-      "Funcionalidad pendiente: Imprimir auditoría de eventos.",
-      "Auditar Eventos",
-      MessageBoxButtons.OK,
-      MessageBoxIcon.Information);
+            MessageBox.Show("Funcionalidad pendiente: Imprimir auditoría de eventos.","Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Information);
         }
     }
 }

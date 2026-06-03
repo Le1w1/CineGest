@@ -58,8 +58,19 @@ namespace UI
         {
             try
             {
-                _usuarioBLL.ReLogin(txtEmail.Text,txtContraseña.Text);
+                var usuario= _usuarioBLL.ReLogin(txtEmail.Text,txtContraseña.Text);
+           
+                if (usuario.DebeCambiarClave)
+                {
+                    DialogResult respuesta = MessageBox.Show(
+                        "Está utilizando una contraseña inicial. Se recomienda cambiarla por seguridad.\n\n¿Desea cambiarla ahora?","Cambio de contraseña recomendado",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
 
+                    if (respuesta == DialogResult.Yes)
+                    {
+                        frmCambiarClave formCambiarClave = new frmCambiarClave();
+                        formCambiarClave.ShowDialog();
+                    }
+                }
                 ReLoginExitoso = true;
 
                 MessageBox.Show("Re-Login realizado correctamente.","Re-Login",MessageBoxButtons.OK,MessageBoxIcon.Information);

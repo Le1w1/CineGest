@@ -34,14 +34,7 @@ namespace BLL
             _bitacoraEventoDAL.Registrar(evento);
         }
         
-        public List<BitacoraEvento> ObtenerEventos(DateTime fechaDesde,
-    DateTime fechaHasta,
-    string usuario,
-    string modulo,
-    string accion,
-    string criticidad,
-    string resultado,
-    string descripcion)
+        public List<BitacoraEvento> ObtenerEventos(DateTime fechaDesde,DateTime fechaHasta,string usuario,string modulo,string accion,string criticidad,string resultado,string descripcion)
         {
             if (fechaDesde.Date > fechaHasta.Date)
             {
@@ -55,15 +48,7 @@ namespace BLL
             resultado = (resultado ?? string.Empty).Trim();
             descripcion = (descripcion ?? string.Empty).Trim();
 
-            return _bitacoraEventoDAL.ObtenerEventos(
-                fechaDesde,
-                fechaHasta,
-                usuario,
-                modulo,
-                accion,
-                criticidad,
-                resultado,
-                descripcion);
+            return _bitacoraEventoDAL.ObtenerEventos(fechaDesde,fechaHasta,usuario,modulo,accion,criticidad,resultado,descripcion);
         }
 
 

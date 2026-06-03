@@ -82,7 +82,7 @@ namespace BLL
             _usuarioDAL.ReiniciarIntentosFallidos(usuario.IdUsuario);
 
             SM.Instancia.IniciarSesion(usuario);
-            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario,"Login","Inicio de sesión", "Alta", "Exitoso", "El usuario inició sesión correctamente");
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario,"Usuario","Inicio de sesión", "Alta", "Exitoso", "El usuario inició sesión correctamente");
             return usuario;
         }
 
@@ -102,21 +102,21 @@ namespace BLL
 
             if (usuarioNuevo == null)
             {
-                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario,"Re-Login","Cambio de usuario","Media","Fallido","Intento de Re-Login con un email inexistente.");
+                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario, "Usuario", "Cambio de usuario","Media","Fallido","Intento de Re-Login con un email inexistente.");
 
                 throw new Exception("Las credenciales ingresadas son incorrectas.");
             }
 
             if (!usuarioNuevo.Activo)
             {
-                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario,"Re-Login","Cambio de usuario","Media","Fallido","Intento de Re-Login con una cuenta inactiva.");
+                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario, "Usuario", "Cambio de usuario","Media","Fallido","Intento de Re-Login con una cuenta inactiva.");
 
                 throw new Exception("La cuenta se encuentra inactiva. Contacte al Administrador.");
             }
 
             if (usuarioNuevo.Bloqueado)
             {
-                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario,"Re-Login","Cambio de usuario","Alta","Fallido","Intento de Re-Login con una cuenta bloqueada.");
+                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario, "Usuario", "Cambio de usuario","Alta","Fallido","Intento de Re-Login con una cuenta bloqueada.");
 
                 throw new Exception("La cuenta se encuentra bloqueada. Contacte al Administrador.");
             }
@@ -128,13 +128,13 @@ namespace BLL
                 _usuarioDAL.IncrementarIntentosFallidos(usuarioNuevo.IdUsuario);
                 usuarioNuevo.IntentosFallidos++;
 
-                _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario,"Re-Login","Cambio de usuario","Alta","Fallido","El usuario ingresó una contraseña incorrecta durante el Re-Login.");
+                _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario, "Usuario", "Cambio de usuario","Alta","Fallido","El usuario ingresó una contraseña incorrecta durante el Re-Login.");
 
                 if (usuarioNuevo.IntentosFallidos >= 3)
                 {
                     _usuarioDAL.Bloquear(usuarioNuevo.IdUsuario);
 
-                    _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario,"Re-Login","Bloqueo de cuenta","Alta","Exitoso","La cuenta fue bloqueada por superar la cantidad de intentos permitidos durante el Re-Login.");
+                    _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario, "Usuario", "Bloqueo de cuenta","Alta","Exitoso","La cuenta fue bloqueada por superar la cantidad de intentos permitidos durante el Re-Login.");
 
                     throw new Exception("La cuenta fue bloqueada por superar la cantidad de intentos permitidos.");
                 }
@@ -144,7 +144,7 @@ namespace BLL
 
             if (usuarioNuevo.IdUsuario == usuarioActual.IdUsuario)
             {
-                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario,"Re-Login","Cambio de usuario","Media","Fallido","Intento de Re-Login con el mismo usuario actualmente logueado.");
+                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario, "Usuario", "Cambio de usuario","Media","Fallido","Intento de Re-Login con el mismo usuario actualmente logueado.");
 
                 throw new Exception("No puede realizar Re-Login con el mismo usuario. Debe ingresar con un usuario diferente.");
             }
@@ -153,7 +153,7 @@ namespace BLL
 
             SM.Instancia.IniciarSesion(usuarioNuevo);
 
-            _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario,"Re-Login","Cambio de usuario","Alta","Exitoso","Se reemplazó la sesión del usuario " + usuarioActual.NombreUsuario + " por " + usuarioNuevo.NombreUsuario + ".");
+            _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario, "Usuario", "Cambio de usuario","Alta","Exitoso","Se reemplazó la sesión del usuario " + usuarioActual.NombreUsuario + " por " + usuarioNuevo.NombreUsuario + ".");
 
             return usuarioNuevo;
         }
@@ -165,7 +165,7 @@ namespace BLL
             }
             Usuario usuario = SM.Instancia.UsuarioActual;
 
-            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Logout", "Cierre de sesión", "Baja", "Exitoso", "El usuario cerró sesión correctamente");
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cierre de sesión", "Baja", "Exitoso", "El usuario cerró sesión correctamente");
             SM.Instancia.CerrarSesion(); 
         }
 
@@ -221,7 +221,7 @@ namespace BLL
 
             if (hashClaveActual != usuario.PasswordHash)
             {
-                _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Cambiar Clave", "Cambio de clave", "Alta", "Fallido", "El usuario ingresó una clave actual incorrecta.");
+                _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cambio de clave", "Alta", "Fallido", "El usuario ingresó una clave actual incorrecta.");
 
                 throw new Exception("La clave actual ingresada es incorrecta.");
             }
@@ -238,10 +238,10 @@ namespace BLL
             usuario.PasswordHash = hashNuevaClave;
             usuario.DebeCambiarClave = false;
 
-            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Cambiar Clave", "Cambio de clave", "Alta", "Exitoso", "El usuario modificó su contraseña correctamente.");
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cambio de clave", "Alta", "Exitoso", "El usuario modificó su contraseña correctamente.");
         }
 
-        public void CrearUsuario(string nombre,string apellido,string dni,string email,bool activo,bool bloqueado)
+        public void CrearUsuario(string nombre,string apellido,string dni,string email,bool activo)
         {
             nombre = (nombre ?? string.Empty).Trim();
             apellido = (apellido ?? string.Empty).Trim();
@@ -317,7 +317,7 @@ namespace BLL
                 NombreUsuario = nombreSinEspacios,
                 PasswordHash = passwordHash,
                 Activo = activo,
-                Bloqueado = bloqueado,
+                Bloqueado = false,
                 IntentosFallidos = 0,
                 DebeCambiarClave = true
             };
@@ -329,7 +329,7 @@ namespace BLL
             _bitacoraEventoBLL.Registrar(administrador.IdUsuario,administrador.NombreUsuario,"Administrador","Crear Usuario","Alta","Exitoso","El administrador creó el usuario: " + nombreSinEspacios);
         }
 
-        public void ModificarUsuario(int idUsuario,string nombre,string apellido,string dni,string email,string nombreUsuario,bool activo,bool bloqueado)
+        public void ModificarUsuario(int idUsuario,string nombre,string apellido,string dni,string email,string nombreUsuario,bool activo)
         {
             nombre = (nombre ?? string.Empty).Trim();
             apellido = (apellido ?? string.Empty).Trim();
@@ -396,7 +396,7 @@ namespace BLL
                 Email = email,
                 NombreUsuario = nombreUsuario,
                 Activo = activo,
-                Bloqueado = bloqueado
+                Bloqueado = false
             };
 
             _usuarioDAL.Modificar(usuarioModificado);

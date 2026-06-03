@@ -35,7 +35,8 @@
             rbActivos = new RadioButton();
             lblCantidadUsuarios = new Label();
             gbDatosUsuario = new GroupBox();
-            chkBloqueado = new CheckBox();
+            txtNombreUsuario = new TextBox();
+            lblNombreUsuario = new Label();
             chkActivo = new CheckBox();
             txtEmail = new TextBox();
             txtDNI = new TextBox();
@@ -54,8 +55,6 @@
             btnVolver = new Button();
             lblMensaje = new Label();
             btnAuditarBitacora = new Button();
-            txtNombreUsuario = new TextBox();
-            lblNombreUsuario = new Label();
             gbFiltros.SuspendLayout();
             gbDatosUsuario.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvUsuarios).BeginInit();
@@ -134,7 +133,6 @@
             gbDatosUsuario.BackColor = Color.LightSkyBlue;
             gbDatosUsuario.Controls.Add(txtNombreUsuario);
             gbDatosUsuario.Controls.Add(lblNombreUsuario);
-            gbDatosUsuario.Controls.Add(chkBloqueado);
             gbDatosUsuario.Controls.Add(chkActivo);
             gbDatosUsuario.Controls.Add(txtEmail);
             gbDatosUsuario.Controls.Add(txtDNI);
@@ -151,21 +149,26 @@
             gbDatosUsuario.TabStop = false;
             gbDatosUsuario.Text = "Datos del Usuario";
             // 
-            // chkBloqueado
+            // txtNombreUsuario
             // 
-            chkBloqueado.Location = new Point(444, 100);
-            chkBloqueado.Name = "chkBloqueado";
-            chkBloqueado.RightToLeft = RightToLeft.No;
-            chkBloqueado.Size = new Size(136, 23);
-            chkBloqueado.TabIndex = 12;
-            chkBloqueado.Text = "Bloqueado";
-            chkBloqueado.UseVisualStyleBackColor = true;
+            txtNombreUsuario.Location = new Point(150, 100);
+            txtNombreUsuario.Name = "txtNombreUsuario";
+            txtNombreUsuario.Size = new Size(160, 23);
+            txtNombreUsuario.TabIndex = 14;
+            // 
+            // lblNombreUsuario
+            // 
+            lblNombreUsuario.Location = new Point(20, 103);
+            lblNombreUsuario.Name = "lblNombreUsuario";
+            lblNombreUsuario.Size = new Size(120, 23);
+            lblNombreUsuario.TabIndex = 13;
+            lblNombreUsuario.Text = "Nombre de Usuario:";
             // 
             // chkActivo
             // 
             chkActivo.Checked = true;
             chkActivo.CheckState = CheckState.Checked;
-            chkActivo.Location = new Point(330, 100);
+            chkActivo.Location = new Point(430, 100);
             chkActivo.Name = "chkActivo";
             chkActivo.RightToLeft = RightToLeft.No;
             chkActivo.Size = new Size(108, 23);
@@ -329,21 +332,6 @@
             btnAuditarBitacora.UseVisualStyleBackColor = true;
             btnAuditarBitacora.Click += btnAuditarBitacora_Click;
             // 
-            // txtNombreUsuario
-            // 
-            txtNombreUsuario.Location = new Point(150, 100);
-            txtNombreUsuario.Name = "txtNombreUsuario";
-            txtNombreUsuario.Size = new Size(160, 23);
-            txtNombreUsuario.TabIndex = 14;
-            // 
-            // lblNombreUsuario
-            // 
-            lblNombreUsuario.Location = new Point(20, 103);
-            lblNombreUsuario.Name = "lblNombreUsuario";
-            lblNombreUsuario.Size = new Size(120, 23);
-            lblNombreUsuario.TabIndex = 13;
-            lblNombreUsuario.Text = "Nombre de Usuario:";
-            // 
             // frmAdministrador
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -396,7 +384,6 @@
         private TextBox txtDNI;
         private Label lblEmail;
         private Label lblDNI;
-        private CheckBox chkBloqueado;
         private CheckBox chkActivo;
         private Button btnCrearUsuario;
         private Button btnModificarUsuario;

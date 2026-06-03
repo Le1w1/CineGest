@@ -178,7 +178,6 @@ namespace UI
             txtNombreUsuario.Text = usuario.NombreUsuario;
 
             chkActivo.Checked = usuario.Activo;
-            chkBloqueado.Checked = usuario.Bloqueado;
             btnActivarDesactivarUsuario.Text = usuario.Activo? "Desactivar Usuario": "Activar Usuario";
 
             lblMensaje.Text = "Usuario seleccionado: " + usuario.NombreUsuario;
@@ -196,7 +195,6 @@ namespace UI
             txtNombreUsuario.Clear();
 
             chkActivo.Checked = true;
-            chkBloqueado.Checked = false;
             btnActivarDesactivarUsuario.Text = "Activar / Desactivar Usuario";
             lblMensaje.Text = string.Empty;
 
@@ -227,7 +225,7 @@ namespace UI
         {
             try
             {
-                _usuarioBLL.CrearUsuario(txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,chkActivo.Checked,chkBloqueado.Checked);
+                _usuarioBLL.CrearUsuario(txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,chkActivo.Checked);
                 LimpiarCampos();
                 CargarUsuarios();
                 lblMensaje.Text = "Usuario creado correctamente.";
@@ -254,7 +252,7 @@ namespace UI
 
             try
             {
-                _usuarioBLL.ModificarUsuario(_usuarioSeleccionado.IdUsuario,txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,txtNombreUsuario.Text,chkActivo.Checked,chkBloqueado.Checked);
+                _usuarioBLL.ModificarUsuario(_usuarioSeleccionado.IdUsuario,txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,txtNombreUsuario.Text,chkActivo.Checked);
 
                 CargarUsuarios();
 

@@ -114,7 +114,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(252, 149);
+            label3.Location = new Point(221, 149);
             label3.Name = "label3";
             label3.Size = new Size(70, 15);
             label3.TabIndex = 9;
@@ -123,7 +123,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(252, 114);
+            label2.Location = new Point(221, 111);
             label2.Name = "label2";
             label2.Size = new Size(39, 15);
             label2.TabIndex = 8;
@@ -131,21 +131,21 @@
             // 
             // txtEmail
             // 
-            txtEmail.Location = new Point(346, 111);
+            txtEmail.Location = new Point(305, 111);
             txtEmail.Name = "txtEmail";
-            txtEmail.Size = new Size(111, 23);
+            txtEmail.Size = new Size(152, 23);
             txtEmail.TabIndex = 7;
             // 
             // txtContraseña
             // 
-            txtContraseña.Location = new Point(346, 146);
+            txtContraseña.Location = new Point(305, 146);
             txtContraseña.Name = "txtContraseña";
-            txtContraseña.Size = new Size(111, 23);
+            txtContraseña.Size = new Size(152, 23);
             txtContraseña.TabIndex = 6;
             // 
             // btnReLogin
             // 
-            btnReLogin.Location = new Point(346, 175);
+            btnReLogin.Location = new Point(305, 175);
             btnReLogin.Name = "btnReLogin";
             btnReLogin.Size = new Size(111, 48);
             btnReLogin.TabIndex = 5;

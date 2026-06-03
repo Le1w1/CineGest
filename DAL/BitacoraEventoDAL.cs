@@ -48,14 +48,7 @@ namespace DAL
                 }
             }
         }
-        public List<BitacoraEvento> ObtenerEventos(DateTime fechaDesde,
-    DateTime fechaHasta,
-    string usuario,
-    string modulo,
-    string accion,
-    string criticidad,
-    string resultado,
-    string descripcion)
+        public List<BitacoraEvento> ObtenerEventos(DateTime fechaDesde,DateTime fechaHasta,string usuario,string modulo,string accion,string criticidad,string resultado,string descripcion)
         {
             List<BitacoraEvento> eventos = new List<BitacoraEvento>();
 
@@ -63,27 +56,14 @@ namespace DAL
             {
                 string query = @"
             SELECT
-                B.IdEvento,
-                B.IdUsuario,
-                B.Usuario,
-                B.FechaHora,
-                B.Modulo,
-                B.Accion,
-                B.Criticidad,
-                B.Resultado,
-                B.Descripcion,
-                ISNULL(U.Nombre, '') AS Nombre,
-                ISNULL(U.Apellido, '') AS Apellido
+                B.IdEvento,B.IdUsuario,B.Usuario,B.FechaHora,B.Modulo,B.Accion,B.Criticidad,B.Resultado,B.Descripcion, ISNULL(U.Nombre, '') AS Nombre, ISNULL(U.Apellido, '') AS Apellido
             FROM BitacoraEvento B
             OUTER APPLY
             (
-                SELECT TOP 1
-                    U.Nombre,
-                    U.Apellido
+                SELECT TOP 1 U.Nombre,  U.Apellido
                 FROM Usuario U
                 WHERE 
-                    U.IdUsuario = B.IdUsuario
-                    OR U.NombreUsuario = B.Usuario
+                    U.IdUsuario = B.IdUsuario OR U.NombreUsuario = B.Usuario
                 ORDER BY 
                     CASE 
                         WHEN U.IdUsuario = B.IdUsuario THEN 0

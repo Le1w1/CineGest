@@ -22,6 +22,17 @@ namespace UI
             {
                 var usuario = _usuarioBLL.Login(email, contrasenia);
 
+               
+                if (usuario.DebeCambiarClave)
+                {
+                    DialogResult respuesta = MessageBox.Show("Está utilizando una contraseña inicial. Se recomienda cambiarla por seguridad.\n\n¿Desea cambiarla ahora?","Cambio de contraseña recomendado",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
+
+                    if (respuesta == DialogResult.Yes)
+                    {
+                        frmCambiarClave formCambiarClave = new frmCambiarClave();
+                        formCambiarClave.ShowDialog();
+                    }
+                }
                 lblMensaje.Text = string.Empty;
                 frmMenuPrincipal menu = new frmMenuPrincipal();
 
