@@ -1,14 +1,26 @@
 ﻿using BLL;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Servicios;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using iTextSharp.text.pdf;
+
+using ITextDocument = iTextSharp.text.Document;
+using ITextParagraph = iTextSharp.text.Paragraph;
+using ITextFont = iTextSharp.text.Font;
+using ITextElement = iTextSharp.text.Element;
+using ITextPhrase = iTextSharp.text.Phrase;
+using ITextBaseColor = iTextSharp.text.BaseColor;
+using ITextPageSize = iTextSharp.text.PageSize;
 
 namespace UI
 {
@@ -284,7 +296,224 @@ namespace UI
 
         private void btnImprimir_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Funcionalidad pendiente: Imprimir auditoría de eventos.","Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Information);
+            List<DataGridViewRow> filas = dgvEventos.Rows
+                .Cast<DataGridViewRow>()
+                .Where(f => !f.IsNewRow)
+                .ToList();
+
+            if (filas.Count == 0)
+            {
+                MessageBox.Show(
+                    "No hay eventos para exportar.",
+                    "Auditar Eventos",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+
+                return;
+            }
+
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.Title = "Exportar auditoría de eventos";
+                saveFileDialog.Filter = "Archivo PDF (*.pdf)|*.pdf";
+                saveFileDialog.FileName = "AuditoriaEventos_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".pdf";
+                saveFileDialog.DefaultExt = "pdf";
+
+                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+
+                try
+                {
+                    ExportarEventosAPdf(saveFileDialog.FileName);
+
+                    lblMensaje.Text = "PDF exportado correctamente.";
+
+                    DialogResult respuesta = MessageBox.Show(
+                        "PDF exportado correctamente.\n¿Desea abrir el archivo?",
+                        "Auditar Eventos",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Information);
+
+                    if (respuesta == DialogResult.Yes)
+                    {
+                        ProcessStartInfo proceso = new ProcessStartInfo(saveFileDialog.FileName);
+                        proceso.UseShellExecute = true;
+                        Process.Start(proceso);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "No se pudo exportar el PDF.\n" + ex.Message,
+                        "Auditar Eventos",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
+
+        }
+        private void ExportarEventosAPdf(string rutaArchivo)
+        {
+            List<DataGridViewColumn> columnas = ObtenerColumnasParaExportar();
+
+            if (columnas.Count == 0)
+            {
+                throw new Exception("No hay columnas disponibles para exportar.");
+            }
+
+            using (FileStream stream = new FileStream(rutaArchivo, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                ITextDocument documento = new ITextDocument(ITextPageSize.A4.Rotate(), 25, 25, 30, 30);
+
+                PdfWriter.GetInstance(documento, stream);
+
+                documento.Open();
+
+                BaseFont baseFont = BaseFont.CreateFont(
+                    BaseFont.HELVETICA,
+                    BaseFont.CP1252,
+                    BaseFont.NOT_EMBEDDED);
+
+                ITextFont fuenteTitulo = new ITextFont(baseFont, 16, ITextFont.BOLD);
+                ITextFont fuenteSubtitulo = new ITextFont(baseFont, 11, ITextFont.BOLD);
+                ITextFont fuenteNormal = new ITextFont(baseFont, 9, ITextFont.NORMAL);
+                ITextFont fuenteCabecera = new ITextFont(baseFont, 8, ITextFont.BOLD);
+                ITextFont fuenteCelda = new ITextFont(baseFont, 8, ITextFont.NORMAL);
+
+                ITextParagraph titulo = new ITextParagraph("CineGest - Auditoría de Eventos", fuenteTitulo);
+                titulo.Alignment = ITextElement.ALIGN_CENTER;
+                titulo.SpacingAfter = 10;
+                documento.Add(titulo);
+
+                documento.Add(new ITextParagraph(
+                    "Fecha de exportación: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                    fuenteNormal));
+
+                documento.Add(new ITextParagraph(
+                    "Eventos exportados: " + dgvEventos.Rows.Cast<DataGridViewRow>().Count(f => !f.IsNewRow),
+                    fuenteNormal));
+
+                documento.Add(new ITextParagraph(" ", fuenteNormal));
+
+                documento.Add(new ITextParagraph("Filtros aplicados", fuenteSubtitulo));
+
+                documento.Add(new ITextParagraph(
+                    "Fecha desde: " + DtpFechaDesde.Value.ToString("dd/MM/yyyy") +
+                    " | Fecha hasta: " + dtpFechaHasta.Value.ToString("dd/MM/yyyy"),
+                    fuenteNormal));
+
+                documento.Add(new ITextParagraph(
+                    "Login: " + ObtenerTextoFiltro(txtUsuario.Text) +
+                    " | Módulo: " + cmbModulo.Text +
+                    " | Evento: " + cmbAccion.Text,
+                    fuenteNormal));
+
+                documento.Add(new ITextParagraph(
+                    "Criticidad: " + cmbCriticidad.Text +
+                    " | Resultado: " + cmbResultado.Text +
+                    " | Descripción: " + ObtenerTextoFiltro(txtDescripcion.Text),
+                    fuenteNormal));
+
+                if (!string.IsNullOrWhiteSpace(txtNombre.Text) || !string.IsNullOrWhiteSpace(txtApellido.Text))
+                {
+                    documento.Add(new ITextParagraph(
+                        "Usuario seleccionado - Nombre: " + ObtenerTextoFiltro(txtNombre.Text) +
+                        " | Apellido: " + ObtenerTextoFiltro(txtApellido.Text),
+                        fuenteNormal));
+                }
+
+                documento.Add(new ITextParagraph(" ", fuenteNormal));
+
+                PdfPTable tabla = new PdfPTable(columnas.Count);
+                tabla.WidthPercentage = 100;
+
+                float[] anchos = columnas
+                    .Select(c => (float)Math.Max(c.Width, 60))
+                    .ToArray();
+
+                tabla.SetWidths(anchos);
+
+                foreach (DataGridViewColumn columna in columnas)
+                {
+                    AgregarCeldaCabecera(tabla, columna.HeaderText, fuenteCabecera);
+                }
+
+                foreach (DataGridViewRow fila in dgvEventos.Rows)
+                {
+                    if (fila.IsNewRow)
+                    {
+                        continue;
+                    }
+
+                    foreach (DataGridViewColumn columna in columnas)
+                    {
+                        string valor = ObtenerValorCelda(fila, columna.Name);
+                        AgregarCeldaDato(tabla, valor, fuenteCelda);
+                    }
+                }
+
+                documento.Add(tabla);
+
+                documento.Close();
+            }
+        }
+        private List<DataGridViewColumn> ObtenerColumnasParaExportar()
+        {
+            return dgvEventos.Columns
+                .Cast<DataGridViewColumn>()
+                .Where(c => c.Visible)
+                .Where(c => c.Name != "IdUsuario")
+                .Where(c => c.Name != "FechaHora")
+                .Where(c => c.Name != "Nombre")
+                .Where(c => c.Name != "Apellido")
+                .OrderBy(c => c.DisplayIndex)
+                .ToList();
+        }
+        private void AgregarCeldaCabecera(PdfPTable tabla, string texto, ITextFont fuente)
+        {
+            PdfPCell celda = new PdfPCell(new ITextPhrase(texto, fuente));
+            celda.BackgroundColor = ITextBaseColor.LIGHT_GRAY;
+            celda.HorizontalAlignment = ITextElement.ALIGN_CENTER;
+            celda.VerticalAlignment = ITextElement.ALIGN_MIDDLE;
+            celda.Padding = 5;
+
+            tabla.AddCell(celda);
+        }
+        private void AgregarCeldaDato(PdfPTable tabla, string texto, ITextFont fuente)
+        {
+            PdfPCell celda = new PdfPCell(new ITextPhrase(texto, fuente));
+            celda.HorizontalAlignment = ITextElement.ALIGN_LEFT;
+            celda.VerticalAlignment = ITextElement.ALIGN_TOP;
+            celda.Padding = 4;
+
+            tabla.AddCell(celda);
+        }
+        private string ObtenerValorCelda(DataGridViewRow fila, string nombreColumna)
+        {
+            if (!dgvEventos.Columns.Contains(nombreColumna))
+            {
+                return string.Empty;
+            }
+
+            object valor = fila.Cells[nombreColumna].FormattedValue;
+
+            if (valor == null)
+            {
+                return string.Empty;
+            }
+
+            return valor.ToString();
+        }
+        private string ObtenerTextoFiltro(string valor)
+        {
+            if (string.IsNullOrWhiteSpace(valor))
+            {
+                return "Todos";
+            }
+
+            return valor.Trim();
         }
     }
 }
