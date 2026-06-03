@@ -324,9 +324,7 @@ namespace UI
 
                     lblMensaje.Text = "PDF exportado correctamente.";
 
-                    DialogResult respuesta = MessageBox.Show(
-                        "PDF exportado correctamente.\n¿Desea abrir el archivo?","Auditar Eventos",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
-
+                    DialogResult respuesta = MessageBox.Show("PDF exportado correctamente.\n¿Desea abrir el archivo?","Auditar Eventos",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
                     if (respuesta == DialogResult.Yes)
                     {
                         ProcessStartInfo proceso = new ProcessStartInfo(saveFileDialog.FileName);
@@ -336,8 +334,7 @@ namespace UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        "No se pudo exportar el PDF.\n" + ex.Message,"Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    MessageBox.Show("No se pudo exportar el PDF.\n" + ex.Message,"Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 }
             }
 
