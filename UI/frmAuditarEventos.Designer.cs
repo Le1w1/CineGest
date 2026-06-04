@@ -345,6 +345,7 @@
             Controls.Add(btnBuscar);
             Controls.Add(dgvEventos);
             Controls.Add(gbFiltros);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Margin = new Padding(3, 2, 3, 2);
             MaximizeBox = false;
             MinimizeBox = false;

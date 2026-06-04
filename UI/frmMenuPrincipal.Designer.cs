@@ -172,6 +172,7 @@
             Controls.Add(pnlInicio);
             Controls.Add(statusStrip1);
             Controls.Add(menuPrincipal);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MainMenuStrip = menuPrincipal;
             Name = "frmMenuPrincipal";
             StartPosition = FormStartPosition.CenterScreen;

@@ -355,7 +355,7 @@
             Controls.Add(lblTitulo);
             Controls.Add(dgvUsuarios);
             ForeColor = SystemColors.ControlText;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "frmAdministrador";
