@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
             gbFiltros = new GroupBox();
             txtDescripcion = new TextBox();
             cmbAccion = new ComboBox();
@@ -60,15 +59,6 @@
             ((System.ComponentModel.ISupportInitialize)dgvEventos).BeginInit();
             SuspendLayout();
             // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(10, 7);
-            label1.Name = "label1";
-            label1.Size = new Size(116, 15);
-            label1.TabIndex = 0;
-            label1.Text = "Auditoria de eventos";
-            // 
             // gbFiltros
             // 
             gbFiltros.BackColor = Color.LightSkyBlue;
@@ -88,7 +78,7 @@
             gbFiltros.Controls.Add(dtpFechaHasta);
             gbFiltros.Controls.Add(DtpFechaDesde);
             gbFiltros.Controls.Add(lblFechaDesde);
-            gbFiltros.Location = new Point(77, 286);
+            gbFiltros.Location = new Point(12, 278);
             gbFiltros.Margin = new Padding(3, 2, 3, 2);
             gbFiltros.Name = "gbFiltros";
             gbFiltros.Padding = new Padding(3, 2, 3, 2);
@@ -243,21 +233,21 @@
             dgvEventos.AllowUserToAddRows = false;
             dgvEventos.AllowUserToDeleteRows = false;
             dgvEventos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvEventos.Location = new Point(102, 46);
+            dgvEventos.Location = new Point(12, 11);
             dgvEventos.Margin = new Padding(3, 2, 3, 2);
             dgvEventos.Name = "dgvEventos";
             dgvEventos.ReadOnly = true;
             dgvEventos.RowHeadersWidth = 51;
-            dgvEventos.Size = new Size(923, 176);
+            dgvEventos.Size = new Size(1013, 211);
             dgvEventos.TabIndex = 2;
             dgvEventos.SelectionChanged += dgvEventos_SelectionChanged;
             // 
             // btnBuscar
             // 
-            btnBuscar.Location = new Point(900, 271);
+            btnBuscar.Location = new Point(861, 278);
             btnBuscar.Margin = new Padding(3, 2, 3, 2);
             btnBuscar.Name = "btnBuscar";
-            btnBuscar.Size = new Size(129, 44);
+            btnBuscar.Size = new Size(128, 44);
             btnBuscar.TabIndex = 3;
             btnBuscar.Text = "Aplicar";
             btnBuscar.UseVisualStyleBackColor = true;
@@ -265,7 +255,7 @@
             // 
             // btnLimpiar
             // 
-            btnLimpiar.Location = new Point(900, 320);
+            btnLimpiar.Location = new Point(861, 334);
             btnLimpiar.Margin = new Padding(3, 2, 3, 2);
             btnLimpiar.Name = "btnLimpiar";
             btnLimpiar.Size = new Size(129, 44);
@@ -276,10 +266,10 @@
             // 
             // btnVolver
             // 
-            btnVolver.Location = new Point(10, 46);
+            btnVolver.Location = new Point(861, 449);
             btnVolver.Margin = new Padding(3, 2, 3, 2);
             btnVolver.Name = "btnVolver";
-            btnVolver.Size = new Size(84, 43);
+            btnVolver.Size = new Size(129, 43);
             btnVolver.TabIndex = 5;
             btnVolver.Text = "Salir";
             btnVolver.UseVisualStyleBackColor = true;
@@ -295,10 +285,10 @@
             // 
             // btnImprimir
             // 
-            btnImprimir.Location = new Point(902, 370);
+            btnImprimir.Location = new Point(861, 393);
             btnImprimir.Margin = new Padding(3, 2, 3, 2);
             btnImprimir.Name = "btnImprimir";
-            btnImprimir.Size = new Size(126, 42);
+            btnImprimir.Size = new Size(129, 42);
             btnImprimir.TabIndex = 7;
             btnImprimir.Text = "Imprimir";
             btnImprimir.UseVisualStyleBackColor = true;
@@ -306,24 +296,24 @@
             // 
             // txtNombre
             // 
-            txtNombre.Location = new Point(284, 247);
+            txtNombre.Location = new Point(122, 233);
             txtNombre.Margin = new Padding(3, 2, 3, 2);
             txtNombre.Name = "txtNombre";
-            txtNombre.Size = new Size(110, 23);
+            txtNombre.Size = new Size(127, 23);
             txtNombre.TabIndex = 16;
             // 
             // txtApellido
             // 
-            txtApellido.Location = new Point(520, 247);
+            txtApellido.Location = new Point(358, 233);
             txtApellido.Margin = new Padding(3, 2, 3, 2);
             txtApellido.Name = "txtApellido";
-            txtApellido.Size = new Size(110, 23);
+            txtApellido.Size = new Size(127, 23);
             txtApellido.TabIndex = 17;
             // 
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(210, 249);
+            label8.Location = new Point(48, 235);
             label8.Name = "label8";
             label8.Size = new Size(51, 15);
             label8.TabIndex = 18;
@@ -332,7 +322,7 @@
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(457, 249);
+            label9.Location = new Point(295, 235);
             label9.Name = "label9";
             label9.Size = new Size(51, 15);
             label9.TabIndex = 19;
@@ -355,10 +345,11 @@
             Controls.Add(btnBuscar);
             Controls.Add(dgvEventos);
             Controls.Add(gbFiltros);
-            Controls.Add(label1);
             Margin = new Padding(3, 2, 3, 2);
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "frmAuditarEventos";
-            Text = "frmAuditarEventos";
+            Text = "Auditoria de Eventos";
             Load += frmAuditarEventos_Load;
             gbFiltros.ResumeLayout(false);
             gbFiltros.PerformLayout();
@@ -368,8 +359,6 @@
         }
 
         #endregion
-
-        private Label label1;
         private GroupBox gbFiltros;
         private ComboBox cmbModulo;
         private Label label4;
