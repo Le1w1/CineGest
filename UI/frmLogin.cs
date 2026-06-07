@@ -1,10 +1,12 @@
 using BLL;
+using Servicios;
 
 namespace UI
 {
     public partial class frmLogin : Form
     {
         private readonly UsuarioBLL _usuarioBLL;
+
         public frmLogin()
         {
             InitializeComponent();
@@ -20,6 +22,10 @@ namespace UI
 
             try
             {
+                if (SM.Instancia.HaySesionActiva())
+                {
+                    throw new Exception("Ya existe una sesión activa en el sistema. No se puede iniciar otra sesión.");
+                }
                 var usuario = _usuarioBLL.Login(email, contrasenia);
 
                

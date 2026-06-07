@@ -88,74 +88,48 @@ namespace BLL
 
         public Usuario ReLogin(string email, string contrasenia)
         {
-            if (!SM.Instancia.HaySesionActiva())throw new Exception("No hay una sesión activa para realizar Re-Login.");
+            if (string.IsNullOrWhiteSpace(email))
+                throw new Exception("Debe ingresar Email.");
 
-            if (string.IsNullOrWhiteSpace(email)) throw new Exception("Debe ingresar Email.");
-
-            if (string.IsNullOrWhiteSpace(contrasenia))throw new Exception("Debe ingresar Contraseña.");
-
-            Usuario usuarioActual = SM.Instancia.UsuarioActual;
+            if (string.IsNullOrWhiteSpace(contrasenia))
+                throw new Exception("Debe ingresar Contraseña.");
 
             email = email.Trim().ToLower();
 
-            Usuario usuarioNuevo = _usuarioDAL.BuscarPorEmail(email);
+            Usuario usuario = _usuarioDAL.BuscarPorEmail(email);
 
-            if (usuarioNuevo == null)
-            {
-                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario, "Usuario", "Cambio de usuario","Media","Fallido","Intento de Re-Login con un email inexistente.");
-
+            if (usuario == null)
                 throw new Exception("Las credenciales ingresadas son incorrectas.");
-            }
 
-            if (!usuarioNuevo.Activo)
-            {
-                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario, "Usuario", "Cambio de usuario","Media","Fallido","Intento de Re-Login con una cuenta inactiva.");
-
+            if (!usuario.Activo)
                 throw new Exception("La cuenta se encuentra inactiva. Contacte al Administrador.");
-            }
 
-            if (usuarioNuevo.Bloqueado)
-            {
-                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario, "Usuario", "Cambio de usuario","Alta","Fallido","Intento de Re-Login con una cuenta bloqueada.");
-
+            if (usuario.Bloqueado)
                 throw new Exception("La cuenta se encuentra bloqueada. Contacte al Administrador.");
-            }
 
             string hashIngresado = _cripto.ObtenerHashSha256(contrasenia);
 
-            if (hashIngresado != usuarioNuevo.PasswordHash)
-            {
-                _usuarioDAL.IncrementarIntentosFallidos(usuarioNuevo.IdUsuario);
-                usuarioNuevo.IntentosFallidos++;
-
-                _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario, "Usuario", "Cambio de usuario","Alta","Fallido","El usuario ingresó una contraseña incorrecta durante el Re-Login.");
-
-                if (usuarioNuevo.IntentosFallidos >= 3)
-                {
-                    _usuarioDAL.Bloquear(usuarioNuevo.IdUsuario);
-
-                    _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario, "Usuario", "Bloqueo de cuenta","Alta","Exitoso","La cuenta fue bloqueada por superar la cantidad de intentos permitidos durante el Re-Login.");
-
-                    throw new Exception("La cuenta fue bloqueada por superar la cantidad de intentos permitidos.");
-                }
-
+            if (hashIngresado != usuario.PasswordHash)
                 throw new Exception("Las credenciales ingresadas son incorrectas.");
-            }
 
-            if (usuarioNuevo.IdUsuario == usuarioActual.IdUsuario)
+            if (SM.Instancia.HaySesionActiva())
             {
-                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario, "Usuario", "Cambio de usuario","Media","Fallido","Intento de Re-Login con el mismo usuario actualmente logueado.");
+                Usuario usuarioActual = SM.Instancia.UsuarioActual;
 
-                throw new Exception("No puede realizar Re-Login con el mismo usuario. Debe ingresar con un usuario diferente.");
+                _bitacoraEventoBLL.Registrar(
+                    usuarioActual.IdUsuario,
+                    usuarioActual.NombreUsuario,
+                    "Usuario",
+                    "Re-Login",
+                    "Media",
+                    "Fallido",
+                    "Intento de Re-Login rechazado porque ya existe una sesión activa."
+                );
+
+                throw new Exception("Credenciales válidas, pero ya existe una sesión activa. No se puede iniciar otra sesión.");
             }
 
-            _usuarioDAL.ReiniciarIntentosFallidos(usuarioNuevo.IdUsuario);
-
-            SM.Instancia.IniciarSesion(usuarioNuevo);
-
-            _bitacoraEventoBLL.Registrar(usuarioNuevo.IdUsuario,usuarioNuevo.NombreUsuario, "Usuario", "Cambio de usuario","Alta","Exitoso","Se reemplazó la sesión del usuario " + usuarioActual.NombreUsuario + " por " + usuarioNuevo.NombreUsuario + ".");
-
-            return usuarioNuevo;
+            return usuario;
         }
         public void Logout()
         {

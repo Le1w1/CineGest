@@ -338,11 +338,7 @@ namespace UI
             }
         }
 
-        private void btnAuditarBitacora_Click(object sender, EventArgs e)
-        {
-            frmAuditarEventos formAuditarEventos = new frmAuditarEventos();
-            formAuditarEventos.ShowDialog();
-        }
+   
 
         private void btnVolver_Click_1(object sender, EventArgs e)
         {
