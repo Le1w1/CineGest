@@ -156,6 +156,7 @@ namespace UI
             if (((RadioButton)sender).Checked)
             {
                 CargarUsuarios();
+                LimpiarCampos();
             }
         }
         #endregion

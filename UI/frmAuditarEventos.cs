@@ -110,7 +110,7 @@ namespace UI
             cmbAccion.Items.Add("Todos");
             cmbAccion.Items.Add("Inicio de sesión");
             cmbAccion.Items.Add("Cierre de sesión");
-            cmbAccion.Items.Add("Cambio de usuario");
+            cmbAccion.Items.Add("Re-Login");
             cmbAccion.Items.Add("Bloqueo de cuenta");
             cmbAccion.Items.Add("Crear Usuario");
             cmbAccion.Items.Add("Modificar Usuario");

@@ -6,11 +6,12 @@ namespace UI
     public partial class frmLogin : Form
     {
         private readonly UsuarioBLL _usuarioBLL;
-
-        public frmLogin()
+        private bool _esReLogin = false;
+        public frmLogin(bool esReLogin = false)
         {
             InitializeComponent();
             _usuarioBLL = new UsuarioBLL();
+            _esReLogin = esReLogin;
         }
 
         private void btnIngresar_Click(object sender, EventArgs e)
@@ -22,13 +23,14 @@ namespace UI
 
             try
             {
-                if (SM.Instancia.HaySesionActiva())
+                if (_esReLogin)
                 {
-                    throw new Exception("Ya existe una sesión activa en el sistema. No se puede iniciar otra sesión.");
+                    _usuarioBLL.ReLogin(email, contrasenia);
+                    return;
                 }
+
                 var usuario = _usuarioBLL.Login(email, contrasenia);
 
-               
                 if (usuario.DebeCambiarClave)
                 {
                     DialogResult respuesta = MessageBox.Show("Está utilizando una contraseña inicial. Se recomienda cambiarla por seguridad.\n\n¿Desea cambiarla ahora?","Cambio de contraseña recomendado",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
@@ -56,6 +58,7 @@ namespace UI
             }
         }
 
+        
         private void btnSalir_Click(object sender, EventArgs e)
         {
             DialogResult respuesta = MessageBox.Show("¿Desea salir del sistema?","Salir",MessageBoxButtons.YesNo,MessageBoxIcon.Question);

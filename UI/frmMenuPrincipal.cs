@@ -94,7 +94,7 @@ namespace UI
 
         private void reLoginToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            frmLogin formSesion = new frmLogin();
+            frmLogin formSesion = new frmLogin(true);
             formSesion.ShowDialog();
 
         }
