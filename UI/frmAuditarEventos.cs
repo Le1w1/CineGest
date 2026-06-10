@@ -1,6 +1,8 @@
 ﻿using BLL;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using iTextSharp.text.pdf;
+using Microsoft.Extensions.Logging;
 using Servicios;
 using System;
 using System.Collections.Generic;
@@ -12,15 +14,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using iTextSharp.text.pdf;
-
-using ITextDocument = iTextSharp.text.Document;
-using ITextParagraph = iTextSharp.text.Paragraph;
-using ITextFont = iTextSharp.text.Font;
-using ITextElement = iTextSharp.text.Element;
-using ITextPhrase = iTextSharp.text.Phrase;
 using ITextBaseColor = iTextSharp.text.BaseColor;
+using ITextDocument = iTextSharp.text.Document;
+using ITextElement = iTextSharp.text.Element;
+using ITextFont = iTextSharp.text.Font;
 using ITextPageSize = iTextSharp.text.PageSize;
+using ITextParagraph = iTextSharp.text.Paragraph;
+using ITextPhrase = iTextSharp.text.Phrase;
 
 namespace UI
 {
@@ -118,6 +118,7 @@ namespace UI
             cmbAccion.Items.Add("Desactivar Usuario");
             cmbAccion.Items.Add("Desbloquear Usuario");
             cmbAccion.Items.Add("Cambio de clave");
+            cmbAccion.Items.Add("Imprimir PDF");
             cmbAccion.SelectedIndex = 0;
 
             cmbCriticidad.Items.Clear();
@@ -301,8 +302,8 @@ namespace UI
 
             if (filas.Count == 0)
             {
+                RegistrarEventoImprimirPdf("Fallido","El usuario intentó imprimir/exportar a PDF la auditoría de eventos, pero no había eventos para exportar.");
                 MessageBox.Show("No hay eventos para exportar.","Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Warning);
-
                 return;
             }
 
@@ -313,16 +314,13 @@ namespace UI
                 saveFileDialog.FileName = "AuditoriaEventos_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".pdf";
                 saveFileDialog.DefaultExt = "pdf";
 
-                if (saveFileDialog.ShowDialog() != DialogResult.OK)
-                {
-                    return;
-                }
-
+                if (saveFileDialog.ShowDialog() != DialogResult.OK){return;}
                 try
                 {
                     ExportarEventosAPdf(saveFileDialog.FileName);
 
                     lblMensaje.Text = "PDF exportado correctamente.";
+                    RegistrarEventoImprimirPdf("Exitoso","El usuario imprimió/exportó a PDF la auditoría de eventos. Eventos exportados: " + filas.Count);
 
                     DialogResult respuesta = MessageBox.Show("PDF exportado correctamente.\n¿Desea abrir el archivo?","Auditar Eventos",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
                     if (respuesta == DialogResult.Yes)
@@ -334,10 +332,20 @@ namespace UI
                 }
                 catch (Exception ex)
                 {
+                    RegistrarEventoImprimirPdf("Fallido","No se pudo imprimir/exportar a PDF la auditoría de eventos. Error: " + ex.Message);
                     MessageBox.Show("No se pudo exportar el PDF.\n" + ex.Message,"Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 }
             }
 
+        }
+        private void RegistrarEventoImprimirPdf(string resultado, string descripcion)
+        {
+            Usuario usuarioActual = SM.Instancia.UsuarioActual;
+
+            int idUsuario = usuarioActual != null ? usuarioActual.IdUsuario : 0;
+            string nombreUsuario = usuarioActual != null ? usuarioActual.NombreUsuario : "Sistema";
+
+            _bitacoraEventoBLL.Registrar(idUsuario,nombreUsuario,"Administrador","Imprimir PDF","Media",resultado,descripcion);
         }
         private void ExportarEventosAPdf(string rutaArchivo)
         {
