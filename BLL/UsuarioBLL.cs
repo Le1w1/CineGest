@@ -178,15 +178,17 @@ namespace BLL
 
         public void CambiarClave(string claveActual, string nuevaClave, string confirmarClave)
         {
-            if (!SM.Instancia.HaySesionActiva())
-            {
-                throw new Exception("No hay una sesión activa.");
-            }
+            if (!SM.Instancia.HaySesionActiva()){throw new Exception("No hay una sesión activa.");}
 
-            if (nuevaClave != confirmarClave)
-            {
-                throw new Exception("La nueva clave y la confirmación no coinciden.");
-            }
+            if (string.IsNullOrWhiteSpace(claveActual)){throw new Exception("Debe ingresar la clave actual.");}
+
+            if (string.IsNullOrWhiteSpace(nuevaClave)){throw new Exception("Debe ingresar la nueva clave.");}
+
+            if (string.IsNullOrWhiteSpace(confirmarClave)){throw new Exception("Debe confirmar la nueva clave.");}
+
+            if (nuevaClave != confirmarClave){throw new Exception("La nueva clave y la confirmación no coinciden.");}
+
+            if (!EsClaveSegura(nuevaClave)){throw new Exception("La nueva clave debe tener al menos 8 caracteres, una letra mayúscula y un número.");}
 
             Usuario usuario = SM.Instancia.UsuarioActual;
 
@@ -194,25 +196,23 @@ namespace BLL
 
             if (hashClaveActual != usuario.PasswordHash)
             {
-                _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cambio de clave", "Alta", "Fallido", "El usuario ingresó una clave actual incorrecta.");
+                _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Usuario","Cambio de clave","Alta","Fallido","El usuario ingresó una clave actual incorrecta.");
 
                 throw new Exception("La clave actual ingresada es incorrecta.");
             }
 
             string hashNuevaClave = _cripto.ObtenerHashSha256(nuevaClave);
 
-            if (hashNuevaClave == usuario.PasswordHash)
-            {
-                throw new Exception("La nueva clave no puede ser igual a la clave actual.");
-            }
+            if (hashNuevaClave == usuario.PasswordHash){throw new Exception("La nueva clave no puede ser igual a la clave actual.");}
 
             _usuarioDAL.ActualizarPassword(usuario.IdUsuario, hashNuevaClave);
 
             usuario.PasswordHash = hashNuevaClave;
             usuario.DebeCambiarClave = false;
 
-            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cambio de clave", "Alta", "Exitoso", "El usuario modificó su contraseña correctamente.");
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Usuario","Cambio de clave","Alta","Exitoso","El usuario modificó su contraseña correctamente.");
         }
+        
 
         public void CrearUsuario(string nombre,string apellido,string dni,string email,bool activo)
         {
@@ -381,6 +381,12 @@ namespace BLL
 
 
         #region "Validaciones con REGEX"
+        private bool EsClaveSegura(string clave)
+        {
+            if (string.IsNullOrWhiteSpace(clave)){return false;}
+            string patron = @"^(?=.*[A-Z])(?=.*\d)(?!.*\s).{8,}$";
+            return Regex.IsMatch(clave, patron);
+        }
         private bool EsNombreOApellidoValido(string valor)
         {
             string patron = @"^[\p{L}\s'-]{2,50}$";

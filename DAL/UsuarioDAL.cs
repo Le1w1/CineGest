@@ -1,11 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Servicios;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DAL
 {
@@ -249,18 +245,7 @@ namespace DAL
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
                 string query = @"
-            SELECT
-                IdUsuario,
-                Nombre,
-                Apellido,
-                DNI,
-                Email,
-                NombreUsuario,
-                PasswordHash,
-                Activo,
-                Bloqueado,
-                IntentosFallidos,
-                DebeCambiarClave
+            SELECT IdUsuario,Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave
             FROM Usuario
             WHERE NombreUsuario = @NombreUsuario";
 
