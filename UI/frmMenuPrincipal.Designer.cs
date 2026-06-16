@@ -46,6 +46,7 @@
             tableLayoutPanel1 = new TableLayoutPanel();
             lblDescripcionInicio = new Label();
             lblTituloInicio = new Label();
+            gestionarPerfilToolStripMenuItem = new ToolStripMenuItem();
             menuPrincipal.SuspendLayout();
             statusStrip1.SuspendLayout();
             pnlInicio.SuspendLayout();
@@ -59,8 +60,7 @@
             menuPrincipal.Items.AddRange(new ToolStripItem[] { mnuSesion, empleadoDeBoleteríaToolStripMenuItem, gerenciaToolStripMenuItem, gerenciaToolStripMenuItem1, mnuAdministrador });
             menuPrincipal.Location = new Point(0, 0);
             menuPrincipal.Name = "menuPrincipal";
-            menuPrincipal.Padding = new Padding(7, 3, 0, 3);
-            menuPrincipal.Size = new Size(914, 30);
+            menuPrincipal.Size = new Size(800, 24);
             menuPrincipal.TabIndex = 0;
             menuPrincipal.Text = "menuStrip1";
             // 
@@ -68,66 +68,66 @@
             // 
             mnuSesion.DropDownItems.AddRange(new ToolStripItem[] { reLoginToolStripMenuItem, cambiarClaveToolStripMenuItem, cerrarSesionToolStripMenuItem });
             mnuSesion.Name = "mnuSesion";
-            mnuSesion.Size = new Size(73, 24);
+            mnuSesion.Size = new Size(59, 20);
             mnuSesion.Text = "Usuario";
             // 
             // reLoginToolStripMenuItem
             // 
             reLoginToolStripMenuItem.Name = "reLoginToolStripMenuItem";
-            reLoginToolStripMenuItem.Size = new Size(188, 26);
+            reLoginToolStripMenuItem.Size = new Size(151, 22);
             reLoginToolStripMenuItem.Text = "Re-Login";
             reLoginToolStripMenuItem.Click += reLoginToolStripMenuItem_Click;
             // 
             // cambiarClaveToolStripMenuItem
             // 
             cambiarClaveToolStripMenuItem.Name = "cambiarClaveToolStripMenuItem";
-            cambiarClaveToolStripMenuItem.Size = new Size(188, 26);
+            cambiarClaveToolStripMenuItem.Size = new Size(151, 22);
             cambiarClaveToolStripMenuItem.Text = "Cambiar Clave";
             cambiarClaveToolStripMenuItem.Click += cambiarClaveToolStripMenuItem_Click;
             // 
             // cerrarSesionToolStripMenuItem
             // 
             cerrarSesionToolStripMenuItem.Name = "cerrarSesionToolStripMenuItem";
-            cerrarSesionToolStripMenuItem.Size = new Size(188, 26);
+            cerrarSesionToolStripMenuItem.Size = new Size(151, 22);
             cerrarSesionToolStripMenuItem.Text = "Cerrar Sesion";
             cerrarSesionToolStripMenuItem.Click += cerrarSesionToolStripMenuItem_Click;
             // 
             // empleadoDeBoleteríaToolStripMenuItem
             // 
             empleadoDeBoleteríaToolStripMenuItem.Name = "empleadoDeBoleteríaToolStripMenuItem";
-            empleadoDeBoleteríaToolStripMenuItem.Size = new Size(83, 24);
+            empleadoDeBoleteríaToolStripMenuItem.Size = new Size(65, 20);
             empleadoDeBoleteríaToolStripMenuItem.Text = "Boletería";
             // 
             // gerenciaToolStripMenuItem
             // 
             gerenciaToolStripMenuItem.Name = "gerenciaToolStripMenuItem";
-            gerenciaToolStripMenuItem.Size = new Size(83, 24);
+            gerenciaToolStripMenuItem.Size = new Size(66, 20);
             gerenciaToolStripMenuItem.Text = "Cartelera";
             // 
             // gerenciaToolStripMenuItem1
             // 
             gerenciaToolStripMenuItem1.Name = "gerenciaToolStripMenuItem1";
-            gerenciaToolStripMenuItem1.Size = new Size(81, 24);
+            gerenciaToolStripMenuItem1.Size = new Size(65, 20);
             gerenciaToolStripMenuItem1.Text = "Gerencia";
             // 
             // mnuAdministrador
             // 
-            mnuAdministrador.DropDownItems.AddRange(new ToolStripItem[] { usuariosToolStripMenuItem, bitacoraEventosToolStripMenuItem });
+            mnuAdministrador.DropDownItems.AddRange(new ToolStripItem[] { usuariosToolStripMenuItem, bitacoraEventosToolStripMenuItem, gestionarPerfilToolStripMenuItem });
             mnuAdministrador.Name = "mnuAdministrador";
-            mnuAdministrador.Size = new Size(118, 24);
+            mnuAdministrador.Size = new Size(95, 20);
             mnuAdministrador.Text = "Administrador";
             // 
             // usuariosToolStripMenuItem
             // 
             usuariosToolStripMenuItem.Name = "usuariosToolStripMenuItem";
-            usuariosToolStripMenuItem.Size = new Size(224, 26);
+            usuariosToolStripMenuItem.Size = new Size(180, 22);
             usuariosToolStripMenuItem.Text = "Usuarios";
             usuariosToolStripMenuItem.Click += usuariosToolStripMenuItem_Click;
             // 
             // bitacoraEventosToolStripMenuItem
             // 
             bitacoraEventosToolStripMenuItem.Name = "bitacoraEventosToolStripMenuItem";
-            bitacoraEventosToolStripMenuItem.Size = new Size(224, 26);
+            bitacoraEventosToolStripMenuItem.Size = new Size(180, 22);
             bitacoraEventosToolStripMenuItem.Text = "Bitacora Eventos";
             bitacoraEventosToolStripMenuItem.Click += bitacoraEventosToolStripMenuItem_Click;
             // 
@@ -135,10 +135,9 @@
             // 
             statusStrip1.ImageScalingSize = new Size(20, 20);
             statusStrip1.Items.AddRange(new ToolStripItem[] { lblUsuarioSesion, lblEstadoSesion });
-            statusStrip1.Location = new Point(0, 574);
+            statusStrip1.Location = new Point(0, 428);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Padding = new Padding(1, 0, 16, 0);
-            statusStrip1.Size = new Size(914, 26);
+            statusStrip1.Size = new Size(800, 22);
             statusStrip1.SizingGrip = false;
             statusStrip1.TabIndex = 1;
             statusStrip1.Text = "statusStrip1";
@@ -146,14 +145,14 @@
             // lblUsuarioSesion
             // 
             lblUsuarioSesion.Name = "lblUsuarioSesion";
-            lblUsuarioSesion.Size = new Size(62, 20);
+            lblUsuarioSesion.Size = new Size(50, 17);
             lblUsuarioSesion.Text = "Usuario:";
             lblUsuarioSesion.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // lblEstadoSesion
             // 
             lblEstadoSesion.Name = "lblEstadoSesion";
-            lblEstadoSesion.Size = new Size(835, 20);
+            lblEstadoSesion.Size = new Size(735, 17);
             lblEstadoSesion.Spring = true;
             lblEstadoSesion.Text = "Sesión activa";
             lblEstadoSesion.TextAlign = ContentAlignment.MiddleRight;
@@ -162,10 +161,9 @@
             // 
             pnlInicio.Controls.Add(tableLayoutPanel1);
             pnlInicio.Dock = DockStyle.Fill;
-            pnlInicio.Location = new Point(0, 30);
-            pnlInicio.Margin = new Padding(3, 4, 3, 4);
+            pnlInicio.Location = new Point(0, 24);
             pnlInicio.Name = "pnlInicio";
-            pnlInicio.Size = new Size(914, 544);
+            pnlInicio.Size = new Size(800, 404);
             pnlInicio.TabIndex = 2;
             // 
             // tableLayoutPanel1
@@ -177,7 +175,6 @@
             tableLayoutPanel1.Controls.Add(lblTituloInicio, 0, 1);
             tableLayoutPanel1.Dock = DockStyle.Fill;
             tableLayoutPanel1.Location = new Point(0, 0);
-            tableLayoutPanel1.Margin = new Padding(3, 4, 3, 4);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 5;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 30F));
@@ -185,16 +182,16 @@
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 8F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 35F));
-            tableLayoutPanel1.Size = new Size(914, 544);
+            tableLayoutPanel1.Size = new Size(800, 404);
             tableLayoutPanel1.TabIndex = 2;
             // 
             // lblDescripcionInicio
             // 
             lblDescripcionInicio.Dock = DockStyle.Fill;
             lblDescripcionInicio.Font = new Font("Segoe UI", 11F);
-            lblDescripcionInicio.Location = new Point(3, 244);
+            lblDescripcionInicio.Location = new Point(3, 181);
             lblDescripcionInicio.Name = "lblDescripcionInicio";
-            lblDescripcionInicio.Size = new Size(908, 43);
+            lblDescripcionInicio.Size = new Size(794, 32);
             lblDescripcionInicio.TabIndex = 1;
             lblDescripcionInicio.Text = "Seleccione un módulo desde el menú superior para comenzar.";
             lblDescripcionInicio.TextAlign = ContentAlignment.MiddleCenter;
@@ -203,24 +200,29 @@
             // 
             lblTituloInicio.Dock = DockStyle.Fill;
             lblTituloInicio.Font = new Font("Segoe UI", 22F);
-            lblTituloInicio.Location = new Point(3, 163);
+            lblTituloInicio.Location = new Point(3, 121);
             lblTituloInicio.Name = "lblTituloInicio";
-            lblTituloInicio.Size = new Size(908, 81);
+            lblTituloInicio.Size = new Size(794, 60);
             lblTituloInicio.TabIndex = 0;
             lblTituloInicio.Text = "Bienvenido a Cinegest";
             lblTituloInicio.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // gestionarPerfilToolStripMenuItem
+            // 
+            gestionarPerfilToolStripMenuItem.Name = "gestionarPerfilToolStripMenuItem";
+            gestionarPerfilToolStripMenuItem.Size = new Size(180, 22);
+            gestionarPerfilToolStripMenuItem.Text = "Gestion de Perfiles";
+            // 
             // frmMenuPrincipal
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(914, 600);
+            ClientSize = new Size(800, 450);
             Controls.Add(pnlInicio);
             Controls.Add(statusStrip1);
             Controls.Add(menuPrincipal);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MainMenuStrip = menuPrincipal;
-            Margin = new Padding(3, 4, 3, 4);
             Name = "frmMenuPrincipal";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "CineGest - Menú Principal";
@@ -256,5 +258,6 @@
         private ToolStripMenuItem cerrarSesionToolStripMenuItem;
         private ToolStripMenuItem usuariosToolStripMenuItem;
         private ToolStripMenuItem bitacoraEventosToolStripMenuItem;
+        private ToolStripMenuItem gestionarPerfilToolStripMenuItem;
     }
 }
