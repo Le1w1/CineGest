@@ -25,7 +25,7 @@
   "frmCambiarIdioma.LblIdioma": "Idioma:",
   "frmCambiarIdioma.BtnGuardar": "Guardar",
   "frmCambiarIdioma.BtnVolver": "Volver",
-  "frmCambiarIdioma.MsgCambioExitoso": "Idioma cambiado correctamente.",
+  "frmCambiarIdioma.MsgCambioExitoso": "Idioma cambiado correctamente. Se guardará al cerrar sesión.",
   "frmCambiarIdioma.MsgSeleccioneIdioma": "Debe seleccionar un idioma.",
 
   "frmLogin.Title": "CineGest - Inicio de Sesión",
@@ -190,5 +190,15 @@
   "Errores.IdiomaPorDefectoNoEncontrado": "No se encontró el idioma por defecto (ES) en la base de datos.",
 
   "Errores.DebeSeleccionarIdioma": "Debe seleccionar un idioma.",
-  "Errores.IdiomaIgualActual": "El idioma seleccionado ya es el idioma actual."
+  "Errores.IdiomaIgualActual": "El idioma seleccionado ya es el idioma actual.",
+
+  "Errores.RBAC.NombreObligatorio": "Debe ingresar un nombre.",
+  "Errores.RBAC.NombreFamiliaYaExiste": "Ya existe una Familia registrada con ese nombre.",
+  "Errores.RBAC.NombreRolYaExiste": "Ya existe un Rol registrado con ese nombre.",
+  "Errores.RBAC.ComposicionVacia": "Debe asignar al menos un Permiso o una Familia a la composición.",
+  "Errores.RBAC.FamiliaNoEncontrada": "No se encontró la Familia indicada.",
+  "Errores.RBAC.RolNoEncontrado": "No se encontró el Rol indicado.",
+  "Errores.RBAC.CicloDirecto": "Una Familia no puede contenerse a sí misma: '{0}'.",
+  "Errores.RBAC.CicloIndirecto": "Ciclo detectado: la Familia '{0}' ya contiene a la Familia '{1}'. No se puede generar un bucle.",
+  "Errores.RBAC.PermisoDuplicado": "El permiso '{0}' ya está incluido vía {1}, no puede agregarse también vía {2}."
 }

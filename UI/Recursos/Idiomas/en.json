@@ -25,7 +25,7 @@
   "frmCambiarIdioma.LblIdioma": "Language:",
   "frmCambiarIdioma.BtnGuardar": "Save",
   "frmCambiarIdioma.BtnVolver": "Back",
-  "frmCambiarIdioma.MsgCambioExitoso": "Language changed successfully.",
+  "frmCambiarIdioma.MsgCambioExitoso": "Language changed successfully. It will be saved on logout.",
   "frmCambiarIdioma.MsgSeleccioneIdioma": "You must select a language.",
 
   "frmLogin.Title": "CineGest - Login",
@@ -190,5 +190,15 @@
   "Errores.IdiomaPorDefectoNoEncontrado": "Default language (ES) was not found in the database.",
 
   "Errores.DebeSeleccionarIdioma": "You must select a language.",
-  "Errores.IdiomaIgualActual": "The selected language is already the current language."
+  "Errores.IdiomaIgualActual": "The selected language is already the current language.",
+
+  "Errores.RBAC.NombreObligatorio": "You must enter a name.",
+  "Errores.RBAC.NombreFamiliaYaExiste": "A Family with that name already exists.",
+  "Errores.RBAC.NombreRolYaExiste": "A Role with that name already exists.",
+  "Errores.RBAC.ComposicionVacia": "You must assign at least one Permission or Family to the composition.",
+  "Errores.RBAC.FamiliaNoEncontrada": "The specified Family was not found.",
+  "Errores.RBAC.RolNoEncontrado": "The specified Role was not found.",
+  "Errores.RBAC.CicloDirecto": "A Family cannot contain itself: '{0}'.",
+  "Errores.RBAC.CicloIndirecto": "Cycle detected: Family '{0}' already contains Family '{1}'. A loop cannot be created.",
+  "Errores.RBAC.PermisoDuplicado": "Permission '{0}' is already included through {1}; it cannot also be added through {2}."
 }

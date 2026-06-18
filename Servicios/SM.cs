@@ -13,11 +13,14 @@ namespace Servicios
 
         private Idioma _idiomaInicial;
         private Idioma _idiomaActual;
+
         private List<IObservadorIdioma> _observadores;
+        private List<Rol> _rolesUsuario;
 
         private SM()
         {
             _observadores = new List<IObservadorIdioma>();
+            _rolesUsuario = new List<Rol>();
         }
 
         public static SM Instancia
@@ -32,13 +35,20 @@ namespace Servicios
         #region "Sesion de usuario"
 
         public Usuario UsuarioActual { get { return _usuarioActual; } }
+
         public bool HaySesionActiva() { return _usuarioActual != null; }
+
         public void IniciarSesion(Usuario usuario) => _usuarioActual = usuario;
 
-     
+        /// <summary>
+        /// Limpia el estado de la sesion (usuario + idioma).
+        /// </summary>
         public void CerrarSesion()
         {
-            _usuarioActual = null; _idiomaInicial = null; _idiomaActual = null;
+            _usuarioActual = null;
+            _idiomaInicial = null;
+            _idiomaActual = null;
+            _rolesUsuario = new List<Rol>();
         }
 
         #endregion
@@ -48,9 +58,6 @@ namespace Servicios
         public Idioma IdiomaActual { get { return _idiomaActual; } }
         public Idioma IdiomaInicial { get { return _idiomaInicial; } }
 
-        /// Fija el idioma con el que el usuario inicio sesion.
-        /// Se llama UNA SOLA VEZ desde el Login (BLL) despues de IniciarSesion.
-        /// Carga el JSON pero NO notifica observadores (todavia no hay forms abiertos).
        
         public void EstablecerIdiomaInicial(Idioma idioma)
         {
@@ -62,19 +69,19 @@ namespace Servicios
             Traductor.Instancia.CargarIdioma(idioma.Codigo);
         }
 
-        /// Cambia el idioma EN MEMORIA. No persiste en BD.
-        /// La persistencia ocurre al Logout, comparando con el IdiomaInicial.
+       
         public void CambiarIdioma(Idioma idioma)
         {
             if (idioma == null) throw new Exception("Debe indicar un idioma valido.");
+
             _idiomaActual = idioma;
 
             Traductor.Instancia.CargarIdioma(idioma.Codigo);
+
             NotificarCambioIdioma();
         }
 
-        /// Devuelve true si el idioma actual difiere del inicial.
-        /// Lo usa el Logout para decidir si hay que escribir BD.
+        
         public bool RequierePersistirIdioma()
         {
             if (_idiomaActual == null || _idiomaInicial == null) return false;
@@ -92,6 +99,37 @@ namespace Servicios
             if (observador == null) return;
             _observadores.Remove(observador);
         }
+
+        #endregion
+
+        #region "Roles y permisos del usuario logueado"
+
+        public List<Rol> RolesUsuario { get { return _rolesUsuario; } }
+
+       
+        public void EstablecerRolesUsuario(List<Rol> roles)
+        {
+            _rolesUsuario = roles ?? new List<Rol>();
+        }
+
+      
+        public bool TienePermiso(string codigo)
+        {
+            if (string.IsNullOrWhiteSpace(codigo)) return false;
+            if (_rolesUsuario == null) return false;
+
+            foreach (Rol rol in _rolesUsuario)
+            {
+                if (rol == null) continue;
+                if (rol.TienePermiso(codigo)) return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region "Notificacion de cambio de idioma"
 
         private void NotificarCambioIdioma()
         {
@@ -113,4 +151,3 @@ namespace Servicios
         #endregion
     }
 }
-
