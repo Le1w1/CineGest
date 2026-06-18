@@ -19,6 +19,7 @@ namespace Servicios
         public bool Bloqueado { get; set; }
         public int IntentosFallidos { get; set; }
         public bool DebeCambiarClave { get; set; }
+        public int IdIdioma { get; set; }
 
 
     }

@@ -32,6 +32,7 @@
             mnuSesion = new ToolStripMenuItem();
             reLoginToolStripMenuItem = new ToolStripMenuItem();
             cambiarClaveToolStripMenuItem = new ToolStripMenuItem();
+            cambiarIdiomaToolStripMenuItem = new ToolStripMenuItem();
             cerrarSesionToolStripMenuItem = new ToolStripMenuItem();
             empleadoDeBoleteríaToolStripMenuItem = new ToolStripMenuItem();
             gerenciaToolStripMenuItem = new ToolStripMenuItem();
@@ -39,6 +40,7 @@
             mnuAdministrador = new ToolStripMenuItem();
             usuariosToolStripMenuItem = new ToolStripMenuItem();
             bitacoraEventosToolStripMenuItem = new ToolStripMenuItem();
+            gestionarPerfilToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             lblUsuarioSesion = new ToolStripStatusLabel();
             lblEstadoSesion = new ToolStripStatusLabel();
@@ -46,15 +48,14 @@
             tableLayoutPanel1 = new TableLayoutPanel();
             lblDescripcionInicio = new Label();
             lblTituloInicio = new Label();
-            gestionarPerfilToolStripMenuItem = new ToolStripMenuItem();
             menuPrincipal.SuspendLayout();
             statusStrip1.SuspendLayout();
             pnlInicio.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
-            // 
+            //
             // menuPrincipal
-            // 
+            //
             menuPrincipal.BackColor = Color.LightSkyBlue;
             menuPrincipal.ImageScalingSize = new Size(20, 20);
             menuPrincipal.Items.AddRange(new ToolStripItem[] { mnuSesion, empleadoDeBoleteríaToolStripMenuItem, gerenciaToolStripMenuItem, gerenciaToolStripMenuItem1, mnuAdministrador });
@@ -63,76 +64,89 @@
             menuPrincipal.Size = new Size(800, 24);
             menuPrincipal.TabIndex = 0;
             menuPrincipal.Text = "menuStrip1";
-            // 
+            //
             // mnuSesion
-            // 
-            mnuSesion.DropDownItems.AddRange(new ToolStripItem[] { reLoginToolStripMenuItem, cambiarClaveToolStripMenuItem, cerrarSesionToolStripMenuItem });
+            //
+            mnuSesion.DropDownItems.AddRange(new ToolStripItem[] { reLoginToolStripMenuItem, cambiarClaveToolStripMenuItem, cambiarIdiomaToolStripMenuItem, cerrarSesionToolStripMenuItem });
             mnuSesion.Name = "mnuSesion";
             mnuSesion.Size = new Size(59, 20);
             mnuSesion.Text = "Usuario";
-            // 
+            //
             // reLoginToolStripMenuItem
-            // 
+            //
             reLoginToolStripMenuItem.Name = "reLoginToolStripMenuItem";
-            reLoginToolStripMenuItem.Size = new Size(151, 22);
+            reLoginToolStripMenuItem.Size = new Size(180, 22);
             reLoginToolStripMenuItem.Text = "Re-Login";
             reLoginToolStripMenuItem.Click += reLoginToolStripMenuItem_Click;
-            // 
+            //
             // cambiarClaveToolStripMenuItem
-            // 
+            //
             cambiarClaveToolStripMenuItem.Name = "cambiarClaveToolStripMenuItem";
-            cambiarClaveToolStripMenuItem.Size = new Size(151, 22);
+            cambiarClaveToolStripMenuItem.Size = new Size(180, 22);
             cambiarClaveToolStripMenuItem.Text = "Cambiar Clave";
             cambiarClaveToolStripMenuItem.Click += cambiarClaveToolStripMenuItem_Click;
-            // 
+            //
+            // cambiarIdiomaToolStripMenuItem
+            //
+            cambiarIdiomaToolStripMenuItem.Name = "cambiarIdiomaToolStripMenuItem";
+            cambiarIdiomaToolStripMenuItem.Size = new Size(180, 22);
+            cambiarIdiomaToolStripMenuItem.Text = "Cambiar Idioma";
+            cambiarIdiomaToolStripMenuItem.Click += cambiarIdiomaToolStripMenuItem_Click;
+            //
             // cerrarSesionToolStripMenuItem
-            // 
+            //
             cerrarSesionToolStripMenuItem.Name = "cerrarSesionToolStripMenuItem";
-            cerrarSesionToolStripMenuItem.Size = new Size(151, 22);
+            cerrarSesionToolStripMenuItem.Size = new Size(180, 22);
             cerrarSesionToolStripMenuItem.Text = "Cerrar Sesion";
             cerrarSesionToolStripMenuItem.Click += cerrarSesionToolStripMenuItem_Click;
-            // 
+            //
             // empleadoDeBoleteríaToolStripMenuItem
-            // 
+            //
             empleadoDeBoleteríaToolStripMenuItem.Name = "empleadoDeBoleteríaToolStripMenuItem";
             empleadoDeBoleteríaToolStripMenuItem.Size = new Size(65, 20);
             empleadoDeBoleteríaToolStripMenuItem.Text = "Boletería";
-            // 
+            //
             // gerenciaToolStripMenuItem
-            // 
+            //
             gerenciaToolStripMenuItem.Name = "gerenciaToolStripMenuItem";
             gerenciaToolStripMenuItem.Size = new Size(66, 20);
             gerenciaToolStripMenuItem.Text = "Cartelera";
-            // 
+            //
             // gerenciaToolStripMenuItem1
-            // 
+            //
             gerenciaToolStripMenuItem1.Name = "gerenciaToolStripMenuItem1";
             gerenciaToolStripMenuItem1.Size = new Size(65, 20);
             gerenciaToolStripMenuItem1.Text = "Gerencia";
-            // 
+            //
             // mnuAdministrador
-            // 
+            //
             mnuAdministrador.DropDownItems.AddRange(new ToolStripItem[] { usuariosToolStripMenuItem, bitacoraEventosToolStripMenuItem, gestionarPerfilToolStripMenuItem });
             mnuAdministrador.Name = "mnuAdministrador";
             mnuAdministrador.Size = new Size(95, 20);
             mnuAdministrador.Text = "Administrador";
-            // 
+            //
             // usuariosToolStripMenuItem
-            // 
+            //
             usuariosToolStripMenuItem.Name = "usuariosToolStripMenuItem";
             usuariosToolStripMenuItem.Size = new Size(180, 22);
             usuariosToolStripMenuItem.Text = "Usuarios";
             usuariosToolStripMenuItem.Click += usuariosToolStripMenuItem_Click;
-            // 
+            //
             // bitacoraEventosToolStripMenuItem
-            // 
+            //
             bitacoraEventosToolStripMenuItem.Name = "bitacoraEventosToolStripMenuItem";
             bitacoraEventosToolStripMenuItem.Size = new Size(180, 22);
             bitacoraEventosToolStripMenuItem.Text = "Bitacora Eventos";
             bitacoraEventosToolStripMenuItem.Click += bitacoraEventosToolStripMenuItem_Click;
-            // 
+            //
+            // gestionarPerfilToolStripMenuItem
+            //
+            gestionarPerfilToolStripMenuItem.Name = "gestionarPerfilToolStripMenuItem";
+            gestionarPerfilToolStripMenuItem.Size = new Size(180, 22);
+            gestionarPerfilToolStripMenuItem.Text = "Gestion de Perfiles";
+            //
             // statusStrip1
-            // 
+            //
             statusStrip1.ImageScalingSize = new Size(20, 20);
             statusStrip1.Items.AddRange(new ToolStripItem[] { lblUsuarioSesion, lblEstadoSesion });
             statusStrip1.Location = new Point(0, 428);
@@ -141,33 +155,33 @@
             statusStrip1.SizingGrip = false;
             statusStrip1.TabIndex = 1;
             statusStrip1.Text = "statusStrip1";
-            // 
+            //
             // lblUsuarioSesion
-            // 
+            //
             lblUsuarioSesion.Name = "lblUsuarioSesion";
             lblUsuarioSesion.Size = new Size(50, 17);
             lblUsuarioSesion.Text = "Usuario:";
             lblUsuarioSesion.TextAlign = ContentAlignment.MiddleLeft;
-            // 
+            //
             // lblEstadoSesion
-            // 
+            //
             lblEstadoSesion.Name = "lblEstadoSesion";
             lblEstadoSesion.Size = new Size(735, 17);
             lblEstadoSesion.Spring = true;
             lblEstadoSesion.Text = "Sesión activa";
             lblEstadoSesion.TextAlign = ContentAlignment.MiddleRight;
-            // 
+            //
             // pnlInicio
-            // 
+            //
             pnlInicio.Controls.Add(tableLayoutPanel1);
             pnlInicio.Dock = DockStyle.Fill;
             pnlInicio.Location = new Point(0, 24);
             pnlInicio.Name = "pnlInicio";
             pnlInicio.Size = new Size(800, 404);
             pnlInicio.TabIndex = 2;
-            // 
+            //
             // tableLayoutPanel1
-            // 
+            //
             tableLayoutPanel1.BackColor = Color.PowderBlue;
             tableLayoutPanel1.ColumnCount = 1;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -184,9 +198,9 @@
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 35F));
             tableLayoutPanel1.Size = new Size(800, 404);
             tableLayoutPanel1.TabIndex = 2;
-            // 
+            //
             // lblDescripcionInicio
-            // 
+            //
             lblDescripcionInicio.Dock = DockStyle.Fill;
             lblDescripcionInicio.Font = new Font("Segoe UI", 11F);
             lblDescripcionInicio.Location = new Point(3, 181);
@@ -195,9 +209,9 @@
             lblDescripcionInicio.TabIndex = 1;
             lblDescripcionInicio.Text = "Seleccione un módulo desde el menú superior para comenzar.";
             lblDescripcionInicio.TextAlign = ContentAlignment.MiddleCenter;
-            // 
+            //
             // lblTituloInicio
-            // 
+            //
             lblTituloInicio.Dock = DockStyle.Fill;
             lblTituloInicio.Font = new Font("Segoe UI", 22F);
             lblTituloInicio.Location = new Point(3, 121);
@@ -206,15 +220,9 @@
             lblTituloInicio.TabIndex = 0;
             lblTituloInicio.Text = "Bienvenido a Cinegest";
             lblTituloInicio.TextAlign = ContentAlignment.MiddleCenter;
-            // 
-            // gestionarPerfilToolStripMenuItem
-            // 
-            gestionarPerfilToolStripMenuItem.Name = "gestionarPerfilToolStripMenuItem";
-            gestionarPerfilToolStripMenuItem.Size = new Size(180, 22);
-            gestionarPerfilToolStripMenuItem.Text = "Gestion de Perfiles";
-            // 
+            //
             // frmMenuPrincipal
-            // 
+            //
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
@@ -228,6 +236,7 @@
             Text = "CineGest - Menú Principal";
             WindowState = FormWindowState.Maximized;
             Load += frmMenuPrincipal_Load;
+            FormClosed += frmMenuPrincipal_FormClosed;
             menuPrincipal.ResumeLayout(false);
             menuPrincipal.PerformLayout();
             statusStrip1.ResumeLayout(false);
@@ -255,6 +264,7 @@
         private TableLayoutPanel tableLayoutPanel1;
         private ToolStripMenuItem reLoginToolStripMenuItem;
         private ToolStripMenuItem cambiarClaveToolStripMenuItem;
+        private ToolStripMenuItem cambiarIdiomaToolStripMenuItem;
         private ToolStripMenuItem cerrarSesionToolStripMenuItem;
         private ToolStripMenuItem usuariosToolStripMenuItem;
         private ToolStripMenuItem bitacoraEventosToolStripMenuItem;

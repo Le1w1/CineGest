@@ -17,4 +17,13 @@
     <ProjectReference Include="..\Servicios\Servicios.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Recursos\Idiomas\en.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Recursos\Idiomas\es.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

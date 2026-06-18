@@ -1,4 +1,5 @@
 ﻿using BLL;
+using Servicios;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,7 +12,7 @@ using System.Windows.Forms;
 
 namespace UI
 {
-    public partial class frmCambiarClave : Form
+    public partial class frmCambiarClave : Form, IObservadorIdioma
     {
         private readonly UsuarioBLL _usuarioBLL;
 
@@ -19,17 +20,54 @@ namespace UI
         {
             InitializeComponent();
             _usuarioBLL = new UsuarioBLL();
+
+            // Traducir YA, antes de que el form se pinte.
+            ActualizarIdioma();
+
+            this.Load += frmCambiarClave_Load;
+            this.FormClosed += frmCambiarClave_FormClosed;
+        }
+
+        private void frmCambiarClave_Load(object sender, EventArgs e)
+        {
+            SM.Instancia.Suscribir(this);
+        }
+
+        private void frmCambiarClave_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            SM.Instancia.Desuscribir(this);
+        }
+
+        public void ActualizarIdioma()
+        {
+            var t = Traductor.Instancia;
+
+            this.Text = t.Traducir("frmCambiarClave.Title");
+            label1.Text = t.Traducir("frmCambiarClave.LblTitulo");
+            label3.Text = t.Traducir("frmCambiarClave.LblClaveActual");
+            label4.Text = t.Traducir("frmCambiarClave.LblNuevaClave");
+            label5.Text = t.Traducir("frmCambiarClave.LblConfirmarClave");
+            chkMostrarClaves.Text = t.Traducir("frmCambiarClave.ChkMostrar");
+            btnGuardar.Text = t.Traducir("frmCambiarClave.BtnGuardar");
+            btnLimpiar.Text = t.Traducir("frmCambiarClave.BtnLimpiar");
+            btnVolver.Text = t.Traducir("frmCambiarClave.BtnVolver");
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             if (!ValidarCampos()) return;
 
+            var t = Traductor.Instancia;
+
             try
             {
                 _usuarioBLL.CambiarClave(txtClaveActual.Text, txtNuevaClave.Text, txtConfirmarClave.Text);
 
-                MessageBox.Show("Contraseña modificada correctamente.", "CineGest", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    t.Traducir("frmCambiarClave.MsgExito"),
+                    "CineGest",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
 
                 this.Close();
             }
@@ -37,9 +75,10 @@ namespace UI
             {
                 lblMensaje.Text = ex.Message;
 
-                MessageBox.Show(ex.Message, "Cambiar Clave", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, t.Traducir("frmCambiarClave.LblTitulo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+
         private void btnLimpiar_Click(object sender, EventArgs e)
         {
             LimpiarCampos();
@@ -58,28 +97,31 @@ namespace UI
             txtNuevaClave.UseSystemPasswordChar = ocultar;
             txtConfirmarClave.UseSystemPasswordChar = ocultar;
         }
+
         private bool ValidarCampos()
         {
             errorProviderCambiarClave.Clear();
             lblMensaje.Text = string.Empty;
 
+            var t = Traductor.Instancia;
+
             bool esValido = true;
 
             if (string.IsNullOrWhiteSpace(txtClaveActual.Text))
             {
-                errorProviderCambiarClave.SetError(txtClaveActual, "Debe ingresar la clave actual.");
+                errorProviderCambiarClave.SetError(txtClaveActual, t.Traducir("frmCambiarClave.MsgFaltaClaveActual"));
                 esValido = false;
             }
 
             if (string.IsNullOrWhiteSpace(txtNuevaClave.Text))
             {
-                errorProviderCambiarClave.SetError(txtNuevaClave, "Debe ingresar la nueva clave.");
+                errorProviderCambiarClave.SetError(txtNuevaClave, t.Traducir("frmCambiarClave.MsgFaltaNuevaClave"));
                 esValido = false;
             }
 
             if (string.IsNullOrWhiteSpace(txtConfirmarClave.Text))
             {
-                errorProviderCambiarClave.SetError(txtConfirmarClave, "Debe confirmar la nueva clave.");
+                errorProviderCambiarClave.SetError(txtConfirmarClave, t.Traducir("frmCambiarClave.MsgFaltaConfirmar"));
                 esValido = false;
             }
 
@@ -87,17 +129,18 @@ namespace UI
                 !string.IsNullOrWhiteSpace(txtConfirmarClave.Text) &&
                 txtNuevaClave.Text != txtConfirmarClave.Text)
             {
-                errorProviderCambiarClave.SetError(txtConfirmarClave, "La nueva clave y la confirmación no coinciden.");
+                errorProviderCambiarClave.SetError(txtConfirmarClave, t.Traducir("frmCambiarClave.MsgNoCoinciden"));
                 esValido = false;
             }
 
             if (!esValido)
             {
-                lblMensaje.Text = "Revise los datos ingresados.";
+                lblMensaje.Text = t.Traducir("frmCambiarClave.MsgRevise");
             }
 
             return esValido;
         }
+
         private void LimpiarCampos()
         {
             txtClaveActual.Clear();

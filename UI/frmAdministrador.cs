@@ -12,10 +12,11 @@ using System.Windows.Forms;
 
 namespace UI
 {
-    public partial class frmAdministrador : Form
+    public partial class frmAdministrador : Form, IObservadorIdioma
     {
         private readonly UsuarioBLL _usuarioBLL;
         private Usuario _usuarioSeleccionado;
+
         public frmAdministrador()
         {
             InitializeComponent();
@@ -26,6 +27,84 @@ namespace UI
             CargarUsuarios();
             ConfigurarModoCreacion();
 
+            // Traducir YA, antes de que el form se pinte.
+            ActualizarIdioma();
+
+            this.Load += frmAdministrador_Load;
+            this.FormClosed += frmAdministrador_FormClosed;
+        }
+
+        private void frmAdministrador_Load(object sender, EventArgs e)
+        {
+            SM.Instancia.Suscribir(this);
+        }
+
+        private void frmAdministrador_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            SM.Instancia.Desuscribir(this);
+        }
+
+        public void ActualizarIdioma()
+        {
+            var t = Traductor.Instancia;
+
+            this.Text = t.Traducir("frmAdministrador.Title");
+            lblTitulo.Text = t.Traducir("frmAdministrador.LblTitulo");
+
+            // Filtros
+            gbFiltros.Text = t.Traducir("frmAdministrador.GbFiltros");
+            rbActivos.Text = t.Traducir("frmAdministrador.RbActivos");
+            rbBloqueados.Text = t.Traducir("frmAdministrador.RbBloqueados");
+            rbTodos.Text = t.Traducir("frmAdministrador.RbTodos");
+
+            // Datos del Usuario
+            gbDatosUsuario.Text = t.Traducir("frmAdministrador.GbDatosUsuario");
+            lblNombre.Text = t.Traducir("frmAdministrador.LblNombre");
+            lblApellido.Text = t.Traducir("frmAdministrador.LblApellido");
+            lblDNI.Text = t.Traducir("frmAdministrador.LblDNI");
+            lblEmail.Text = t.Traducir("frmAdministrador.LblEmail");
+            lblNombreUsuario.Text = t.Traducir("frmAdministrador.LblNombreUsuario");
+            chkActivo.Text = t.Traducir("frmAdministrador.ChkActivo");
+
+            // Botones
+            btnCrearUsuario.Text = t.Traducir("frmAdministrador.BtnCrearUsuario");
+            btnModificarUsuario.Text = t.Traducir("frmAdministrador.BtnModificarUsuario");
+            btnDesbloquearUsuario.Text = t.Traducir("frmAdministrador.BtnDesbloquearUsuario");
+            btnLimpiar.Text = t.Traducir("frmAdministrador.BtnLimpiar");
+            btnVolver.Text = t.Traducir("frmAdministrador.BtnVolver");
+
+            // Botón Activar/Desactivar: depende del estado seleccionado
+            if (_usuarioSeleccionado == null)
+            {
+                btnActivarDesactivarUsuario.Text = t.Traducir("frmAdministrador.BtnActivarDesactivar");
+            }
+            else
+            {
+                btnActivarDesactivarUsuario.Text = _usuarioSeleccionado.Activo
+                    ? t.Traducir("frmAdministrador.BtnDesactivar")
+                    : t.Traducir("frmAdministrador.BtnActivar");
+            }
+
+            // Cabeceras del DataGridView
+            if (dgvUsuarios.Columns.Count > 0)
+            {
+                if (dgvUsuarios.Columns.Contains("colIdUsuario")) dgvUsuarios.Columns["colIdUsuario"].HeaderText = t.Traducir("frmAdministrador.ColID");
+                if (dgvUsuarios.Columns.Contains("colDNI")) dgvUsuarios.Columns["colDNI"].HeaderText = t.Traducir("frmAdministrador.ColDNI");
+                if (dgvUsuarios.Columns.Contains("colApellido")) dgvUsuarios.Columns["colApellido"].HeaderText = t.Traducir("frmAdministrador.ColApellido");
+                if (dgvUsuarios.Columns.Contains("colNombre")) dgvUsuarios.Columns["colNombre"].HeaderText = t.Traducir("frmAdministrador.ColNombre");
+                if (dgvUsuarios.Columns.Contains("colEmail")) dgvUsuarios.Columns["colEmail"].HeaderText = t.Traducir("frmAdministrador.ColEmail");
+                if (dgvUsuarios.Columns.Contains("colNombreUsuario")) dgvUsuarios.Columns["colNombreUsuario"].HeaderText = t.Traducir("frmAdministrador.ColUsuario");
+                if (dgvUsuarios.Columns.Contains("colActivo")) dgvUsuarios.Columns["colActivo"].HeaderText = t.Traducir("frmAdministrador.ColActivo");
+                if (dgvUsuarios.Columns.Contains("colBloqueado")) dgvUsuarios.Columns["colBloqueado"].HeaderText = t.Traducir("frmAdministrador.ColBloqueado");
+            }
+
+            // Label de cantidad de usuarios: respetar el numero ya cargado
+            ActualizarLblCantidad(dgvUsuarios.RowCount);
+        }
+
+        private void ActualizarLblCantidad(int cantidad)
+        {
+            lblCantidadUsuarios.Text = Traductor.Instancia.Traducir("frmAdministrador.LblCantidadUsuarios") + " " + cantidad;
         }
 
         #region "Configuracion del DataGridView"
@@ -39,9 +118,9 @@ namespace UI
 
                 dgvUsuarios.DataSource = null;
                 dgvUsuarios.DataSource = usuarios;
-                 lblNombreUsuario.Visible = false;
-    txtNombreUsuario.Visible = false;
-                lblCantidadUsuarios.Text = "Número de Usuarios: " + usuarios.Count;
+                lblNombreUsuario.Visible = false;
+                txtNombreUsuario.Visible = false;
+                ActualizarLblCantidad(usuarios.Count);
                 lblMensaje.Text = string.Empty;
 
                 dgvUsuarios.ClearSelection();
@@ -50,11 +129,7 @@ namespace UI
             {
                 lblMensaje.Text = ex.Message;
 
-                MessageBox.Show(
-                    ex.Message,
-                    "Cargar usuarios",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, Traductor.Instancia.Traducir("frmAdministrador.LblTitulo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -66,7 +141,7 @@ namespace UI
             txtNombreUsuario.Visible = false;
             txtNombreUsuario.Clear();
 
-            btnActivarDesactivarUsuario.Text = "Activar / Desactivar Usuario";
+            btnActivarDesactivarUsuario.Text = Traductor.Instancia.Traducir("frmAdministrador.BtnActivarDesactivar");
         }
 
         private void ConfigurarModoEdicion()
@@ -74,28 +149,24 @@ namespace UI
             lblNombreUsuario.Visible = true;
             txtNombreUsuario.Visible = true;
         }
+
         private string ObtenerFiltroSeleccionado()
         {
-            if (rbActivos.Checked)
-            {
-                return "ACTIVOS";
-            }
-
-            if (rbBloqueados.Checked)
-            {
-                return "BLOQUEADOS";
-            }
-
+            if (rbActivos.Checked) return "ACTIVOS";
+            if (rbBloqueados.Checked) return "BLOQUEADOS";
             return "TODOS";
         }
+
         private void ConfigurarGrillaUsuarios()
         {
+            var t = Traductor.Instancia;
+
             dgvUsuarios.AutoGenerateColumns = false;
             dgvUsuarios.Columns.Clear();
 
             dgvUsuarios.Columns.Add(new DataGridViewTextBoxColumn
             {
-                HeaderText = "ID",
+                HeaderText = t.Traducir("frmAdministrador.ColID"),
                 DataPropertyName = "IdUsuario",
                 Name = "colIdUsuario",
                 Visible = false
@@ -103,49 +174,49 @@ namespace UI
 
             dgvUsuarios.Columns.Add(new DataGridViewTextBoxColumn
             {
-                HeaderText = "DNI",
+                HeaderText = t.Traducir("frmAdministrador.ColDNI"),
                 DataPropertyName = "DNI",
                 Name = "colDNI"
             });
 
             dgvUsuarios.Columns.Add(new DataGridViewTextBoxColumn
             {
-                HeaderText = "Apellido",
+                HeaderText = t.Traducir("frmAdministrador.ColApellido"),
                 DataPropertyName = "Apellido",
                 Name = "colApellido"
             });
 
             dgvUsuarios.Columns.Add(new DataGridViewTextBoxColumn
             {
-                HeaderText = "Nombre",
+                HeaderText = t.Traducir("frmAdministrador.ColNombre"),
                 DataPropertyName = "Nombre",
                 Name = "colNombre"
             });
 
             dgvUsuarios.Columns.Add(new DataGridViewTextBoxColumn
             {
-                HeaderText = "Email",
+                HeaderText = t.Traducir("frmAdministrador.ColEmail"),
                 DataPropertyName = "Email",
                 Name = "colEmail"
             });
 
             dgvUsuarios.Columns.Add(new DataGridViewTextBoxColumn
             {
-                HeaderText = "Usuario",
+                HeaderText = t.Traducir("frmAdministrador.ColUsuario"),
                 DataPropertyName = "NombreUsuario",
                 Name = "colNombreUsuario"
             });
 
             dgvUsuarios.Columns.Add(new DataGridViewCheckBoxColumn
             {
-                HeaderText = "Activo",
+                HeaderText = t.Traducir("frmAdministrador.ColActivo"),
                 DataPropertyName = "Activo",
                 Name = "colActivo"
             });
 
             dgvUsuarios.Columns.Add(new DataGridViewCheckBoxColumn
             {
-                HeaderText = "Bloqueado",
+                HeaderText = t.Traducir("frmAdministrador.ColBloqueado"),
                 DataPropertyName = "Bloqueado",
                 Name = "colBloqueado"
             });
@@ -160,7 +231,7 @@ namespace UI
             }
         }
         #endregion
-   
+
         private void dgvUsuarios_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvUsuarios.CurrentRow == null) return;
@@ -171,6 +242,8 @@ namespace UI
 
             _usuarioSeleccionado = usuario;
 
+            var t = Traductor.Instancia;
+
             ConfigurarModoEdicion();
             txtNombre.Text = usuario.Nombre;
             txtApellido.Text = usuario.Apellido;
@@ -179,12 +252,12 @@ namespace UI
             txtNombreUsuario.Text = usuario.NombreUsuario;
 
             chkActivo.Checked = usuario.Activo;
-            btnActivarDesactivarUsuario.Text = usuario.Activo? "Desactivar Usuario": "Activar Usuario";
+            btnActivarDesactivarUsuario.Text = usuario.Activo
+                ? t.Traducir("frmAdministrador.BtnDesactivar")
+                : t.Traducir("frmAdministrador.BtnActivar");
 
-            lblMensaje.Text = "Usuario seleccionado: " + usuario.NombreUsuario;
-
+            lblMensaje.Text = t.Traducir("frmAdministrador.MsgUsuarioSeleccionado") + " " + usuario.NombreUsuario;
         }
-        
 
         private void LimpiarCampos()
         {
@@ -196,7 +269,7 @@ namespace UI
             txtNombreUsuario.Clear();
 
             chkActivo.Checked = true;
-            btnActivarDesactivarUsuario.Text = "Activar / Desactivar Usuario";
+            btnActivarDesactivarUsuario.Text = Traductor.Instancia.Traducir("frmAdministrador.BtnActivarDesactivar");
             lblMensaje.Text = string.Empty;
 
             dgvUsuarios.SelectionChanged -= dgvUsuarios_SelectionChanged;
@@ -205,11 +278,11 @@ namespace UI
             ConfigurarModoCreacion();
             txtNombre.Focus();
         }
+
         private void MostrarMensaje(string mensaje)
         {
             lblMensaje.Text = mensaje;
         }
-
 
         private void btnVolver_Click(object sender, EventArgs e)
         {
@@ -219,70 +292,84 @@ namespace UI
         private void btnLimpiar_Click(object sender, EventArgs e)
         {
             LimpiarCampos();
-            MostrarMensaje("Campos limpiados. Listo para ingresar un nuevo usuario.");
+            MostrarMensaje(Traductor.Instancia.Traducir("frmAdministrador.MsgCamposLimpiados"));
         }
 
         private void btnCrearUsuario_Click(object sender, EventArgs e)
         {
+            var t = Traductor.Instancia;
+
             try
             {
-                _usuarioBLL.CrearUsuario(txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,chkActivo.Checked);
+                _usuarioBLL.CrearUsuario(txtNombre.Text, txtApellido.Text, txtDNI.Text, txtEmail.Text, chkActivo.Checked);
                 LimpiarCampos();
                 CargarUsuarios();
-                lblMensaje.Text = "Usuario creado correctamente.";
+                lblMensaje.Text = t.Traducir("frmAdministrador.MsgUsuarioCreado");
             }
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-                MessageBox.Show(ex.Message,"Crear Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, t.Traducir("frmAdministrador.BtnCrearUsuario"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         private void btnModificarUsuario_Click(object sender, EventArgs e)
         {
+            var t = Traductor.Instancia;
+
             if (_usuarioSeleccionado == null)
             {
-                lblMensaje.Text = "Debe seleccionar un usuario para modificar.";
-                MessageBox.Show("Debe seleccionar un usuario para modificar.","Modificar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                lblMensaje.Text = t.Traducir("frmAdministrador.MsgFaltaSeleccionModificar");
+                MessageBox.Show(t.Traducir("frmAdministrador.MsgFaltaSeleccionModificar"), t.Traducir("frmAdministrador.BtnModificarUsuario"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            DialogResult respuesta = MessageBox.Show("¿Desea modificar el usuario seleccionado?","Modificar Usuario",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(
+                t.Traducir("frmAdministrador.ConfirmarModificar"),
+                t.Traducir("frmAdministrador.BtnModificarUsuario"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
-            if (respuesta == DialogResult.No) return; 
+            if (respuesta == DialogResult.No) return;
 
             try
             {
-                _usuarioBLL.ModificarUsuario(_usuarioSeleccionado.IdUsuario,txtNombre.Text,txtApellido.Text,txtDNI.Text,txtEmail.Text,txtNombreUsuario.Text,chkActivo.Checked);
+                _usuarioBLL.ModificarUsuario(_usuarioSeleccionado.IdUsuario, txtNombre.Text, txtApellido.Text, txtDNI.Text, txtEmail.Text, txtNombreUsuario.Text, chkActivo.Checked);
 
                 CargarUsuarios();
-
                 LimpiarCampos();
 
-                lblMensaje.Text = "Usuario modificado correctamente.";
+                lblMensaje.Text = t.Traducir("frmAdministrador.MsgUsuarioModificado");
 
-                MessageBox.Show("Usuario modificado correctamente.","Modificar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                MessageBox.Show(
+                    t.Traducir("frmAdministrador.MsgUsuarioModificado"),
+                    t.Traducir("frmAdministrador.BtnModificarUsuario"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-
-                MessageBox.Show(ex.Message,"Modificar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, t.Traducir("frmAdministrador.BtnModificarUsuario"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         private void btnDesbloquearUsuario_Click(object sender, EventArgs e)
         {
+            var t = Traductor.Instancia;
+
             if (_usuarioSeleccionado == null)
             {
-                lblMensaje.Text = "Debe seleccionar un usuario para desbloquear.";
-
-                MessageBox.Show("Debe seleccionar un usuario para desbloquear.", "Desbloquear Usuario", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
+                lblMensaje.Text = t.Traducir("frmAdministrador.MsgFaltaSeleccionDesbloquear");
+                MessageBox.Show(t.Traducir("frmAdministrador.MsgFaltaSeleccionDesbloquear"), t.Traducir("frmAdministrador.BtnDesbloquearUsuario"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            DialogResult respuesta = MessageBox.Show("¿Desea desbloquear el usuario seleccionado?", "Desbloquear Usuario", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(
+                t.Traducir("frmAdministrador.ConfirmarDesbloquear"),
+                t.Traducir("frmAdministrador.BtnDesbloquearUsuario"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
             if (respuesta != DialogResult.Yes) return;
 
@@ -292,32 +379,43 @@ namespace UI
                 CargarUsuarios();
                 LimpiarCampos();
 
-                lblMensaje.Text = "Usuario desbloqueado correctamente.";
+                lblMensaje.Text = t.Traducir("frmAdministrador.MsgUsuarioDesbloqueado");
 
-                MessageBox.Show("Usuario desbloqueado correctamente.", "Desbloquear Usuario", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    t.Traducir("frmAdministrador.MsgUsuarioDesbloqueado"),
+                    t.Traducir("frmAdministrador.BtnDesbloquearUsuario"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-                MessageBox.Show(ex.Message, "Desbloquear Usuario", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, t.Traducir("frmAdministrador.BtnDesbloquearUsuario"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-        }        
+        }
 
         private void btnActivarDesactivarUsuario_Click(object sender, EventArgs e)
         {
+            var t = Traductor.Instancia;
+
             if (_usuarioSeleccionado == null)
             {
-                lblMensaje.Text = "Debe seleccionar un usuario para activar o desactivar.";
-                MessageBox.Show("Debe seleccionar un usuario para activar o desactivar.","Activar / Desactivar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
-
+                lblMensaje.Text = t.Traducir("frmAdministrador.MsgFaltaSeleccionActivar");
+                MessageBox.Show(t.Traducir("frmAdministrador.MsgFaltaSeleccionActivar"), t.Traducir("frmAdministrador.BtnActivarDesactivar"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            string accion = _usuarioSeleccionado.Activo ? "desactivar" : "activar";
+            string mensajeConfirmacion = _usuarioSeleccionado.Activo
+                ? t.Traducir("frmAdministrador.ConfirmarDesactivar")
+                : t.Traducir("frmAdministrador.ConfirmarActivar");
 
-            DialogResult respuesta = MessageBox.Show("¿Desea " + accion + " el usuario seleccionado?","Activar / Desactivar Usuario",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(
+                mensajeConfirmacion,
+                t.Traducir("frmAdministrador.BtnActivarDesactivar"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
-            if (respuesta == DialogResult.No)return;
+            if (respuesta == DialogResult.No) return;
 
             try
             {
@@ -325,21 +423,21 @@ namespace UI
 
                 CargarUsuarios();
                 LimpiarCampos();
-                string mensaje = quedoActivo? "Usuario activado correctamente.": "Usuario desactivado correctamente.";
+
+                string mensaje = quedoActivo
+                    ? t.Traducir("frmAdministrador.MsgUsuarioActivado")
+                    : t.Traducir("frmAdministrador.MsgUsuarioDesactivado");
 
                 lblMensaje.Text = mensaje;
 
-                MessageBox.Show(mensaje,"Activar / Desactivar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                MessageBox.Show(mensaje, t.Traducir("frmAdministrador.BtnActivarDesactivar"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-
-                MessageBox.Show(ex.Message,"Activar / Desactivar Usuario",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, t.Traducir("frmAdministrador.BtnActivarDesactivar"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-
-   
 
         private void btnVolver_Click_1(object sender, EventArgs e)
         {

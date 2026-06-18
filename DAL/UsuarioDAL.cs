@@ -9,21 +9,43 @@ namespace DAL
     {
         private readonly DAO_AccesoDatos _conexionDAL;
 
+        // Si en el futuro se agrega un campo, se cambia aca y en MapearUsuario.
+        private const string COLUMNAS_USUARIO =
+            "IdUsuario, Nombre, Apellido, DNI, Email, NombreUsuario, PasswordHash, " +
+            "Activo, Bloqueado, IntentosFallidos, DebeCambiarClave, IdIdioma";
+
         public UsuarioDAL()
         {
             _conexionDAL = new DAO_AccesoDatos();
         }
 
+       
+        /// Mapea una fila del SqlDataReader a un objeto Usuario.
+        /// Centralizado para evitar duplicar el mapeo en cada SELECT.
+        private Usuario MapearUsuario(SqlDataReader reader)
+        {
+            return new Usuario
+            {
+                IdUsuario = Convert.ToInt32(reader["IdUsuario"]),
+                Nombre = reader["Nombre"].ToString(),
+                Apellido = reader["Apellido"].ToString(),
+                DNI = reader["DNI"].ToString(),
+                Email = reader["Email"].ToString(),
+                NombreUsuario = reader["NombreUsuario"].ToString(),
+                PasswordHash = reader["PasswordHash"].ToString(),
+                Activo = Convert.ToBoolean(reader["Activo"]),
+                Bloqueado = Convert.ToBoolean(reader["Bloqueado"]),
+                IntentosFallidos = Convert.ToInt32(reader["IntentosFallidos"]),
+                DebeCambiarClave = Convert.ToBoolean(reader["DebeCambiarClave"]),
+                IdIdioma = Convert.ToInt32(reader["IdIdioma"])
+            };
+        }
+
         public Usuario BuscarPorEmail(string email)
         {
-            Usuario usuario = null;
-
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
-                string query = @"
-                    SELECT IdUsuario, Nombre, Apellido, DNI, Email, NombreUsuario, PasswordHash,
-                    Activo, Bloqueado, IntentosFallidos, DebeCambiarClave 
-                    FROM Usuario WHERE Email = @Email";
+                string query = "SELECT " + COLUMNAS_USUARIO + " FROM Usuario WHERE Email = @Email";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
                 {
@@ -34,24 +56,150 @@ namespace DAL
                     {
                         if (reader.Read())
                         {
-                            usuario = new Usuario
-                            {
-                                IdUsuario = (int)reader["IdUsuario"],
-                                Nombre = reader["Nombre"].ToString(),
-                                Apellido = reader["Apellido"].ToString(),
-                                DNI = reader["DNI"].ToString(),
-                                Email = reader["Email"].ToString(),
-                                NombreUsuario = reader["NombreUsuario"].ToString(),
-                                PasswordHash = reader["PasswordHash"].ToString(),
-                                Activo = (bool)reader["Activo"],
-                                Bloqueado = (bool)reader["Bloqueado"],
-                                IntentosFallidos = (int)reader["IntentosFallidos"],
-                                DebeCambiarClave = (bool)reader["DebeCambiarClave"]
-                            };
+                            return MapearUsuario(reader);
                         }
                     }
                 }
-                return usuario;
+            }
+
+            return null;
+        }
+
+        public Usuario BuscarPorId(int idUsuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = "SELECT " + COLUMNAS_USUARIO + " FROM Usuario WHERE IdUsuario = @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
+                    conexion.Open();
+
+                    using (SqlDataReader reader = comando.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return MapearUsuario(reader);
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public Usuario BuscarPorNombreUsuario(string nombreUsuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = "SELECT " + COLUMNAS_USUARIO + " FROM Usuario WHERE NombreUsuario = @NombreUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@NombreUsuario", nombreUsuario);
+
+                    conexion.Open();
+
+                    using (SqlDataReader reader = comando.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return MapearUsuario(reader);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public List<Usuario> ListarUsuarios(string filtro)
+        {
+            List<Usuario> usuarios = new List<Usuario>();
+
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = "SELECT " + COLUMNAS_USUARIO + " FROM Usuario";
+
+                if (filtro == "ACTIVOS")
+                {
+                    query += " WHERE Activo = 1 AND Bloqueado = 0";
+                }
+                else if (filtro == "BLOQUEADOS")
+                {
+                    query += " WHERE Bloqueado = 1";
+                }
+                query += " ORDER BY Apellido, Nombre";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    conexion.Open();
+
+                    using (SqlDataReader reader = comando.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            usuarios.Add(MapearUsuario(reader));
+                        }
+                    }
+                }
+            }
+
+            return usuarios;
+        }
+
+        public void Insertar(Usuario usuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"INSERT INTO Usuario(Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave,IdIdioma)
+                                 VALUES(@Nombre,@Apellido,@DNI,@Email,@NombreUsuario,@PasswordHash,@Activo,@Bloqueado,@IntentosFallidos,@DebeCambiarClave,@IdIdioma)";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@Nombre", usuario.Nombre);
+                    comando.Parameters.AddWithValue("@Apellido", usuario.Apellido);
+                    comando.Parameters.AddWithValue("@DNI", usuario.DNI);
+                    comando.Parameters.AddWithValue("@Email", usuario.Email);
+                    comando.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
+                    comando.Parameters.AddWithValue("@PasswordHash", usuario.PasswordHash);
+                    comando.Parameters.AddWithValue("@Activo", usuario.Activo);
+                    comando.Parameters.AddWithValue("@Bloqueado", usuario.Bloqueado);
+                    comando.Parameters.AddWithValue("@IntentosFallidos", usuario.IntentosFallidos);
+                    comando.Parameters.AddWithValue("@DebeCambiarClave", usuario.DebeCambiarClave);
+                    comando.Parameters.AddWithValue("@IdIdioma", usuario.IdIdioma);
+
+                    conexion.Open();
+                    comando.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void Modificar(Usuario usuario)
+        {
+            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            {
+                string query = @"
+                UPDATE Usuario SET Nombre = @Nombre, Apellido = @Apellido, DNI = @DNI, Email = @Email, NombreUsuario = @NombreUsuario,Activo = @Activo, Bloqueado = @Bloqueado
+                WHERE IdUsuario = @IdUsuario";
+
+                using (SqlCommand comando = new SqlCommand(query, conexion))
+                {
+                    comando.Parameters.AddWithValue("@IdUsuario", usuario.IdUsuario);
+                    comando.Parameters.AddWithValue("@Nombre", usuario.Nombre);
+                    comando.Parameters.AddWithValue("@Apellido", usuario.Apellido);
+                    comando.Parameters.AddWithValue("@DNI", usuario.DNI);
+                    comando.Parameters.AddWithValue("@Email", usuario.Email);
+                    comando.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
+                    comando.Parameters.AddWithValue("@Activo", usuario.Activo);
+                    comando.Parameters.AddWithValue("@Bloqueado", usuario.Bloqueado);
+
+                    conexion.Open();
+
+                    int filasAfectadas = comando.ExecuteNonQuery();
+
+                    if (filasAfectadas == 0) throw new Exception("No se encontró el usuario a modificar.");
+                }
             }
         }
 
@@ -101,10 +249,10 @@ namespace DAL
                     int filasAfectadas = comando.ExecuteNonQuery();
 
                     if (filasAfectadas == 0) throw new Exception("No se encontró el usuario a desbloquear.");
-
                 }
             }
         }
+
         public void ReiniciarIntentosFallidos(int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -121,7 +269,7 @@ namespace DAL
             }
         }
 
-         public void ActualizarPassword(int idUsuario, string nuevoPasswordHash)
+        public void ActualizarPassword(int idUsuario, string nuevoPasswordHash)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
@@ -141,78 +289,24 @@ namespace DAL
             }
         }
 
-        public void Insertar(Usuario usuario)
+        
+        public void ActualizarIdioma(int idUsuario, int idIdioma)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
-                string query = @"
-            INSERT INTO Usuario
-            (
-                Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave
-            )
-            VALUES
-            (
-                @Nombre,@Apellido,@DNI,@Email,@NombreUsuario,@PasswordHash,@Activo,@Bloqueado,@IntentosFallidos,@DebeCambiarClave
-            )";
+                string query = @"UPDATE Usuario SET IdIdioma = @IdIdioma WHERE IdUsuario = @IdUsuario";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
                 {
-                    comando.Parameters.AddWithValue("@Nombre", usuario.Nombre);
-                    comando.Parameters.AddWithValue("@Apellido", usuario.Apellido);
-                    comando.Parameters.AddWithValue("@DNI", usuario.DNI);
-                    comando.Parameters.AddWithValue("@Email", usuario.Email);
-                    comando.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
-                    comando.Parameters.AddWithValue("@PasswordHash", usuario.PasswordHash);
-                    comando.Parameters.AddWithValue("@Activo", usuario.Activo);
-                    comando.Parameters.AddWithValue("@Bloqueado", usuario.Bloqueado);
-                    comando.Parameters.AddWithValue("@IntentosFallidos", usuario.IntentosFallidos);
-                    comando.Parameters.AddWithValue("@DebeCambiarClave", usuario.DebeCambiarClave);
+                    comando.Parameters.Add("@IdIdioma", SqlDbType.Int).Value = idIdioma;
+                    comando.Parameters.Add("@IdUsuario", SqlDbType.Int).Value = idUsuario;
 
                     conexion.Open();
-                    comando.ExecuteNonQuery();
+                    int filasAfectadas = comando.ExecuteNonQuery();
+
+                    if (filasAfectadas == 0) throw new Exception("No se encontró el usuario para actualizar el idioma.");
                 }
             }
-        }
-
-        public Usuario BuscarPorId(int idUsuario)
-        {
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
-            {
-                string query = @"
-            SELECT
-                IdUsuario,Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave
-            FROM Usuario
-            WHERE IdUsuario = @IdUsuario";
-
-                using (SqlCommand comando = new SqlCommand(query, conexion))
-                {
-                    comando.Parameters.AddWithValue("@IdUsuario", idUsuario);
-                    conexion.Open();
-
-                    using (SqlDataReader reader = comando.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            return new Usuario
-                            {
-                                IdUsuario = Convert.ToInt32(reader["IdUsuario"]),
-                                Nombre = reader["Nombre"].ToString(),
-                                Apellido = reader["Apellido"].ToString(),
-                                DNI = reader["DNI"].ToString(),
-                                Email = reader["Email"].ToString(),
-                                NombreUsuario = reader["NombreUsuario"].ToString(),
-                                PasswordHash = reader["PasswordHash"].ToString(),
-                                Activo = Convert.ToBoolean(reader["Activo"]),
-                                Bloqueado = Convert.ToBoolean(reader["Bloqueado"]),
-                                IntentosFallidos = Convert.ToInt32(reader["IntentosFallidos"]),
-                                DebeCambiarClave = Convert.ToBoolean(reader["DebeCambiarClave"])
-                            };
-                        }
-                    }
-                }
-            }
-
-            return null;
         }
 
         public void CambiarEstadoActivo(int idUsuario, bool activo)
@@ -240,75 +334,6 @@ namespace DAL
             }
         }
 
-        public Usuario BuscarPorNombreUsuario(string nombreUsuario)
-        {
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
-            {
-                string query = @"
-            SELECT IdUsuario,Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave
-            FROM Usuario
-            WHERE NombreUsuario = @NombreUsuario";
-
-                using (SqlCommand comando = new SqlCommand(query, conexion))
-                {
-                    comando.Parameters.AddWithValue("@NombreUsuario", nombreUsuario);
-
-                    conexion.Open();
-
-                    using (SqlDataReader reader = comando.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            return new Usuario
-                            {
-                                IdUsuario = Convert.ToInt32(reader["IdUsuario"]),
-                                Nombre = reader["Nombre"].ToString(),
-                                Apellido = reader["Apellido"].ToString(),
-                                DNI = reader["DNI"].ToString(),
-                                Email = reader["Email"].ToString(),
-                                NombreUsuario = reader["NombreUsuario"].ToString(),
-                                PasswordHash = reader["PasswordHash"].ToString(),
-                                Activo = Convert.ToBoolean(reader["Activo"]),
-                                Bloqueado = Convert.ToBoolean(reader["Bloqueado"]),
-                                IntentosFallidos = Convert.ToInt32(reader["IntentosFallidos"]),
-                                DebeCambiarClave = Convert.ToBoolean(reader["DebeCambiarClave"])
-                            };
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        public void Modificar(Usuario usuario)
-        {
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
-            {
-                string query = @"
-                UPDATE Usuario SET Nombre = @Nombre, Apellido = @Apellido, DNI = @DNI, Email = @Email, NombreUsuario = @NombreUsuario,Activo = @Activo, Bloqueado = @Bloqueado 
-                WHERE IdUsuario = @IdUsuario";
-
-                using (SqlCommand comando = new SqlCommand(query, conexion))
-                {
-                    comando.Parameters.AddWithValue("@IdUsuario", usuario.IdUsuario);
-                    comando.Parameters.AddWithValue("@Nombre", usuario.Nombre);
-                    comando.Parameters.AddWithValue("@Apellido", usuario.Apellido);
-                    comando.Parameters.AddWithValue("@DNI", usuario.DNI);
-                    comando.Parameters.AddWithValue("@Email", usuario.Email);
-                    comando.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
-                    comando.Parameters.AddWithValue("@Activo", usuario.Activo);
-                    comando.Parameters.AddWithValue("@Bloqueado", usuario.Bloqueado);
-
-                    conexion.Open();
-
-                    int filasAfectadas = comando.ExecuteNonQuery();
-
-                    if (filasAfectadas == 0) throw new Exception("No se encontró el usuario a modificar.");
-                    
-                }
-            }
-        }
         #region "Validaciones de existencia en otros usuarios"
         public bool ExisteEmailEnOtroUsuario(string email, int idUsuario)
         {
@@ -380,7 +405,6 @@ namespace DAL
                     return cantidad > 0;
                 }
             }
-
         }
 
         public bool ExistePorDNI(string dni)
@@ -414,58 +438,6 @@ namespace DAL
                 }
             }
         }
-
         #endregion
-
-        public List<Usuario> ListarUsuarios(string filtro)
-        {
-            List<Usuario> usuarios = new List<Usuario>();
-
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
-            {
-                string query = @"
-                SELECT IdUsuario,Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave
-                FROM Usuario";
-
-                if (filtro == "ACTIVOS")
-                {
-                    query += " WHERE Activo = 1 AND Bloqueado = 0";
-                }
-                else if (filtro == "BLOQUEADOS")
-                {
-                    query += " WHERE Bloqueado = 1";
-                }
-                query += " ORDER BY Apellido, Nombre";
-
-                using (SqlCommand comando = new SqlCommand(query, conexion))
-                {
-                    conexion.Open();
-
-                    using (SqlDataReader reader = comando.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            Usuario usuario = new Usuario
-                            {
-                                IdUsuario = Convert.ToInt32(reader["IdUsuario"]),
-                                Nombre = reader["Nombre"].ToString(),
-                                Apellido = reader["Apellido"].ToString(),
-                                DNI = reader["DNI"].ToString(),
-                                Email = reader["Email"].ToString(),
-                                NombreUsuario = reader["NombreUsuario"].ToString(),
-                                PasswordHash = reader["PasswordHash"].ToString(),
-                                Activo = Convert.ToBoolean(reader["Activo"]),
-                                Bloqueado = Convert.ToBoolean(reader["Bloqueado"]),
-                                IntentosFallidos = Convert.ToInt32(reader["IntentosFallidos"]),
-                                DebeCambiarClave = Convert.ToBoolean(reader["DebeCambiarClave"])
-                            };
-
-                            usuarios.Add(usuario);
-                        }
-                    }
-                }
-            }
-            return usuarios;
-        }
     }
 }

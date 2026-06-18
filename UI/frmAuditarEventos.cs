@@ -13,7 +13,7 @@ using ITextPhrase = iTextSharp.text.Phrase;
 
 namespace UI
 {
-    public partial class frmAuditarEventos : Form
+    public partial class frmAuditarEventos : Form, IObservadorIdioma
     {
         private readonly BitacoraEventoBLL _bitacoraEventoBLL;
         private readonly UsuarioBLL _usuarioBLL;
@@ -23,6 +23,71 @@ namespace UI
             InitializeComponent();
             _bitacoraEventoBLL = new BitacoraEventoBLL();
             _usuarioBLL = new UsuarioBLL();
+
+            // Traducir YA los labels/botones, antes de que el form se pinte.
+            // Las cabeceras de la grilla se traducen mas abajo, despues del BuscarEventos.
+            ActualizarIdioma();
+
+            this.FormClosed += frmAuditarEventos_FormClosed;
+        }
+
+        private void frmAuditarEventos_Load(object sender, EventArgs e)
+        {
+            ConfigurarCombos();
+            ConfigurarEstadoInicial();
+            BuscarEventos();
+
+            // Suscribirse al Observer despues de tener la grilla cargada.
+            SM.Instancia.Suscribir(this);
+            ActualizarCabecerasGrilla();
+        }
+
+        private void frmAuditarEventos_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            SM.Instancia.Desuscribir(this);
+        }
+
+        public void ActualizarIdioma()
+        {
+            var t = Traductor.Instancia;
+
+            this.Text = t.Traducir("frmAuditarEventos.Title");
+
+            gbFiltros.Text = t.Traducir("frmAuditarEventos.GbFiltros");
+            lblFechaDesde.Text = t.Traducir("frmAuditarEventos.LblFechaDesde");
+            lblFechaHasta.Text = t.Traducir("frmAuditarEventos.LblFechaHasta");
+            label2.Text = t.Traducir("frmAuditarEventos.LblUsuario");
+            label3.Text = t.Traducir("frmAuditarEventos.LblModulo");
+            label4.Text = t.Traducir("frmAuditarEventos.LblCriticidad");
+            label5.Text = t.Traducir("frmAuditarEventos.LblResultado");
+            label6.Text = t.Traducir("frmAuditarEventos.LblDescripcion");
+            label7.Text = t.Traducir("frmAuditarEventos.LblEvento");
+            label8.Text = t.Traducir("frmAuditarEventos.LblNombre");
+            label9.Text = t.Traducir("frmAuditarEventos.LblApellido");
+
+            btnBuscar.Text = t.Traducir("frmAuditarEventos.BtnBuscar");
+            btnLimpiar.Text = t.Traducir("frmAuditarEventos.BtnLimpiar");
+            btnImprimir.Text = t.Traducir("frmAuditarEventos.BtnImprimir");
+            btnVolver.Text = t.Traducir("frmAuditarEventos.BtnVolver");
+
+            // Headers del DataGridView
+            ActualizarCabecerasGrilla();
+        }
+
+        private void ActualizarCabecerasGrilla()
+        {
+            if (dgvEventos.Columns.Count == 0) return;
+
+            var t = Traductor.Instancia;
+
+            if (dgvEventos.Columns.Contains("Usuario")) dgvEventos.Columns["Usuario"].HeaderText = t.Traducir("frmAuditarEventos.ColLogin");
+            if (dgvEventos.Columns.Contains("Fecha")) dgvEventos.Columns["Fecha"].HeaderText = t.Traducir("frmAuditarEventos.ColFecha");
+            if (dgvEventos.Columns.Contains("Hora")) dgvEventos.Columns["Hora"].HeaderText = t.Traducir("frmAuditarEventos.ColHora");
+            if (dgvEventos.Columns.Contains("Modulo")) dgvEventos.Columns["Modulo"].HeaderText = t.Traducir("frmAuditarEventos.ColModulo");
+            if (dgvEventos.Columns.Contains("Accion")) dgvEventos.Columns["Accion"].HeaderText = t.Traducir("frmAuditarEventos.ColEvento");
+            if (dgvEventos.Columns.Contains("Criticidad")) dgvEventos.Columns["Criticidad"].HeaderText = t.Traducir("frmAuditarEventos.ColCriticidad");
+            if (dgvEventos.Columns.Contains("Resultado")) dgvEventos.Columns["Resultado"].HeaderText = t.Traducir("frmAuditarEventos.ColResultado");
+            if (dgvEventos.Columns.Contains("Descripcion")) dgvEventos.Columns["Descripcion"].HeaderText = t.Traducir("frmAuditarEventos.ColDescripcion");
         }
 
         private void dgvEventos_SelectionChanged(object sender, EventArgs e)
@@ -60,18 +125,9 @@ namespace UI
             this.Close();
         }
 
-        private void frmAuditarEventos_Load(object sender, EventArgs e)
-        {
-            ConfigurarCombos();
-            ConfigurarEstadoInicial();
-            BuscarEventos();
-        }
-
-        
-        #region "Confiracion de Estados y Combos"
+        #region "Configuracion de Estados y Combos"
         private void ConfigurarEstadoInicial()
         {
-
             DtpFechaDesde.Value = DateTime.Today.AddDays(-3);
             dtpFechaHasta.Value = DateTime.Today;
 
@@ -89,10 +145,14 @@ namespace UI
 
         private void ConfigurarCombos()
         {
+            // Nota: Los items de los combos NO se traducen porque son los
+            // valores exactos por los que se filtra en la bitacora (deben
+            // coincidir con los strings guardados en BD).
             cmbModulo.Items.Clear();
             cmbModulo.Items.Add("Todos");
             cmbModulo.Items.Add("Usuario");
             cmbModulo.Items.Add("Administrador");
+            cmbModulo.Items.Add("Idioma");
             cmbModulo.SelectedIndex = 0;
 
             cmbAccion.Items.Clear();
@@ -107,6 +167,8 @@ namespace UI
             cmbAccion.Items.Add("Desactivar Usuario");
             cmbAccion.Items.Add("Desbloquear Usuario");
             cmbAccion.Items.Add("Cambio de clave");
+            cmbAccion.Items.Add("Cambio de idioma");
+            cmbAccion.Items.Add("Persistir idioma");
             cmbAccion.Items.Add("Imprimir PDF");
             cmbAccion.SelectedIndex = 0;
 
@@ -127,6 +189,8 @@ namespace UI
 
         private void BuscarEventos()
         {
+            var t = Traductor.Instancia;
+
             try
             {
                 lblMensaje.Text = string.Empty;
@@ -141,12 +205,13 @@ namespace UI
                 string resultado = cmbResultado.SelectedItem.ToString();
                 string descripcion = txtDescripcion.Text.Trim();
 
-                List<BitacoraEvento> eventos = _bitacoraEventoBLL.ObtenerEventos(fechaDesde,fechaHasta,usuario,modulo,accion,criticidad,resultado,descripcion);
+                List<BitacoraEvento> eventos = _bitacoraEventoBLL.ObtenerEventos(fechaDesde, fechaHasta, usuario, modulo, accion, criticidad, resultado, descripcion);
 
                 dgvEventos.DataSource = null;
                 dgvEventos.DataSource = eventos;
 
                 ConfigurarColumnasGrilla();
+                ActualizarCabecerasGrilla();
 
                 if (eventos.Count > 0)
                 {
@@ -162,29 +227,26 @@ namespace UI
                     txtApellido.Clear();
                 }
 
-                lblMensaje.Text = eventos.Count == 0 ? "No se encontraron eventos con los filtros ingresados.": "Eventos encontrados: " + eventos.Count;
+                lblMensaje.Text = eventos.Count == 0
+                    ? t.Traducir("frmAuditarEventos.MsgSinEventos")
+                    : t.Traducir("frmAuditarEventos.MsgEventosEncontrados") + " " + eventos.Count;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message,"CineGest",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, "CineGest", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+
         private void CargarNombreApellidoDesdeEventoSeleccionado()
         {
             txtNombre.Clear();
             txtApellido.Clear();
 
-            if (dgvEventos.CurrentRow == null)
-            {
-                return;
-            }
+            if (dgvEventos.CurrentRow == null) return;
 
             BitacoraEvento evento = dgvEventos.CurrentRow.DataBoundItem as BitacoraEvento;
 
-            if (evento == null)
-            {
-                return;
-            }
+            if (evento == null) return;
 
             txtNombre.Text = evento.Nombre;
             txtApellido.Text = evento.Apellido;
@@ -201,84 +263,56 @@ namespace UI
 
             int orden = 0;
 
-            if (dgvEventos.Columns.Contains("IdEvento"))
-            {
-                dgvEventos.Columns["IdEvento"].Visible = false;
-
-            }
-
-            if (dgvEventos.Columns.Contains("IdUsuario"))
-            {
-                dgvEventos.Columns["IdUsuario"].Visible = false;
-            }
+            if (dgvEventos.Columns.Contains("IdEvento")) dgvEventos.Columns["IdEvento"].Visible = false;
+            if (dgvEventos.Columns.Contains("IdUsuario")) dgvEventos.Columns["IdUsuario"].Visible = false;
+            if (dgvEventos.Columns.Contains("Nombre")) dgvEventos.Columns["Nombre"].Visible = false;
+            if (dgvEventos.Columns.Contains("Apellido")) dgvEventos.Columns["Apellido"].Visible = false;
+            if (dgvEventos.Columns.Contains("FechaHora")) dgvEventos.Columns["FechaHora"].Visible = false;
 
             if (dgvEventos.Columns.Contains("Usuario"))
             {
-                dgvEventos.Columns["Usuario"].HeaderText = "Login";
                 dgvEventos.Columns["Usuario"].Width = 110;
                 dgvEventos.Columns["Usuario"].DisplayIndex = orden++;
             }
 
-            if (dgvEventos.Columns.Contains("Nombre"))
-            {
-                dgvEventos.Columns["Nombre"].Visible = false;
-            }
-
-            if (dgvEventos.Columns.Contains("Apellido"))
-            {
-                dgvEventos.Columns["Apellido"].Visible = false;
-            }
-
-            if (dgvEventos.Columns.Contains("FechaHora"))
-            {
-                dgvEventos.Columns["FechaHora"].Visible = false;
-            }
-
             if (dgvEventos.Columns.Contains("Fecha"))
             {
-                dgvEventos.Columns["Fecha"].HeaderText = "Fecha";
                 dgvEventos.Columns["Fecha"].Width = 100;
                 dgvEventos.Columns["Fecha"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Hora"))
             {
-                dgvEventos.Columns["Hora"].HeaderText = "Hora";
                 dgvEventos.Columns["Hora"].Width = 90;
                 dgvEventos.Columns["Hora"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Modulo"))
             {
-                dgvEventos.Columns["Modulo"].HeaderText = "Módulo";
                 dgvEventos.Columns["Modulo"].Width = 120;
                 dgvEventos.Columns["Modulo"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Accion"))
             {
-                dgvEventos.Columns["Accion"].HeaderText = "Evento";
                 dgvEventos.Columns["Accion"].Width = 150;
                 dgvEventos.Columns["Accion"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Criticidad"))
             {
-                dgvEventos.Columns["Criticidad"].HeaderText = "Criticidad";
                 dgvEventos.Columns["Criticidad"].Width = 100;
                 dgvEventos.Columns["Criticidad"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Resultado"))
             {
-                dgvEventos.Columns["Resultado"].HeaderText = "Resultado";
                 dgvEventos.Columns["Resultado"].Width = 100;
                 dgvEventos.Columns["Resultado"].DisplayIndex = orden++;
             }
 
             if (dgvEventos.Columns.Contains("Descripcion"))
             {
-                dgvEventos.Columns["Descripcion"].HeaderText = "Descripción";
                 dgvEventos.Columns["Descripcion"].Width = 350;
                 dgvEventos.Columns["Descripcion"].DisplayIndex = orden++;
             }
@@ -287,31 +321,39 @@ namespace UI
         #region "Imprimir y Exportar a PDF"
         private void btnImprimir_Click(object sender, EventArgs e)
         {
+            var t = Traductor.Instancia;
+
             List<DataGridViewRow> filas = dgvEventos.Rows.Cast<DataGridViewRow>().Where(f => !f.IsNewRow).ToList();
 
             if (filas.Count == 0)
             {
-                RegistrarEventoImprimirPdf("Fallido","El usuario intentó imprimir/exportar a PDF la auditoría de eventos, pero no había eventos para exportar.");
-                MessageBox.Show("No hay eventos para exportar.","Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                RegistrarEventoImprimirPdf("Fallido", "El usuario intentó imprimir/exportar a PDF la auditoría de eventos, pero no había eventos para exportar.");
+                MessageBox.Show(t.Traducir("frmAuditarEventos.MsgSinDatosParaExportar"), t.Traducir("frmAuditarEventos.Title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
-                saveFileDialog.Title = "Exportar auditoría de eventos";
+                saveFileDialog.Title = t.Traducir("frmAuditarEventos.TitleExportar");
                 saveFileDialog.Filter = "Archivo PDF (*.pdf)|*.pdf";
                 saveFileDialog.FileName = "AuditoriaEventos_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".pdf";
                 saveFileDialog.DefaultExt = "pdf";
 
-                if (saveFileDialog.ShowDialog() != DialogResult.OK){return;}
+                if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
+
                 try
                 {
                     ExportarEventosAPdf(saveFileDialog.FileName);
 
-                    lblMensaje.Text = "PDF exportado correctamente.";
-                    RegistrarEventoImprimirPdf("Exitoso","El usuario imprimió/exportó a PDF la auditoría de eventos. Eventos exportados: " + filas.Count);
+                    lblMensaje.Text = t.Traducir("frmAuditarEventos.MsgPdfOK");
+                    RegistrarEventoImprimirPdf("Exitoso", "El usuario imprimió/exportó a PDF la auditoría de eventos. Eventos exportados: " + filas.Count);
 
-                    DialogResult respuesta = MessageBox.Show("PDF exportado correctamente.\n¿Desea abrir el archivo?","Auditar Eventos",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
+                    DialogResult respuesta = MessageBox.Show(
+                        t.Traducir("frmAuditarEventos.MsgAbrirPdf"),
+                        t.Traducir("frmAuditarEventos.Title"),
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Information);
+
                     if (respuesta == DialogResult.Yes)
                     {
                         ProcessStartInfo proceso = new ProcessStartInfo(saveFileDialog.FileName);
@@ -321,12 +363,12 @@ namespace UI
                 }
                 catch (Exception ex)
                 {
-                    RegistrarEventoImprimirPdf("Fallido","No se pudo imprimir/exportar a PDF la auditoría de eventos. Error: " + ex.Message);
-                    MessageBox.Show("No se pudo exportar el PDF.\n" + ex.Message,"Auditar Eventos",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    RegistrarEventoImprimirPdf("Fallido", "No se pudo imprimir/exportar a PDF la auditoría de eventos. Error: " + ex.Message);
+                    MessageBox.Show(t.Traducir("frmAuditarEventos.MsgPdfError") + "\n" + ex.Message, t.Traducir("frmAuditarEventos.Title"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-
         }
+
         private void RegistrarEventoImprimirPdf(string resultado, string descripcion)
         {
             Usuario usuarioActual = SM.Instancia.UsuarioActual;
@@ -334,8 +376,9 @@ namespace UI
             int idUsuario = usuarioActual != null ? usuarioActual.IdUsuario : 0;
             string nombreUsuario = usuarioActual != null ? usuarioActual.NombreUsuario : "Sistema";
 
-            _bitacoraEventoBLL.Registrar(idUsuario,nombreUsuario,"Administrador","Imprimir PDF","Media",resultado,descripcion);
+            _bitacoraEventoBLL.Registrar(idUsuario, nombreUsuario, "Administrador", "Imprimir PDF", "Media", resultado, descripcion);
         }
+
         private void ExportarEventosAPdf(string rutaArchivo)
         {
             List<DataGridViewColumn> columnas = ObtenerColumnasParaExportar();
@@ -353,7 +396,7 @@ namespace UI
 
                 documento.Open();
 
-                BaseFont baseFont = BaseFont.CreateFont(BaseFont.HELVETICA,BaseFont.CP1252,BaseFont.NOT_EMBEDDED);
+                BaseFont baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 
                 ITextFont fuenteTitulo = new ITextFont(baseFont, 16, ITextFont.BOLD);
                 ITextFont fuenteSubtitulo = new ITextFont(baseFont, 11, ITextFont.BOLD);
@@ -366,23 +409,17 @@ namespace UI
                 titulo.SpacingAfter = 10;
                 documento.Add(titulo);
 
-                documento.Add(new ITextParagraph("Fecha de exportación: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),fuenteNormal));
-
-                documento.Add(new ITextParagraph("Eventos exportados: " + dgvEventos.Rows.Cast<DataGridViewRow>().Count(f => !f.IsNewRow),fuenteNormal));
-
+                documento.Add(new ITextParagraph("Fecha de exportación: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"), fuenteNormal));
+                documento.Add(new ITextParagraph("Eventos exportados: " + dgvEventos.Rows.Cast<DataGridViewRow>().Count(f => !f.IsNewRow), fuenteNormal));
                 documento.Add(new ITextParagraph(" ", fuenteNormal));
-
                 documento.Add(new ITextParagraph("Filtros aplicados", fuenteSubtitulo));
-
-                documento.Add(new ITextParagraph("Fecha desde: " + DtpFechaDesde.Value.ToString("dd/MM/yyyy") + " | Fecha hasta: " + dtpFechaHasta.Value.ToString("dd/MM/yyyy"),fuenteNormal));
-
+                documento.Add(new ITextParagraph("Fecha desde: " + DtpFechaDesde.Value.ToString("dd/MM/yyyy") + " | Fecha hasta: " + dtpFechaHasta.Value.ToString("dd/MM/yyyy"), fuenteNormal));
                 documento.Add(new ITextParagraph("Login: " + ObtenerTextoFiltro(txtUsuario.Text) + " | Módulo: " + cmbModulo.Text + " | Evento: " + cmbAccion.Text, fuenteNormal));
-
-                documento.Add(new ITextParagraph("Criticidad: " + cmbCriticidad.Text + " | Resultado: " + cmbResultado.Text + " | Descripción: " + ObtenerTextoFiltro(txtDescripcion.Text),fuenteNormal));
+                documento.Add(new ITextParagraph("Criticidad: " + cmbCriticidad.Text + " | Resultado: " + cmbResultado.Text + " | Descripción: " + ObtenerTextoFiltro(txtDescripcion.Text), fuenteNormal));
 
                 if (!string.IsNullOrWhiteSpace(txtNombre.Text) || !string.IsNullOrWhiteSpace(txtApellido.Text))
                 {
-                    documento.Add(new ITextParagraph("Usuario seleccionado - Nombre: " + ObtenerTextoFiltro(txtNombre.Text) +" | Apellido: " + ObtenerTextoFiltro(txtApellido.Text),fuenteNormal));
+                    documento.Add(new ITextParagraph("Usuario seleccionado - Nombre: " + ObtenerTextoFiltro(txtNombre.Text) + " | Apellido: " + ObtenerTextoFiltro(txtApellido.Text), fuenteNormal));
                 }
 
                 documento.Add(new ITextParagraph(" ", fuenteNormal));
@@ -391,7 +428,6 @@ namespace UI
                 tabla.WidthPercentage = 100;
 
                 float[] anchos = columnas.Select(c => (float)Math.Max(c.Width, 60)).ToArray();
-
                 tabla.SetWidths(anchos);
 
                 foreach (DataGridViewColumn columna in columnas)
@@ -401,10 +437,7 @@ namespace UI
 
                 foreach (DataGridViewRow fila in dgvEventos.Rows)
                 {
-                    if (fila.IsNewRow)
-                    {
-                        continue;
-                    }
+                    if (fila.IsNewRow) continue;
 
                     foreach (DataGridViewColumn columna in columnas)
                     {
@@ -418,6 +451,7 @@ namespace UI
                 documento.Close();
             }
         }
+
         private List<DataGridViewColumn> ObtenerColumnasParaExportar()
         {
             return dgvEventos.Columns
@@ -430,6 +464,7 @@ namespace UI
                 .OrderBy(c => c.DisplayIndex)
                 .ToList();
         }
+
         private void AgregarCeldaCabecera(PdfPTable tabla, string texto, ITextFont fuente)
         {
             PdfPCell celda = new PdfPCell(new ITextPhrase(texto, fuente));
@@ -437,41 +472,32 @@ namespace UI
             celda.HorizontalAlignment = ITextElement.ALIGN_CENTER;
             celda.VerticalAlignment = ITextElement.ALIGN_MIDDLE;
             celda.Padding = 5;
-
             tabla.AddCell(celda);
         }
+
         private void AgregarCeldaDato(PdfPTable tabla, string texto, ITextFont fuente)
         {
             PdfPCell celda = new PdfPCell(new ITextPhrase(texto, fuente));
             celda.HorizontalAlignment = ITextElement.ALIGN_LEFT;
             celda.VerticalAlignment = ITextElement.ALIGN_TOP;
             celda.Padding = 4;
-
             tabla.AddCell(celda);
         }
+
         private string ObtenerValorCelda(DataGridViewRow fila, string nombreColumna)
         {
-            if (!dgvEventos.Columns.Contains(nombreColumna))
-            {
-                return string.Empty;
-            }
+            if (!dgvEventos.Columns.Contains(nombreColumna)) return string.Empty;
 
             object valor = fila.Cells[nombreColumna].FormattedValue;
 
-            if (valor == null)
-            {
-                return string.Empty;
-            }
+            if (valor == null) return string.Empty;
 
             return valor.ToString();
         }
+
         private string ObtenerTextoFiltro(string valor)
         {
-            if (string.IsNullOrWhiteSpace(valor))
-            {
-                return "Todos";
-            }
-
+            if (string.IsNullOrWhiteSpace(valor)) return "Todos";
             return valor.Trim();
         }
         #endregion

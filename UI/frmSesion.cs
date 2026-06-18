@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace UI
 {
-    public partial class frmSesion : Form
+    public partial class frmSesion : Form, IObservadorIdioma
     {
         private readonly UsuarioBLL _usuarioBLL;
         public bool SesionCerrada { get; private set; }
@@ -22,11 +22,48 @@ namespace UI
         {
             InitializeComponent();
             _usuarioBLL = new UsuarioBLL();
+
+            // Traducir YA, antes de que el form se pinte.
+            ActualizarIdioma();
+
+            this.Load += frmSesion_Load;
+            this.FormClosed += frmSesion_FormClosed;
+        }
+
+        private void frmSesion_Load(object sender, EventArgs e)
+        {
+            SM.Instancia.Suscribir(this);
+        }
+
+        private void frmSesion_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            SM.Instancia.Desuscribir(this);
+        }
+
+        public void ActualizarIdioma()
+        {
+            var t = Traductor.Instancia;
+
+            this.Text = t.Traducir("frmSesion.Title");
+            lblTitulo.Text = t.Traducir("frmSesion.LblTitulo");
+            label1.Text = t.Traducir("frmSesion.LblOpciones");
+            label2.Text = t.Traducir("frmSesion.LblEmail");
+            label3.Text = t.Traducir("frmSesion.LblContrasenia");
+            btnCambiarClave.Text = t.Traducir("frmSesion.BtnCambiarClave");
+            btnCerrarSesion.Text = t.Traducir("frmSesion.BtnCerrarSesion");
+            btnReLogin.Text = t.Traducir("frmSesion.BtnReLogin");
+            btnVolver.Text = t.Traducir("frmSesion.BtnVolver");
         }
 
         private void btnCerrarSesion_Click(object sender, EventArgs e)
         {
-            DialogResult respuesta = MessageBox.Show("¿Desea cerrar la sesión actual?", "Cerrar sesión", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var t = Traductor.Instancia;
+
+            DialogResult respuesta = MessageBox.Show(
+                t.Traducir("frmSesion.ConfirmarCerrarSesion"),
+                t.Traducir("frmSesion.CerrarSesionTitulo"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
             if (respuesta == DialogResult.Yes)
             {
@@ -56,14 +93,19 @@ namespace UI
 
         private void btnReLogin_Click(object sender, EventArgs e)
         {
+            var t = Traductor.Instancia;
+
             try
             {
-                var usuario= _usuarioBLL.ReLogin(txtEmail.Text,txtContraseña.Text);
-           
+                var usuario = _usuarioBLL.ReLogin(txtEmail.Text, txtContraseña.Text);
+
                 if (usuario.DebeCambiarClave)
                 {
                     DialogResult respuesta = MessageBox.Show(
-                        "Está utilizando una contraseña inicial. Se recomienda cambiarla por seguridad.\n\n¿Desea cambiarla ahora?","Cambio de contraseña recomendado",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
+                        t.Traducir("frmLogin.MsgCambioClaveRecomendado"),
+                        t.Traducir("frmLogin.TitleCambioClave"),
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Information);
 
                     if (respuesta == DialogResult.Yes)
                     {
@@ -73,13 +115,17 @@ namespace UI
                 }
                 ReLoginExitoso = true;
 
-                MessageBox.Show("Re-Login realizado correctamente.","Re-Login",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                MessageBox.Show(
+                    t.Traducir("frmSesion.MsgReLoginExitoso"),
+                    t.Traducir("frmSesion.BtnReLogin"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
 
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message,"Re-Login",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, t.Traducir("frmSesion.BtnReLogin"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
     }

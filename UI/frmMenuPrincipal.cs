@@ -12,41 +12,87 @@ using BLL;
 
 namespace UI
 {
-    public partial class frmMenuPrincipal : Form
+    public partial class frmMenuPrincipal : Form, IObservadorIdioma
     {
         private readonly UsuarioBLL _usuarioBLL = new UsuarioBLL();
+
         public frmMenuPrincipal()
         {
-
             InitializeComponent();
+
+            // Traducir YA, antes de que el form se pinte.
+            ActualizarIdioma();
         }
 
         private void frmMenuPrincipal_Load(object sender, EventArgs e)
         {
+            // Suscripcion al Observer de idioma.
+            SM.Instancia.Suscribir(this);
+
             CargarDatosSesion();
+        }
 
+        private void frmMenuPrincipal_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            SM.Instancia.Desuscribir(this);
+        }
 
+        /// <summary>
+        /// Implementacion del Observer: el SM nos llama cuando cambia el idioma.
+        /// Recorre todos los textos del form y aplica las traducciones.
+        /// </summary>
+        public void ActualizarIdioma()
+        {
+            var t = Traductor.Instancia;
+
+            this.Text = t.Traducir("frmMenuPrincipal.Title");
+
+            // Menu Usuario
+            mnuSesion.Text = t.Traducir("frmMenuPrincipal.MenuUsuario");
+            reLoginToolStripMenuItem.Text = t.Traducir("frmMenuPrincipal.MenuReLogin");
+            cambiarClaveToolStripMenuItem.Text = t.Traducir("frmMenuPrincipal.MenuCambiarClave");
+            cambiarIdiomaToolStripMenuItem.Text = t.Traducir("frmMenuPrincipal.MenuCambiarIdioma");
+            cerrarSesionToolStripMenuItem.Text = t.Traducir("frmMenuPrincipal.MenuCerrarSesion");
+
+            // Menus principales
+            empleadoDeBoleteríaToolStripMenuItem.Text = t.Traducir("frmMenuPrincipal.MenuBoleteria");
+            gerenciaToolStripMenuItem.Text = t.Traducir("frmMenuPrincipal.MenuCartelera");
+            gerenciaToolStripMenuItem1.Text = t.Traducir("frmMenuPrincipal.MenuGerencia");
+
+            // Menu Administrador
+            mnuAdministrador.Text = t.Traducir("frmMenuPrincipal.MenuAdministrador");
+            usuariosToolStripMenuItem.Text = t.Traducir("frmMenuPrincipal.MenuUsuarios");
+            bitacoraEventosToolStripMenuItem.Text = t.Traducir("frmMenuPrincipal.MenuBitacora");
+            gestionarPerfilToolStripMenuItem.Text = t.Traducir("frmMenuPrincipal.MenuGestionPerfiles");
+
+            // Panel central
+            lblTituloInicio.Text = t.Traducir("frmMenuPrincipal.Titulo");
+            lblDescripcionInicio.Text = t.Traducir("frmMenuPrincipal.Descripcion");
+
+            // Status bar (depende de la sesion)
+            CargarDatosSesion();
         }
 
         private void CargarDatosSesion()
         {
+            var t = Traductor.Instancia;
+
             if (SM.Instancia.HaySesionActiva())
             {
                 Usuario usuario = SM.Instancia.UsuarioActual;
 
-                lblUsuarioSesion.Text = "Usuario: " + usuario.NombreUsuario;
-                lblEstadoSesion.Text = "Sesión activa";
+                lblUsuarioSesion.Text = t.Traducir("frmMenuPrincipal.UsuarioLabel") + " " + usuario.NombreUsuario;
+                lblEstadoSesion.Text = t.Traducir("frmMenuPrincipal.SesionActiva");
             }
             else
             {
-                lblUsuarioSesion.Text = "Usuario: Sin sesión";
-                lblEstadoSesion.Text = "Sin sesión activa";
+                lblUsuarioSesion.Text = t.Traducir("frmMenuPrincipal.UsuarioLabelSinSesion");
+                lblEstadoSesion.Text = t.Traducir("frmMenuPrincipal.SinSesion");
             }
         }
 
         private void mnuSesion_Click(object sender, EventArgs e)
         {
-
             frmSesion formSesion = new frmSesion();
             formSesion.ShowDialog();
 
@@ -61,7 +107,6 @@ namespace UI
                 this.Close();
                 return;
             }
-
         }
 
         private void administradorToolStripMenuItem_Click(object sender, EventArgs e)
@@ -72,9 +117,11 @@ namespace UI
 
         private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var t = Traductor.Instancia;
+
             DialogResult respuesta = MessageBox.Show(
-                "¿Desea cerrar la sesión actual?",
-                "Cerrar sesión",
+                t.Traducir("frmMenuPrincipal.ConfirmarCerrarSesion"),
+                t.Traducir("frmMenuPrincipal.CerrarSesionTitulo"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -96,13 +143,18 @@ namespace UI
         {
             frmLogin formSesion = new frmLogin(true);
             formSesion.ShowDialog();
-
         }
 
         private void cambiarClaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             frmCambiarClave cambiarClave = new frmCambiarClave();
             cambiarClave.ShowDialog();
+        }
+
+        private void cambiarIdiomaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmCambiarIdioma cambiarIdioma = new frmCambiarIdioma();
+            cambiarIdioma.ShowDialog();
         }
 
         private void usuariosToolStripMenuItem_Click(object sender, EventArgs e)

@@ -271,7 +271,7 @@
             btnVolver.Name = "btnVolver";
             btnVolver.Size = new Size(129, 43);
             btnVolver.TabIndex = 5;
-            btnVolver.Text = "Salir";
+            btnVolver.Text = "Volver";
             btnVolver.UseVisualStyleBackColor = true;
             btnVolver.Click += btnVolver_Click;
             // 

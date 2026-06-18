@@ -12,19 +12,25 @@ namespace BLL
     public class UsuarioBLL
     {
         private readonly UsuarioDAL _usuarioDAL;
+        private readonly IdiomaDAL _idiomaDAL;
         private readonly Cripto _cripto;
         private readonly BitacoraEventoBLL _bitacoraEventoBLL;
+
         public UsuarioBLL()
         {
             _usuarioDAL = new UsuarioDAL();
+            _idiomaDAL = new IdiomaDAL();
             _cripto = new Cripto();
             _bitacoraEventoBLL = new BitacoraEventoBLL();
         }
 
-        public Usuario Login(string email, string contraseñia) 
+        // sirve para acortar las llamadas a traduccion.
+        private static string T(string clave) => Traductor.Instancia.Traducir(clave);
+
+        public Usuario Login(string email, string contraseñia)
         {
-            if (string.IsNullOrWhiteSpace(email))throw new Exception("Debe ingresar Email.");
-            if (string.IsNullOrWhiteSpace(contraseñia)) throw new Exception("Debe ingresar Contraseña.");
+            if (string.IsNullOrWhiteSpace(email)) throw new Exception(T("Errores.DebeIngresarEmail"));
+            if (string.IsNullOrWhiteSpace(contraseñia)) throw new Exception(T("Errores.DebeIngresarContrasenia"));
 
 
             email = email.Trim().ToLower();
@@ -34,23 +40,23 @@ namespace BLL
 
             if (usuario == null)
             {
-                _bitacoraEventoBLL.Registrar(0,email,"Login","Inicio de sesión","Media","Fallido","Intento de inicio de sesión con un email inexistente.");
+                _bitacoraEventoBLL.Registrar(0, email, "Login", "Inicio de sesión", "Media", "Fallido", "Intento de inicio de sesión con un email inexistente.");
 
-                throw new Exception("Las credenciales ingresadas son incorrectas.");
+                throw new Exception(T("Errores.CredencialesIncorrectas"));
             }
 
             if (!usuario.Activo)
             {
-                _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Login","Inicio de sesión","Media","Fallido","Intento de inicio de sesión con una cuenta inactiva.");
-                
-                throw new Exception("La cuenta se encuentra inactiva. Contacte al Administrador.");
+                _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Login", "Inicio de sesión", "Media", "Fallido", "Intento de inicio de sesión con una cuenta inactiva.");
+
+                throw new Exception(T("Errores.CuentaInactiva"));
             }
 
             if (usuario.Bloqueado)
             {
-                _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Login","Inicio de sesión","Alta","Fallido","Intento de inicio de sesión con una cuenta bloqueada.");
+                _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Login", "Inicio de sesión", "Alta", "Fallido", "Intento de inicio de sesión con una cuenta bloqueada.");
 
-                throw new Exception("La cuenta se encuentra bloqueada. Contacte al Administrador.");
+                throw new Exception(T("Errores.CuentaBloqueada"));
             }
 
             #endregion
@@ -58,23 +64,23 @@ namespace BLL
 
             string hashIngresado = _cripto.ObtenerHashSha256(contraseñia);
 
-            # region "Intentos fallidos y bloquear"     
-            
+            #region "Intentos fallidos y bloquear"
+
             if (hashIngresado != usuario.PasswordHash)
             {
                 _usuarioDAL.IncrementarIntentosFallidos(usuario.IdUsuario);
-                usuario.IntentosFallidos++;               
-                _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Login","Inicio de sesión","Alta","Fallido", "El usuario ingresó una contraseña incorrecta.");
+                usuario.IntentosFallidos++;
+                _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Login", "Inicio de sesión", "Alta", "Fallido", "El usuario ingresó una contraseña incorrecta.");
 
                 if (usuario.IntentosFallidos >= 3)
                 {
                     _usuarioDAL.Bloquear(usuario.IdUsuario);
-                    _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Login","Bloqueo de cuenta","Alta","Exitoso","La cuenta fue bloqueada por superar la cantidad de intentos permitidos.");
-                   
-                    throw new Exception("La cuenta fue bloqueada por superar la cantidad de intentos permitidos.");
+                    _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Login", "Bloqueo de cuenta", "Alta", "Exitoso", "La cuenta fue bloqueada por superar la cantidad de intentos permitidos.");
+
+                    throw new Exception(T("Errores.CuentaBloqueadaIntentos"));
                 }
 
-                throw new Exception("Las credenciales ingresadas son incorrectas.");
+                throw new Exception(T("Errores.CredencialesIncorrectas"));
             }
 
             #endregion
@@ -82,25 +88,30 @@ namespace BLL
             _usuarioDAL.ReiniciarIntentosFallidos(usuario.IdUsuario);
 
             SM.Instancia.IniciarSesion(usuario);
-            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario,"Usuario","Inicio de sesión", "Alta", "Exitoso", "El usuario inició sesión correctamente");
+
+            Idioma idioma = _idiomaDAL.ObtenerPorId(usuario.IdIdioma);
+            if (idioma == null) idioma = _idiomaDAL.ObtenerPorCodigo("ES");
+            if (idioma != null) SM.Instancia.EstablecerIdiomaInicial(idioma);
+
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Inicio de sesión", "Alta", "Exitoso", "El usuario inició sesión correctamente");
             return usuario;
         }
 
         public Usuario ReLogin(string email, string contrasenia)
         {
-            if (string.IsNullOrWhiteSpace(email))throw new Exception("Debe ingresar Email.");
+            if (string.IsNullOrWhiteSpace(email)) throw new Exception(T("Errores.DebeIngresarEmail"));
 
-            if (string.IsNullOrWhiteSpace(contrasenia))throw new Exception("Debe ingresar Contraseña.");
+            if (string.IsNullOrWhiteSpace(contrasenia)) throw new Exception(T("Errores.DebeIngresarContrasenia"));
 
             email = email.Trim().ToLower();
 
             Usuario usuario = _usuarioDAL.BuscarPorEmail(email);
 
-            if (usuario == null)throw new Exception("Las credenciales ingresadas son incorrectas.");
+            if (usuario == null) throw new Exception(T("Errores.CredencialesIncorrectas"));
 
-            if (!usuario.Activo)throw new Exception("La cuenta se encuentra inactiva. Contacte al Administrador.");
+            if (!usuario.Activo) throw new Exception(T("Errores.CuentaInactiva"));
 
-            if (usuario.Bloqueado)throw new Exception("La cuenta se encuentra bloqueada. Contacte al Administrador.");
+            if (usuario.Bloqueado) throw new Exception(T("Errores.CuentaBloqueada"));
 
             string hashIngresado = _cripto.ObtenerHashSha256(contrasenia);
 
@@ -112,10 +123,10 @@ namespace BLL
                 if (usuario.IntentosFallidos >= 3)
                 {
                     _usuarioDAL.Bloquear(usuario.IdUsuario);
-                    throw new Exception("La cuenta fue bloqueada por superar la cantidad de intentos permitidos.");
+                    throw new Exception(T("Errores.CuentaBloqueadaIntentos"));
                 }
 
-                throw new Exception("Las credenciales ingresadas son incorrectas.");
+                throw new Exception(T("Errores.CredencialesIncorrectas"));
             }
 
             _usuarioDAL.ReiniciarIntentosFallidos(usuario.IdUsuario);
@@ -123,31 +134,49 @@ namespace BLL
             if (SM.Instancia.HaySesionActiva())
             {
                 Usuario usuarioActual = SM.Instancia.UsuarioActual;
-                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario,usuarioActual.NombreUsuario,"Usuario","Re-Login","Media","Fallido","Intento de Re-Login rechazado porque ya existe una sesión activa.");
+                _bitacoraEventoBLL.Registrar(usuarioActual.IdUsuario, usuarioActual.NombreUsuario, "Usuario", "Re-Login", "Media", "Fallido", "Intento de Re-Login rechazado porque ya existe una sesión activa.");
 
-                throw new Exception("Credenciales válidas, pero ya existe una sesión activa en el sistema.");
+                throw new Exception(T("Errores.SesionActivaExistente"));
             }
 
-            throw new Exception("No hay una sesión activa para realizar Re-Login.");
+            throw new Exception(T("Errores.NoHaySesionParaReLogin"));
         }
+
         public void Logout()
         {
             if (!SM.Instancia.HaySesionActiva())
             {
-                throw new Exception("No hay una sesión activa para cerrar.");
+                throw new Exception(T("Errores.NoHaySesionParaCerrar"));
             }
+
             Usuario usuario = SM.Instancia.UsuarioActual;
 
+            // Persistir idioma SOLO si cambio durante la sesion.
+            if (SM.Instancia.RequierePersistirIdioma())
+            {
+                Idioma idiomaFinal = SM.Instancia.IdiomaActual;
+
+                _usuarioDAL.ActualizarIdioma(usuario.IdUsuario, idiomaFinal.IdIdioma);
+
+                _bitacoraEventoBLL.Registrar(
+                    usuario.IdUsuario,
+                    usuario.NombreUsuario,
+                    "Idioma",
+                    "Persistir idioma",
+                    "Baja",
+                    "Exitoso",
+                    "Se persistió el idioma del usuario al cerrar sesión: " + idiomaFinal.Nombre + ".");
+            }
+
             _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cierre de sesión", "Baja", "Exitoso", "El usuario cerró sesión correctamente");
-            SM.Instancia.CerrarSesion(); 
+            SM.Instancia.CerrarSesion();
         }
 
         public bool ActivarDesactivarUsuario(int idUsuario)
         {
-            
             Usuario usuarioSeleccionado = _usuarioDAL.BuscarPorId(idUsuario);
 
-            if (usuarioSeleccionado == null){throw new Exception("No se encontró el usuario seleccionado.");}
+            if (usuarioSeleccionado == null) { throw new Exception(T("Errores.UsuarioSeleccionadoNoEncontrado")); }
 
             bool nuevoEstado = !usuarioSeleccionado.Activo;
 
@@ -155,18 +184,18 @@ namespace BLL
 
             Usuario administrador = SM.Instancia.UsuarioActual;
 
-            string accion = nuevoEstado ? "Activar Usuario" : "Desactivar Usuario";  //Si nuevoEstado es true  → accion = "Activar Usuario"
+            string accion = nuevoEstado ? "Activar Usuario" : "Desactivar Usuario";
 
-            string descripcion = nuevoEstado? "El administrador activó el usuario: " + usuarioSeleccionado.NombreUsuario: "El administrador desactivó el usuario: " + usuarioSeleccionado.NombreUsuario;
+            string descripcion = nuevoEstado ? "El administrador activó el usuario: " + usuarioSeleccionado.NombreUsuario : "El administrador desactivó el usuario: " + usuarioSeleccionado.NombreUsuario;
 
-            _bitacoraEventoBLL.Registrar(administrador.IdUsuario,administrador.NombreUsuario,"Administrador",accion,"Alta","Exitoso",descripcion);
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", accion, "Alta", "Exitoso", descripcion);
             return nuevoEstado;
         }
 
         public void DesbloquearUsuario(Usuario usuarioSeleccionado)
         {
-            if (usuarioSeleccionado == null) throw new Exception("Debe seleccionar un usuario para desbloquear.");
-            if (!usuarioSeleccionado.Bloqueado) throw new Exception("El usuario seleccionado no se encuentra bloqueado.");
+            if (usuarioSeleccionado == null) throw new Exception(T("Errores.DebeSeleccionarUsuarioDesbloquear"));
+            if (!usuarioSeleccionado.Bloqueado) throw new Exception(T("Errores.UsuarioNoBloqueado"));
 
 
             _usuarioDAL.DesbloquearUsuario(usuarioSeleccionado.IdUsuario);
@@ -178,17 +207,17 @@ namespace BLL
 
         public void CambiarClave(string claveActual, string nuevaClave, string confirmarClave)
         {
-            if (!SM.Instancia.HaySesionActiva()){throw new Exception("No hay una sesión activa.");}
+            if (!SM.Instancia.HaySesionActiva()) { throw new Exception(T("Errores.NoHaySesionActiva")); }
 
-            if (string.IsNullOrWhiteSpace(claveActual)){throw new Exception("Debe ingresar la clave actual.");}
+            if (string.IsNullOrWhiteSpace(claveActual)) { throw new Exception(T("Errores.DebeIngresarClaveActual")); }
 
-            if (string.IsNullOrWhiteSpace(nuevaClave)){throw new Exception("Debe ingresar la nueva clave.");}
+            if (string.IsNullOrWhiteSpace(nuevaClave)) { throw new Exception(T("Errores.DebeIngresarNuevaClave")); }
 
-            if (string.IsNullOrWhiteSpace(confirmarClave)){throw new Exception("Debe confirmar la nueva clave.");}
+            if (string.IsNullOrWhiteSpace(confirmarClave)) { throw new Exception(T("Errores.DebeConfirmarNuevaClave")); }
 
-            if (nuevaClave != confirmarClave){throw new Exception("La nueva clave y la confirmación no coinciden.");}
+            if (nuevaClave != confirmarClave) { throw new Exception(T("Errores.ClavesNoCoinciden")); }
 
-            if (!EsClaveSegura(nuevaClave)){throw new Exception("La nueva clave debe tener al menos 8 caracteres, una letra mayúscula y un número.");}
+            if (!EsClaveSegura(nuevaClave)) { throw new Exception(T("Errores.ClaveInsegura")); }
 
             Usuario usuario = SM.Instancia.UsuarioActual;
 
@@ -196,25 +225,25 @@ namespace BLL
 
             if (hashClaveActual != usuario.PasswordHash)
             {
-                _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Usuario","Cambio de clave","Alta","Fallido","El usuario ingresó una clave actual incorrecta.");
+                _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cambio de clave", "Alta", "Fallido", "El usuario ingresó una clave actual incorrecta.");
 
-                throw new Exception("La clave actual ingresada es incorrecta.");
+                throw new Exception(T("Errores.ClaveActualIncorrecta"));
             }
 
             string hashNuevaClave = _cripto.ObtenerHashSha256(nuevaClave);
 
-            if (hashNuevaClave == usuario.PasswordHash){throw new Exception("La nueva clave no puede ser igual a la clave actual.");}
+            if (hashNuevaClave == usuario.PasswordHash) { throw new Exception(T("Errores.ClaveIgualAnterior")); }
 
             _usuarioDAL.ActualizarPassword(usuario.IdUsuario, hashNuevaClave);
 
             usuario.PasswordHash = hashNuevaClave;
             usuario.DebeCambiarClave = false;
 
-            _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Usuario","Cambio de clave","Alta","Exitoso","El usuario modificó su contraseña correctamente.");
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cambio de clave", "Alta", "Exitoso", "El usuario modificó su contraseña correctamente.");
         }
-        
 
-        public void CrearUsuario(string nombre,string apellido,string dni,string email,bool activo)
+
+        public void CrearUsuario(string nombre, string apellido, string dni, string email, bool activo)
         {
             nombre = (nombre ?? string.Empty).Trim();
             apellido = (apellido ?? string.Empty).Trim();
@@ -226,7 +255,7 @@ namespace BLL
                 string.IsNullOrWhiteSpace(dni) ||
                 string.IsNullOrWhiteSpace(email))
             {
-                throw new Exception("Debe completar todos los campos obligatorios.");
+                throw new Exception(T("Errores.CamposObligatorios"));
             }
             string nombreSinEspacios = GenerarNombreUsuario(nombre, dni);
 
@@ -234,27 +263,27 @@ namespace BLL
 
             if (!EsNombreOApellidoValido(nombre))
             {
-                throw new Exception("El nombre solo puede contener letras y debe tener entre 2 y 50 caracteres.");
+                throw new Exception(T("Errores.NombreInvalido"));
             }
 
             if (!EsNombreOApellidoValido(apellido))
             {
-                throw new Exception("El apellido solo puede contener letras y debe tener entre 2 y 50 caracteres.");
+                throw new Exception(T("Errores.ApellidoInvalido"));
             }
 
             if (!EsDNIValido(dni))
             {
-                throw new Exception("Debe ingresar un DNI válido.");
+                throw new Exception(T("Errores.DniInvalido"));
             }
 
             if (!EsEmailValido(email))
             {
-                throw new Exception("El email ingresado no tiene un formato válido.");
+                throw new Exception(T("Errores.EmailInvalido"));
             }
 
             if (!EsNombreUsuarioValido(nombreSinEspacios))
             {
-                throw new Exception("El nombre de usuario debe tener entre 4 y 30 caracteres y solo puede contener letras, números, punto, guion o guion bajo.");
+                throw new Exception(T("Errores.NombreUsuarioInvalido"));
             }
 
             #endregion
@@ -262,24 +291,25 @@ namespace BLL
             #region "Validaciones de unicidad"
             if (_usuarioDAL.ExistePorEmail(email))
             {
-                throw new Exception("El email ya se encuentra registrado.");
+                throw new Exception(T("Errores.EmailYaRegistrado"));
             }
 
             if (_usuarioDAL.ExistePorDNI(dni))
             {
-                throw new Exception("El DNI ya se encuentra registrado.");
+                throw new Exception(T("Errores.DniYaRegistrado"));
             }
 
             if (_usuarioDAL.ExistePorNombreUsuario(nombreSinEspacios))
             {
-                throw new Exception("El nombre de usuario ya se encuentra registrado.");
+                throw new Exception(T("Errores.NombreUsuarioYaRegistrado"));
             }
-#endregion
+            #endregion
 
             string contraseniaInicial = apellido + dni;
-
-
             string passwordHash = _cripto.ObtenerHashSha256(contraseniaInicial);
+
+            Idioma idiomaPorDefecto = _idiomaDAL.ObtenerPorCodigo("ES");
+            if (idiomaPorDefecto == null) throw new Exception(T("Errores.IdiomaPorDefectoNoEncontrado"));
 
             Usuario nuevoUsuario = new Usuario
             {
@@ -292,17 +322,18 @@ namespace BLL
                 Activo = activo,
                 Bloqueado = false,
                 IntentosFallidos = 0,
-                DebeCambiarClave = true
+                DebeCambiarClave = true,
+                IdIdioma = idiomaPorDefecto.IdIdioma
             };
 
             _usuarioDAL.Insertar(nuevoUsuario);
 
             Usuario administrador = SM.Instancia.UsuarioActual;
 
-            _bitacoraEventoBLL.Registrar(administrador.IdUsuario,administrador.NombreUsuario,"Administrador","Crear Usuario","Alta","Exitoso","El administrador creó el usuario: " + nombreSinEspacios);
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Crear Usuario", "Alta", "Exitoso", "El administrador creó el usuario: " + nombreSinEspacios);
         }
 
-        public void ModificarUsuario(int idUsuario,string nombre,string apellido,string dni,string email,string nombreUsuario,bool activo)
+        public void ModificarUsuario(int idUsuario, string nombre, string apellido, string dni, string email, string nombreUsuario, bool activo)
         {
             nombre = (nombre ?? string.Empty).Trim();
             apellido = (apellido ?? string.Empty).Trim();
@@ -310,53 +341,53 @@ namespace BLL
             email = (email ?? string.Empty).Trim();
             nombreUsuario = (nombreUsuario ?? string.Empty).Trim();
 
-            if (idUsuario <= 0)throw new Exception("Debe seleccionar un usuario para modificar.");
-         
+            if (idUsuario <= 0) throw new Exception(T("Errores.DebeSeleccionarUsuarioModificar"));
+
             #region "Validaciones con REGEX y de Unicidad"
 
-            if (string.IsNullOrWhiteSpace(nombre) ||string.IsNullOrWhiteSpace(apellido) ||string.IsNullOrWhiteSpace(dni) ||string.IsNullOrWhiteSpace(email) ||string.IsNullOrWhiteSpace(nombreUsuario))
+            if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(apellido) || string.IsNullOrWhiteSpace(dni) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(nombreUsuario))
             {
-                throw new Exception("Debe completar todos los campos obligatorios.");
+                throw new Exception(T("Errores.CamposObligatorios"));
             }
 
             if (!EsNombreOApellidoValido(nombre))
             {
-                throw new Exception("El nombre solo puede contener letras y debe tener entre 2 y 50 caracteres.");
+                throw new Exception(T("Errores.NombreInvalido"));
             }
 
             if (!EsNombreOApellidoValido(apellido))
             {
-                throw new Exception("El apellido solo puede contener letras y debe tener entre 2 y 50 caracteres.");
+                throw new Exception(T("Errores.ApellidoInvalido"));
             }
 
             if (!EsDNIValido(dni))
             {
-                throw new Exception("Debe ingresar un DNI válido.");
+                throw new Exception(T("Errores.DniInvalido"));
             }
 
             if (!EsEmailValido(email))
             {
-                throw new Exception("El email ingresado no tiene un formato válido.");
+                throw new Exception(T("Errores.EmailInvalido"));
             }
 
             if (!EsNombreUsuarioValido(nombreUsuario))
             {
-                throw new Exception("El nombre de usuario debe tener entre 4 y 30 caracteres y solo puede contener letras, números, punto, guion o guion bajo.");
+                throw new Exception(T("Errores.NombreUsuarioInvalido"));
             }
 
             if (_usuarioDAL.ExisteEmailEnOtroUsuario(email, idUsuario))
             {
-                throw new Exception("El email ya se encuentra registrado por otro usuario.");
+                throw new Exception(T("Errores.EmailYaRegistradoOtroUsuario"));
             }
 
             if (_usuarioDAL.ExisteDNIEnOtroUsuario(dni, idUsuario))
             {
-                throw new Exception("El DNI ya se encuentra registrado por otro usuario.");
+                throw new Exception(T("Errores.DniYaRegistradoOtroUsuario"));
             }
 
             if (_usuarioDAL.ExisteNombreUsuarioEnOtroUsuario(nombreUsuario, idUsuario))
             {
-                throw new Exception("El nombre de usuario ya se encuentra registrado por otro usuario.");
+                throw new Exception(T("Errores.NombreUsuarioYaRegistradoOtroUsuario"));
             }
             #endregion
 
@@ -376,14 +407,14 @@ namespace BLL
 
             Usuario administrador = SM.Instancia.UsuarioActual;
 
-            _bitacoraEventoBLL.Registrar(administrador.IdUsuario,administrador.NombreUsuario,"Administrador","Modificar Usuario","Alta","Exitoso","El administrador modificó el usuario: " + nombreUsuario);
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Modificar Usuario", "Alta", "Exitoso", "El administrador modificó el usuario: " + nombreUsuario);
         }
 
 
         #region "Validaciones con REGEX"
         private bool EsClaveSegura(string clave)
         {
-            if (string.IsNullOrWhiteSpace(clave)){return false;}
+            if (string.IsNullOrWhiteSpace(clave)) { return false; }
             string patron = @"^(?=.*[A-Z])(?=.*\d)(?!.*\s).{8,}$";
             return Regex.IsMatch(clave, patron);
         }
