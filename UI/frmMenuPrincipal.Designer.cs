@@ -143,7 +143,8 @@
             //
             gestionarPerfilToolStripMenuItem.Name = "gestionarPerfilToolStripMenuItem";
             gestionarPerfilToolStripMenuItem.Size = new Size(180, 22);
-            gestionarPerfilToolStripMenuItem.Text = "Gestion de Perfiles";
+            gestionarPerfilToolStripMenuItem.Text = "Gestion de Roles y Familias";
+            gestionarPerfilToolStripMenuItem.Click += gestionarPerfilToolStripMenuItem_Click;
             //
             // statusStrip1
             //

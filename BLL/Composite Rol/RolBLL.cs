@@ -91,7 +91,7 @@ namespace BLL
 
         #endregion
 
-        #region "Asignacion de Roles a Usuarios"
+        #region "Asignacion de Roles a Usuario"
 
         public void AsignarRolAUsuario(int idUsuario, int idRol)
         {

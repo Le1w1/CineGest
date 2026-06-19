@@ -34,10 +34,8 @@ namespace BLL
             return _idiomaDAL.ObtenerPorCodigo(codigo);
         }
 
-        /// <summary>
         /// Cambia el idioma EN MEMORIA (no toca la BD).
         /// La persistencia se realiza al Logout, comparando con el idioma inicial.
-        /// </summary>
         public void CambiarIdioma(Idioma idioma)
         {
             if (!SM.Instancia.HaySesionActiva())
@@ -61,14 +59,7 @@ namespace BLL
 
             Usuario usuario = SM.Instancia.UsuarioActual;
 
-            _bitacoraEventoBLL.Registrar(
-                usuario.IdUsuario,
-                usuario.NombreUsuario,
-                "Idioma",
-                "Cambio de idioma",
-                "Baja",
-                "Exitoso",
-                "El usuario cambió el idioma a " + idioma.Nombre + " (en memoria, se persiste al cerrar sesión).");
+            _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Idioma","Cambio de idioma","Baja","Exitoso","El usuario cambió el idioma a " + idioma.Nombre + " (en memoria, se persiste al cerrar sesión).");
         }
     }
 }

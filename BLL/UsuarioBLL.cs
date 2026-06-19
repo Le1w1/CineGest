@@ -13,6 +13,7 @@ namespace BLL
     {
         private readonly UsuarioDAL _usuarioDAL;
         private readonly IdiomaDAL _idiomaDAL;
+        private readonly RolDAL _rolDAL;
         private readonly Cripto _cripto;
         private readonly BitacoraEventoBLL _bitacoraEventoBLL;
 
@@ -20,11 +21,12 @@ namespace BLL
         {
             _usuarioDAL = new UsuarioDAL();
             _idiomaDAL = new IdiomaDAL();
+            _rolDAL = new RolDAL();
             _cripto = new Cripto();
             _bitacoraEventoBLL = new BitacoraEventoBLL();
         }
 
-        // sirve para acortar las llamadas a traduccion.
+        // Helper para acortar las llamadas a traduccion.
         private static string T(string clave) => Traductor.Instancia.Traducir(clave);
 
         public Usuario Login(string email, string contraseñia)
@@ -89,9 +91,15 @@ namespace BLL
 
             SM.Instancia.IniciarSesion(usuario);
 
+            // Cargar el idioma del usuario en la sesion (con fallback a ES si esta corrupto)
             Idioma idioma = _idiomaDAL.ObtenerPorId(usuario.IdIdioma);
             if (idioma == null) idioma = _idiomaDAL.ObtenerPorCodigo("ES");
             if (idioma != null) SM.Instancia.EstablecerIdiomaInicial(idioma);
+
+            // Cargar los Roles del usuario (con su composicion completa Composite)en el SM.
+            // A partir de aca SM.TienePermiso(codigo) responde en O(1).
+            List<Rol> rolesUsuario = _rolDAL.ListarRolesDeUsuario(usuario.IdUsuario);
+            SM.Instancia.EstablecerRolesUsuario(rolesUsuario);
 
             _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Inicio de sesión", "Alta", "Exitoso", "El usuario inició sesión correctamente");
             return usuario;
@@ -308,6 +316,7 @@ namespace BLL
             string contraseniaInicial = apellido + dni;
             string passwordHash = _cripto.ObtenerHashSha256(contraseniaInicial);
 
+            // Idioma por defecto al crear un usuario nuevo: Espanol.
             Idioma idiomaPorDefecto = _idiomaDAL.ObtenerPorCodigo("ES");
             if (idiomaPorDefecto == null) throw new Exception(T("Errores.IdiomaPorDefectoNoEncontrado"));
 
