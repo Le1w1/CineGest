@@ -15,6 +15,7 @@ namespace UI
     public partial class frmAdministrador : Form, IObservadorIdioma
     {
         private readonly UsuarioBLL _usuarioBLL;
+        private readonly RolBLL _rolBLL;
         private Usuario _usuarioSeleccionado;
 
         public frmAdministrador()
@@ -23,8 +24,10 @@ namespace UI
             dgvUsuarios.ClearSelection();
             txtNombre.Focus();
             _usuarioBLL = new UsuarioBLL();
+            _rolBLL = new RolBLL();
             ConfigurarGrillaUsuarios();
             CargarUsuarios();
+            CargarRolesEnCombo();
             ConfigurarModoCreacion();
 
             // Traducir YA, antes de que el form se pinte.
@@ -65,6 +68,7 @@ namespace UI
             lblEmail.Text = t.Traducir("frmAdministrador.LblEmail");
             lblNombreUsuario.Text = t.Traducir("frmAdministrador.LblNombreUsuario");
             chkActivo.Text = t.Traducir("frmAdministrador.ChkActivo");
+            lblRol.Text = t.Traducir("frmAdministrador.LblRol");
 
             // Botones
             btnCrearUsuario.Text = t.Traducir("frmAdministrador.BtnCrearUsuario");
@@ -141,13 +145,50 @@ namespace UI
             txtNombreUsuario.Visible = false;
             txtNombreUsuario.Clear();
 
+            // El combo de Rol solo aplica para creación de usuarios nuevos.
+            lblRol.Visible = true;
+            cboRol.Visible = true;
+            cboRol.Enabled = true;
+            if (cboRol.Items.Count > 0) cboRol.SelectedIndex = 0;
+
             btnActivarDesactivarUsuario.Text = Traductor.Instancia.Traducir("frmAdministrador.BtnActivarDesactivar");
+        }
+
+        /// <summary>
+        /// Carga los Roles activos en el ComboBox. Lo llamo una sola vez al
+        /// abrir el form. Si el admin crea/desactiva roles desde otro form,
+        /// hay que reabrir Administrador para verlos.
+        /// </summary>
+        private void CargarRolesEnCombo()
+        {
+            try
+            {
+                List<Rol> roles = _rolBLL.ListarTodos(incluirInactivos: false);
+                cboRol.DataSource = roles;
+                cboRol.DisplayMember = "Nombre";
+                cboRol.ValueMember = "IdRol";
+
+                if (roles.Count == 0)
+                {
+                    cboRol.Enabled = false;
+                    lblMensaje.Text = "No hay Roles activos disponibles. Cree uno desde 'Gestión de Roles y Familias'.";
+                }
+            }
+            catch (Exception ex)
+            {
+                lblMensaje.Text = ex.Message;
+            }
         }
 
         private void ConfigurarModoEdicion()
         {
             lblNombreUsuario.Visible = true;
             txtNombreUsuario.Visible = true;
+
+            // En modo edición el combo SI se muestra: el admin puede cambiar el rol.
+            lblRol.Visible = true;
+            cboRol.Visible = true;
+            cboRol.Enabled = cboRol.Items.Count > 0;
         }
 
         private string ObtenerFiltroSeleccionado()
@@ -256,6 +297,10 @@ namespace UI
                 ? t.Traducir("frmAdministrador.BtnDesactivar")
                 : t.Traducir("frmAdministrador.BtnActivar");
 
+            // Mostrar el rol actual del usuario en el combo
+            if (cboRol.Items.Count > 0 && usuario.IdRol > 0)
+                cboRol.SelectedValue = usuario.IdRol;
+
             lblMensaje.Text = t.Traducir("frmAdministrador.MsgUsuarioSeleccionado") + " " + usuario.NombreUsuario;
         }
 
@@ -301,7 +346,8 @@ namespace UI
 
             try
             {
-                _usuarioBLL.CrearUsuario(txtNombre.Text, txtApellido.Text, txtDNI.Text, txtEmail.Text, chkActivo.Checked);
+                int idRolSeleccionado = cboRol.SelectedValue is int v ? v : 0;
+                _usuarioBLL.CrearUsuario(txtNombre.Text, txtApellido.Text, txtDNI.Text, txtEmail.Text, chkActivo.Checked, idRolSeleccionado);
                 LimpiarCampos();
                 CargarUsuarios();
                 lblMensaje.Text = t.Traducir("frmAdministrador.MsgUsuarioCreado");
@@ -334,7 +380,8 @@ namespace UI
 
             try
             {
-                _usuarioBLL.ModificarUsuario(_usuarioSeleccionado.IdUsuario, txtNombre.Text, txtApellido.Text, txtDNI.Text, txtEmail.Text, txtNombreUsuario.Text, chkActivo.Checked);
+                int idRolSeleccionado = cboRol.SelectedValue is int v ? v : 0;
+                _usuarioBLL.ModificarUsuario(_usuarioSeleccionado.IdUsuario, txtNombre.Text, txtApellido.Text, txtDNI.Text, txtEmail.Text, txtNombreUsuario.Text, chkActivo.Checked, idRolSeleccionado);
 
                 CargarUsuarios();
                 LimpiarCampos();

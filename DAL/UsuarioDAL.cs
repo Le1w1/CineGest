@@ -9,17 +9,15 @@ namespace DAL
     {
         private readonly DAO_AccesoDatos _conexionDAL;
 
+        // Lista de columnas reutilizada por todos los SELECT.
         // Si en el futuro se agrega un campo, se cambia aca y en MapearUsuario.
-        private const string COLUMNAS_USUARIO =
-            "IdUsuario, Nombre, Apellido, DNI, Email, NombreUsuario, PasswordHash, " +
-            "Activo, Bloqueado, IntentosFallidos, DebeCambiarClave, IdIdioma";
+        private const string COLUMNAS_USUARIO ="IdUsuario, Nombre, Apellido, DNI, Email, NombreUsuario, PasswordHash, Activo, Bloqueado, IntentosFallidos, DebeCambiarClave, IdIdioma, IdRol";
 
         public UsuarioDAL()
         {
             _conexionDAL = new DAO_AccesoDatos();
         }
 
-       
         /// Mapea una fila del SqlDataReader a un objeto Usuario.
         /// Centralizado para evitar duplicar el mapeo en cada SELECT.
         private Usuario MapearUsuario(SqlDataReader reader)
@@ -37,7 +35,8 @@ namespace DAL
                 Bloqueado = Convert.ToBoolean(reader["Bloqueado"]),
                 IntentosFallidos = Convert.ToInt32(reader["IntentosFallidos"]),
                 DebeCambiarClave = Convert.ToBoolean(reader["DebeCambiarClave"]),
-                IdIdioma = Convert.ToInt32(reader["IdIdioma"])
+                IdIdioma = Convert.ToInt32(reader["IdIdioma"]),
+                IdRol = Convert.ToInt32(reader["IdRol"])
             };
         }
 
@@ -110,6 +109,7 @@ namespace DAL
                     }
                 }
             }
+
             return null;
         }
 
@@ -129,6 +129,7 @@ namespace DAL
                 {
                     query += " WHERE Bloqueado = 1";
                 }
+
                 query += " ORDER BY Apellido, Nombre";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
@@ -148,12 +149,20 @@ namespace DAL
             return usuarios;
         }
 
-        public void Insertar(Usuario usuario)
+        public int Insertar(Usuario usuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
-                string query = @"INSERT INTO Usuario(Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave,IdIdioma)
-                                 VALUES(@Nombre,@Apellido,@DNI,@Email,@NombreUsuario,@PasswordHash,@Activo,@Bloqueado,@IntentosFallidos,@DebeCambiarClave,@IdIdioma)";
+                string query = @"
+            INSERT INTO Usuario
+            (
+                Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave,IdIdioma,IdRol
+            )
+            OUTPUT INSERTED.IdUsuario 
+            VALUES
+            (
+                @Nombre,@Apellido,@DNI,@Email,@NombreUsuario,@PasswordHash,@Activo,@Bloqueado,@IntentosFallidos,@DebeCambiarClave,@IdIdioma,@IdRol
+            )";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
                 {
@@ -168,9 +177,10 @@ namespace DAL
                     comando.Parameters.AddWithValue("@IntentosFallidos", usuario.IntentosFallidos);
                     comando.Parameters.AddWithValue("@DebeCambiarClave", usuario.DebeCambiarClave);
                     comando.Parameters.AddWithValue("@IdIdioma", usuario.IdIdioma);
+                    comando.Parameters.AddWithValue("@IdRol", usuario.IdRol);
 
                     conexion.Open();
-                    comando.ExecuteNonQuery();
+                    return (int)comando.ExecuteScalar();
                 }
             }
         }
@@ -180,7 +190,7 @@ namespace DAL
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
                 string query = @"
-                UPDATE Usuario SET Nombre = @Nombre, Apellido = @Apellido, DNI = @DNI, Email = @Email, NombreUsuario = @NombreUsuario,Activo = @Activo, Bloqueado = @Bloqueado
+                UPDATE Usuario SET Nombre = @Nombre, Apellido = @Apellido, DNI = @DNI, Email = @Email, NombreUsuario = @NombreUsuario,Activo = @Activo, Bloqueado = @Bloqueado, IdRol = @IdRol
                 WHERE IdUsuario = @IdUsuario";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
@@ -193,7 +203,7 @@ namespace DAL
                     comando.Parameters.AddWithValue("@NombreUsuario", usuario.NombreUsuario);
                     comando.Parameters.AddWithValue("@Activo", usuario.Activo);
                     comando.Parameters.AddWithValue("@Bloqueado", usuario.Bloqueado);
-
+                    comando.Parameters.AddWithValue("@IdRol", usuario.IdRol);
                     conexion.Open();
 
                     int filasAfectadas = comando.ExecuteNonQuery();
@@ -289,7 +299,7 @@ namespace DAL
             }
         }
 
-        
+        /// Persiste el idioma del usuario. Lo invoca el Logout si SM.RequierePersistirIdioma() == true.
         public void ActualizarIdioma(int idUsuario, int idIdioma)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())

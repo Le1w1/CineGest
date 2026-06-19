@@ -97,7 +97,7 @@
             // 
             // gbComposicion
             // 
-            gbComposicion.BackColor = Color.LightSkyBlue;
+            gbComposicion.BackColor = Color.DeepSkyBlue;
             gbComposicion.Controls.Add(tvComposicion);
             gbComposicion.Font = new Font("Segoe UI", 9F);
             gbComposicion.Location = new Point(320, 100);
@@ -215,14 +215,13 @@
             // 
             // btnCancelar
             // 
-            btnCancelar.BackColor = SystemColors.ButtonHighlight;
             btnCancelar.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnCancelar.Location = new Point(200, 480);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(140, 42);
             btnCancelar.TabIndex = 7;
             btnCancelar.Text = "Cancelar";
-            btnCancelar.UseVisualStyleBackColor = false;
+            btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
             // 
             // btnDesactivar
@@ -230,7 +229,7 @@
             btnDesactivar.BackColor = SystemColors.ButtonHighlight;
             btnDesactivar.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnDesactivar.ForeColor = Color.Black;
-            btnDesactivar.Location = new Point(757, 480);
+            btnDesactivar.Location = new Point(758, 480);
             btnDesactivar.Name = "btnDesactivar";
             btnDesactivar.Size = new Size(170, 42);
             btnDesactivar.TabIndex = 8;

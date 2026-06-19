@@ -6,358 +6,170 @@ namespace DAL
 {
     public class RolDAL
     {
-        private readonly DAO_AccesoDatos _conexionDAL;
-        private readonly FamiliaDAL _familiaDAL;
+        private readonly DAO_AccesoDatos _conexionDAL = new DAO_AccesoDatos();
+        private readonly FamiliaDAL _familiaDAL = new FamiliaDAL();
 
-        public RolDAL()
-        {
-            _conexionDAL = new DAO_AccesoDatos();
-            _familiaDAL = new FamiliaDAL();
-        }
-
-        #region "LECTURA"
-
-        /// Devuelve todos los Roles con su composicion completa.
         public List<Rol> ListarTodos(bool incluirInactivos = false)
         {
-            
-            Dictionary<int, Familia> familias = _familiaDAL.ListarTodas(incluirInactivas: true).ToDictionary(f => f.IdFamilia);
+            // Las Familias se cargan completas (con subárbol) desde FamiliaDAL.
+            // Incluimos inactivas para no dejar huecos en Roles que las referencien.
+            var familias = _familiaDAL.ListarTodas(incluirInactivas: true).ToDictionary(f => f.IdFamilia);
 
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
-            {
-                conexion.Open();
+            using SqlConnection conexion = _conexionDAL.ObtenerConexion();
+            conexion.Open();
 
-                //carga todos los PermisoSimples
-                Dictionary<int, PermisoSimple> permisos = LeerTodosPermisos(conexion);
+            var permisos = LeerPermisos(conexion);
+            var roles = LeerRoles(conexion, incluirInactivos);
 
-                //Carga Roles 
-                Dictionary<int, Rol> roles = LeerTodosRolesBase(conexion, incluirInactivos);
+            AgregarHijos(conexion, "SELECT IdRol, IdFamilia FROM Rol_Familia","IdRol", "IdFamilia", roles, familias);
+            AgregarHijos(conexion, "SELECT IdRol, IdPermisoSimple FROM Rol_PermisoSimple","IdRol", "IdPermisoSimple", roles, permisos);
 
-                ResolverFamiliasDeRoles(conexion, roles, familias);
-
-                ResolverPermisosDeRoles(conexion, roles, permisos);
-
-                return roles.Values.OrderBy(r => r.Nombre).ToList();
-            }
+            return roles.Values.OrderBy(r => r.Nombre).ToList();
         }
 
-        public Rol ObtenerPorId(int idRol)
+        public Rol ObtenerPorId(int idRol) =>
+            ListarTodos(incluirInactivos: true).FirstOrDefault(r => r.IdRol == idRol);
+
+        public bool ExistePorNombre(string nombre, int idExcluir = 0)
         {
-            return ListarTodos(incluirInactivos: true).FirstOrDefault(r => r.IdRol == idRol);
+            using SqlConnection conexion = _conexionDAL.ObtenerConexion();
+            using SqlCommand cmd = new SqlCommand("SELECT COUNT(1) FROM Rol WHERE Nombre = @Nombre AND IdRol <> @Excluir", conexion);
+            cmd.Parameters.AddWithValue("@Nombre", nombre);
+            cmd.Parameters.AddWithValue("@Excluir", idExcluir);
+            conexion.Open();
+            return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
         }
 
-        public bool ExistePorNombre(string nombre, int idRolExcluir = 0)
-        {
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
-            {
-                string query = @"SELECT COUNT(1) FROM Rol
-                                 WHERE Nombre = @Nombre AND IdRol <> @Excluir";
-
-                using (SqlCommand cmd = new SqlCommand(query, conexion))
-                {
-                    cmd.Parameters.Add("@Nombre", SqlDbType.NVarChar, 100).Value = nombre;
-                    cmd.Parameters.Add("@Excluir", SqlDbType.Int).Value = idRolExcluir;
-                    conexion.Open();
-                    return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
-                }
-            }
-        }
-
+        /// Devuelve los Roles asignados al usuario. Como el modelo es 1:1 (Usuario.IdRol), la lista tendrá siempre 0 o 1 elemento.
+        /// Se mantiene la firma con List por compatibilidad con SM.EstablecerRolesUsuario.
         public List<Rol> ListarRolesDeUsuario(int idUsuario)
         {
-            List<Rol> todos = ListarTodos(incluirInactivos: false);
+            int idRol;
 
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            using (SqlCommand cmd = new SqlCommand("SELECT IdRol FROM Usuario WHERE IdUsuario = @IdUsuario", conexion))
             {
-                string query = @"SELECT IdRol FROM Usuario_Rol WHERE IdUsuario = @IdUsuario";
-
-                using (SqlCommand cmd = new SqlCommand(query, conexion))
-                {
-                    cmd.Parameters.Add("@IdUsuario", SqlDbType.Int).Value = idUsuario;
-                    conexion.Open();
-
-                    HashSet<int> idsAsignados = new HashSet<int>();
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            idsAsignados.Add(Convert.ToInt32(reader["IdRol"]));
-                        }
-                    }
-
-                    return todos.Where(r => idsAsignados.Contains(r.IdRol)).ToList();
-                }
+                cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
+                conexion.Open();
+                object result = cmd.ExecuteScalar();
+                if (result == null || result == DBNull.Value) return new List<Rol>();
+                idRol = Convert.ToInt32(result);
             }
+
+            Rol rol = ObtenerPorId(idRol);
+            return rol == null ? new List<Rol>() : new List<Rol> { rol };
         }
 
-        #endregion
-
-        #region "ESCRITURA"
+        
 
         public int InsertarConComposicion(Rol rol)
         {
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            using SqlConnection conexion = _conexionDAL.ObtenerConexion();
+            conexion.Open();
+            using SqlTransaction tx = conexion.BeginTransaction();
+            try
             {
-                conexion.Open();
-
-                using (SqlTransaction tx = conexion.BeginTransaction())
-                {
-                    try
-                    {
-                        int nuevoId = InsertarRolBase(conexion, tx, rol);
-                        InsertarRelacionesDeRol(conexion, tx, nuevoId, rol);
-
-                        tx.Commit();
-                        return nuevoId;
-                    }
-                    catch
-                    {
-                        tx.Rollback();
-                        throw;
-                    }
-                }
+                int nuevoId = InsertarCascaraRol(conexion, tx, rol);
+                InsertarHijosDeRol(conexion, tx, nuevoId, rol.Hijos);
+                tx.Commit();
+                return nuevoId;
             }
+            catch { tx.Rollback(); throw; }
         }
 
         public void ModificarConComposicion(Rol rol)
         {
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            using SqlConnection conexion = _conexionDAL.ObtenerConexion();
+            conexion.Open();
+            using SqlTransaction tx = conexion.BeginTransaction();
+            try
             {
-                conexion.Open();
+                Ejecutar(conexion, tx,"UPDATE Rol SET Nombre = @Nombre, Activo = @Activo WHERE IdRol = @Id",("@Nombre", rol.Nombre), ("@Activo", rol.Activo), ("@Id", rol.IdRol));
+                Ejecutar(conexion, tx, "DELETE FROM Rol_Familia WHERE IdRol = @Id", ("@Id", rol.IdRol));
+                Ejecutar(conexion, tx, "DELETE FROM Rol_PermisoSimple WHERE IdRol = @Id", ("@Id", rol.IdRol));
+                InsertarHijosDeRol(conexion, tx, rol.IdRol, rol.Hijos);
 
-                using (SqlTransaction tx = conexion.BeginTransaction())
-                {
-                    try
-                    {
-                        string updateQuery = @"UPDATE Rol
-                                               SET Nombre = @Nombre, Activo = @Activo
-                                               WHERE IdRol = @Id";
-
-                        using (SqlCommand cmd = new SqlCommand(updateQuery, conexion, tx))
-                        {
-                            cmd.Parameters.Add("@Nombre", SqlDbType.NVarChar, 100).Value = rol.Nombre;
-                            cmd.Parameters.Add("@Activo", SqlDbType.Bit).Value = rol.Activo;
-                            cmd.Parameters.Add("@Id", SqlDbType.Int).Value = rol.IdRol;
-
-                            int filas = cmd.ExecuteNonQuery();
-                            if (filas == 0) throw new Exception("No se encontró el Rol a modificar.");
-                        }
-
-                        using (SqlCommand cmd = new SqlCommand(
-                            "DELETE FROM Rol_Familia WHERE IdRol = @Id", conexion, tx))
-                        {
-                            cmd.Parameters.Add("@Id", SqlDbType.Int).Value = rol.IdRol;
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        using (SqlCommand cmd = new SqlCommand(
-                            "DELETE FROM Rol_PermisoSimple WHERE IdRol = @Id", conexion, tx))
-                        {
-                            cmd.Parameters.Add("@Id", SqlDbType.Int).Value = rol.IdRol;
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        InsertarRelacionesDeRol(conexion, tx, rol.IdRol, rol);
-
-                        tx.Commit();
-                    }
-                    catch
-                    {
-                        tx.Rollback();
-                        throw;
-                    }
-                }
+                tx.Commit();
             }
+            catch { tx.Rollback(); throw; }
         }
 
         public void Desactivar(int idRol)
         {
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
-            {
-                string query = @"UPDATE Rol SET Activo = 0 WHERE IdRol = @Id";
-
-                using (SqlCommand cmd = new SqlCommand(query, conexion))
-                {
-                    cmd.Parameters.Add("@Id", SqlDbType.Int).Value = idRol;
-                    conexion.Open();
-                    int filas = cmd.ExecuteNonQuery();
-                    if (filas == 0) throw new Exception("No se encontró el Rol a desactivar.");
-                }
-            }
+            using SqlConnection conexion = _conexionDAL.ObtenerConexion();
+            using SqlCommand cmd = new SqlCommand("UPDATE Rol SET Activo = 0 WHERE IdRol = @Id", conexion);
+            cmd.Parameters.AddWithValue("@Id", idRol);
+            conexion.Open();
+            if (cmd.ExecuteNonQuery() == 0) throw new Exception("No se encontró el Rol a desactivar.");
         }
 
-        public void AsignarRolAUsuario(int idUsuario, int idRol)
+        // ===== HELPERS PRIVADOS =====
+
+        private Dictionary<int, PermisoSimple> LeerPermisos(SqlConnection conexion)
         {
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
+            var dict = new Dictionary<int, PermisoSimple>();
+            using SqlCommand cmd = new SqlCommand("SELECT IdPermisoSimple, Codigo, Nombre FROM PermisoSimple", conexion);
+            using SqlDataReader r = cmd.ExecuteReader();
+            while (r.Read())
             {
-                string query = @"IF NOT EXISTS (SELECT 1 FROM Usuario_Rol
-                                                WHERE IdUsuario = @IdUsuario AND IdRol = @IdRol)
-                                 INSERT INTO Usuario_Rol (IdUsuario, IdRol)
-                                 VALUES (@IdUsuario, @IdRol)";
-
-                using (SqlCommand cmd = new SqlCommand(query, conexion))
-                {
-                    cmd.Parameters.Add("@IdUsuario", SqlDbType.Int).Value = idUsuario;
-                    cmd.Parameters.Add("@IdRol", SqlDbType.Int).Value = idRol;
-                    conexion.Open();
-                    cmd.ExecuteNonQuery();
-                }
+                int id = (int)r["IdPermisoSimple"];
+                dict[id] = new PermisoSimple { IdPermisoSimple = id, Codigo = r["Codigo"].ToString(), Nombre = r["Nombre"].ToString() };
             }
-        }
-
-        public void QuitarRolDeUsuario(int idUsuario, int idRol)
-        {
-            using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
-            {
-                string query = @"DELETE FROM Usuario_Rol
-                                 WHERE IdUsuario = @IdUsuario AND IdRol = @IdRol";
-
-                using (SqlCommand cmd = new SqlCommand(query, conexion))
-                {
-                    cmd.Parameters.Add("@IdUsuario", SqlDbType.Int).Value = idUsuario;
-                    cmd.Parameters.Add("@IdRol", SqlDbType.Int).Value = idRol;
-                    conexion.Open();
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        #endregion
-
-        #region "Metodos Refactorizados"
-
-        private Dictionary<int, PermisoSimple> LeerTodosPermisos(SqlConnection conexion)
-        {
-            Dictionary<int, PermisoSimple> dict = new Dictionary<int, PermisoSimple>();
-
-            string query = @"SELECT IdPermisoSimple, Codigo, Nombre FROM PermisoSimple";
-
-            using (SqlCommand cmd = new SqlCommand(query, conexion))
-            using (SqlDataReader reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    PermisoSimple ps = new PermisoSimple
-                    {
-                        IdPermisoSimple = Convert.ToInt32(reader["IdPermisoSimple"]),
-                        Codigo = reader["Codigo"].ToString(),
-                        Nombre = reader["Nombre"].ToString()
-                    };
-                    dict[ps.IdPermisoSimple] = ps;
-                }
-            }
-
             return dict;
         }
 
-        private Dictionary<int, Rol> LeerTodosRolesBase(SqlConnection conexion, bool incluirInactivos)
+        private Dictionary<int, Rol> LeerRoles(SqlConnection conexion, bool incluirInactivos)
         {
-            Dictionary<int, Rol> dict = new Dictionary<int, Rol>();
-
-            string query = @"SELECT IdRol, Nombre, Activo FROM Rol";
-            if (!incluirInactivos) query += " WHERE Activo = 1";
-
-            using (SqlCommand cmd = new SqlCommand(query, conexion))
-            using (SqlDataReader reader = cmd.ExecuteReader())
+            var dict = new Dictionary<int, Rol>();
+            string sql = "SELECT IdRol, Nombre, Activo FROM Rol" + (incluirInactivos ? "" : " WHERE Activo = 1");
+            using SqlCommand cmd = new SqlCommand(sql, conexion);
+            using SqlDataReader r = cmd.ExecuteReader();
+            while (r.Read())
             {
-                while (reader.Read())
-                {
-                    Rol r = new Rol
-                    {
-                        IdRol = Convert.ToInt32(reader["IdRol"]),
-                        Nombre = reader["Nombre"].ToString(),
-                        Activo = Convert.ToBoolean(reader["Activo"])
-                    };
-                    dict[r.IdRol] = r;
-                }
+                int id = (int)r["IdRol"];
+                dict[id] = new Rol { IdRol = id, Nombre = r["Nombre"].ToString(), Activo = (bool)r["Activo"] };
             }
-
             return dict;
         }
 
-        private void ResolverFamiliasDeRoles(SqlConnection conexion,Dictionary<int, Rol> roles,Dictionary<int, Familia> familias)
+        // Lee una tabla relacional y agrega cada hijo al Rol padre correspondiente.
+        private void AgregarHijos<THijo>(SqlConnection conexion, string sql, string colPadre, string colHijo,Dictionary<int, Rol> roles, Dictionary<int, THijo> hijos) where THijo : Componente
         {
-            string query = @"SELECT IdRol, IdFamilia FROM Rol_Familia";
-
-            using (SqlCommand cmd = new SqlCommand(query, conexion))
-            using (SqlDataReader reader = cmd.ExecuteReader())
+            using SqlCommand cmd = new SqlCommand(sql, conexion);
+            using SqlDataReader r = cmd.ExecuteReader();
+            while (r.Read())
             {
-                while (reader.Read())
-                {
-                    int idRol = Convert.ToInt32(reader["IdRol"]);
-                    int idFam = Convert.ToInt32(reader["IdFamilia"]);
-
-                    if (roles.ContainsKey(idRol) && familias.ContainsKey(idFam))
-                    {
-                        roles[idRol].Agregar(familias[idFam]);
-                    }
-                }
+                int idRol = (int)r[colPadre];
+                int idHijo = (int)r[colHijo];
+                if (roles.TryGetValue(idRol, out Rol rol) && hijos.TryGetValue(idHijo, out THijo hijo))
+                    rol.Agregar(hijo);
             }
         }
 
-        private void ResolverPermisosDeRoles(SqlConnection conexion,Dictionary<int, Rol> roles,Dictionary<int, PermisoSimple> permisos)
+        private int InsertarCascaraRol(SqlConnection conexion, SqlTransaction tx, Rol rol)
         {
-            string query = @"SELECT IdRol, IdPermisoSimple FROM Rol_PermisoSimple";
-
-            using (SqlCommand cmd = new SqlCommand(query, conexion))
-            using (SqlDataReader reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    int idRol = Convert.ToInt32(reader["IdRol"]);
-                    int idPs = Convert.ToInt32(reader["IdPermisoSimple"]);
-
-                    if (roles.ContainsKey(idRol) && permisos.ContainsKey(idPs))
-                    {
-                        roles[idRol].Agregar(permisos[idPs]);
-                    }
-                }
-            }
+            using SqlCommand cmd = new SqlCommand("INSERT INTO Rol (Nombre, Activo) OUTPUT INSERTED.IdRol VALUES (@Nombre, @Activo)",conexion, tx);
+            cmd.Parameters.AddWithValue("@Nombre", rol.Nombre);
+            cmd.Parameters.AddWithValue("@Activo", rol.Activo);
+            return (int)cmd.ExecuteScalar();
         }
 
-        private int InsertarRolBase(SqlConnection conexion, SqlTransaction tx, Rol rol)
+        private void InsertarHijosDeRol(SqlConnection conexion, SqlTransaction tx, int idRol, List<Componente> hijos)
         {
-            string query = @"INSERT INTO Rol (Nombre, Activo)
-                             OUTPUT INSERTED.IdRol
-                             VALUES (@Nombre, @Activo)";
-
-            using (SqlCommand cmd = new SqlCommand(query, conexion, tx))
-            {
-                cmd.Parameters.Add("@Nombre", SqlDbType.NVarChar, 100).Value = rol.Nombre;
-                cmd.Parameters.Add("@Activo", SqlDbType.Bit).Value = rol.Activo;
-                return (int)cmd.ExecuteScalar();
-            }
-        }
-
-        private void InsertarRelacionesDeRol(SqlConnection conexion,SqlTransaction tx,int idRol,Rol rol)
-        {
-            foreach (Componente hijo in rol.Hijos)
+            foreach (Componente hijo in hijos)
             {
                 if (hijo is PermisoSimple ps)
-                {
-                    string sql = @"INSERT INTO Rol_PermisoSimple (IdRol, IdPermisoSimple)
-                                   VALUES (@IdRol, @IdPs)";
-                    using (SqlCommand cmd = new SqlCommand(sql, conexion, tx))
-                    {
-                        cmd.Parameters.Add("@IdRol", SqlDbType.Int).Value = idRol;
-                        cmd.Parameters.Add("@IdPs", SqlDbType.Int).Value = ps.IdPermisoSimple;
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-                else if (hijo is Familia famHija)
-                {
-                    string sql = @"INSERT INTO Rol_Familia (IdRol, IdFamilia)
-                                   VALUES (@IdRol, @IdFam)";
-                    using (SqlCommand cmd = new SqlCommand(sql, conexion, tx))
-                    {
-                        cmd.Parameters.Add("@IdRol", SqlDbType.Int).Value = idRol;
-                        cmd.Parameters.Add("@IdFam", SqlDbType.Int).Value = famHija.IdFamilia;
-                        cmd.ExecuteNonQuery();
-                    }
-                }
+                    Ejecutar(conexion, tx,"INSERT INTO Rol_PermisoSimple (IdRol, IdPermisoSimple) VALUES (@Rol, @Ps)",("@Rol", idRol), ("@Ps", ps.IdPermisoSimple));
+                else if (hijo is Familia fam)
+                    Ejecutar(conexion, tx,"INSERT INTO Rol_Familia (IdRol, IdFamilia) VALUES (@Rol, @Fam)",("@Rol", idRol), ("@Fam", fam.IdFamilia));
             }
         }
 
-        #endregion
+        private void Ejecutar(SqlConnection conexion, SqlTransaction tx, string sql, params (string nombre, object valor)[] parametros)
+        {
+            using SqlCommand cmd = new SqlCommand(sql, conexion, tx);
+            foreach (var p in parametros) cmd.Parameters.AddWithValue(p.nombre, p.valor);
+            cmd.ExecuteNonQuery();
+        }
     }
 }

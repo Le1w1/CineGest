@@ -166,7 +166,9 @@ namespace UI
 
             try
             {
-                List<Componente> hijosActuales = _enEdicion == null ? new List<Componente>(): ObtenerHijos(_enEdicion);
+                List<Componente> hijosActuales = _enEdicion == null
+                    ? new List<Componente>()
+                    : ObtenerHijos(_enEdicion);
 
                 for (int i = 0; i < clbDisponibles.Items.Count; i++)
                 {
@@ -414,6 +416,24 @@ namespace UI
 
             var t = Traductor.Instancia;
 
+            // Caso: composición quedó vacía.
+            //  - Si es NUEVO → no se puede guardar (mensaje específico).
+            //  - Si es EXISTENTE → ofrecer auto-desactivar la entidad.
+            bool composicionVacia = ObtenerHijos(_enEdicion).Count == 0;
+            if (composicionVacia)
+            {
+                if (_esNuevo)
+                {
+                    MessageBox.Show(t.Traducir("Errores.RBAC.ComposicionVacia"),
+                        t.Traducir("frmGestionarRoles.Title"),
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                DesactivarPorComposicionVacia();
+                return;
+            }
+
             try
             {
                 if (_enEdicion is Familia f)
@@ -429,6 +449,49 @@ namespace UI
 
                 MessageBox.Show(
                     t.Traducir("frmGestionarRoles.MsgGuardadoOK"),
+                    t.Traducir("frmGestionarRoles.Title"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                RecargarTodo();
+            }
+            catch (Exception ex)
+            {
+                lblMensaje.Text = ex.Message;
+                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRoles.Title"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        /// <summary>
+        /// Pregunta al admin si quiere desactivar la entidad (Familia o Rol)
+        /// porque su composición quedó vacía. Si confirma, ejecuta el Desactivar
+        /// del BLL correspondiente. Si no, no se guarda nada — la entidad queda
+        /// como estaba en BD y se descarta el cambio en memoria.
+        /// </summary>
+        private void DesactivarPorComposicionVacia()
+        {
+            var t = Traductor.Instancia;
+
+            DialogResult resp = MessageBox.Show(
+                t.Traducir("frmGestionarRoles.ConfirmarDesactivarPorVacio"),
+                t.Traducir("frmGestionarRoles.Title"),
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (resp != DialogResult.Yes)
+            {
+                // El admin dijo NO: no desactivamos, pero los cambios en memoria
+                // siguen ahí. Le avisamos que use Cancelar si quiere descartar.
+                lblMensaje.Text = t.Traducir("frmGestionarRoles.MsgNoDesactivado");
+                return;
+            }
+
+            try
+            {
+                if (_enEdicion is Familia f) _familiaBLL.Desactivar(f.IdFamilia);
+                else if (_enEdicion is Rol r) _rolBLL.Desactivar(r.IdRol);
+
+                MessageBox.Show(
+                    t.Traducir("frmGestionarRoles.MsgDesactivadoOK"),
                     t.Traducir("frmGestionarRoles.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 

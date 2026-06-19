@@ -20,7 +20,6 @@ namespace Servicios
         public int IntentosFallidos { get; set; }
         public bool DebeCambiarClave { get; set; }
         public int IdIdioma { get; set; }
-
-
+        public int IdRol { get; set; }
     }
 }

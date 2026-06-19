@@ -96,8 +96,8 @@ namespace BLL
             if (idioma == null) idioma = _idiomaDAL.ObtenerPorCodigo("ES");
             if (idioma != null) SM.Instancia.EstablecerIdiomaInicial(idioma);
 
-            // Cargar los Roles del usuario (con su composicion completa Composite)en el SM.
-            // A partir de aca SM.TienePermiso(codigo) responde en O(1).
+            // Cargar los Roles del usuario (con su composicion completa Composite)
+            // en el SM. A partir de aca SM.TienePermiso(codigo) responde en O(1).
             List<Rol> rolesUsuario = _rolDAL.ListarRolesDeUsuario(usuario.IdUsuario);
             SM.Instancia.EstablecerRolesUsuario(rolesUsuario);
 
@@ -251,7 +251,7 @@ namespace BLL
         }
 
 
-        public void CrearUsuario(string nombre, string apellido, string dni, string email, bool activo)
+        public void CrearUsuario(string nombre, string apellido, string dni, string email, bool activo, int idRol)
         {
             nombre = (nombre ?? string.Empty).Trim();
             apellido = (apellido ?? string.Empty).Trim();
@@ -265,6 +265,12 @@ namespace BLL
             {
                 throw new Exception(T("Errores.CamposObligatorios"));
             }
+
+            // Validar Rol seleccionado: existe, esta activo y vino del combo
+            if (idRol <= 0) throw new Exception(T("Errores.RBAC.DebeSeleccionarRol"));
+            Rol rolSeleccionado = new RolDAL().ObtenerPorId(idRol)
+                ?? throw new Exception(T("Errores.RBAC.RolNoEncontrado"));
+            if (!rolSeleccionado.Activo) throw new Exception(T("Errores.RBAC.RolInactivo"));
             string nombreSinEspacios = GenerarNombreUsuario(nombre, dni);
 
             #region "Validaciones con REGEX"
@@ -332,17 +338,19 @@ namespace BLL
                 Bloqueado = false,
                 IntentosFallidos = 0,
                 DebeCambiarClave = true,
-                IdIdioma = idiomaPorDefecto.IdIdioma
+                IdIdioma = idiomaPorDefecto.IdIdioma,
+                IdRol = idRol
             };
 
             _usuarioDAL.Insertar(nuevoUsuario);
 
             Usuario administrador = SM.Instancia.UsuarioActual;
 
-            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Crear Usuario", "Alta", "Exitoso", "El administrador creó el usuario: " + nombreSinEspacios);
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Crear Usuario", "Alta", "Exitoso",
+                "El administrador creó el usuario: " + nombreSinEspacios + " con el Rol: " + rolSeleccionado.Nombre);
         }
 
-        public void ModificarUsuario(int idUsuario, string nombre, string apellido, string dni, string email, string nombreUsuario, bool activo)
+        public void ModificarUsuario(int idUsuario, string nombre, string apellido, string dni, string email, string nombreUsuario, bool activo, int idRol)
         {
             nombre = (nombre ?? string.Empty).Trim();
             apellido = (apellido ?? string.Empty).Trim();
@@ -351,6 +359,12 @@ namespace BLL
             nombreUsuario = (nombreUsuario ?? string.Empty).Trim();
 
             if (idUsuario <= 0) throw new Exception(T("Errores.DebeSeleccionarUsuarioModificar"));
+
+            // Validar Rol seleccionado: existe, esta activo y vino del combo
+            if (idRol <= 0) throw new Exception(T("Errores.RBAC.DebeSeleccionarRol"));
+            Rol rolSeleccionado = _rolDAL.ObtenerPorId(idRol)
+                ?? throw new Exception(T("Errores.RBAC.RolNoEncontrado"));
+            if (!rolSeleccionado.Activo) throw new Exception(T("Errores.RBAC.RolInactivo"));
 
             #region "Validaciones con REGEX y de Unicidad"
 
@@ -409,14 +423,16 @@ namespace BLL
                 Email = email,
                 NombreUsuario = nombreUsuario,
                 Activo = activo,
-                Bloqueado = false
+                Bloqueado = false,
+                IdRol = idRol
             };
 
             _usuarioDAL.Modificar(usuarioModificado);
 
             Usuario administrador = SM.Instancia.UsuarioActual;
 
-            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Modificar Usuario", "Alta", "Exitoso", "El administrador modificó el usuario: " + nombreUsuario);
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Modificar Usuario", "Alta", "Exitoso",
+                "El administrador modificó el usuario: " + nombreUsuario + " (Rol: " + rolSeleccionado.Nombre + ")");
         }
 
 

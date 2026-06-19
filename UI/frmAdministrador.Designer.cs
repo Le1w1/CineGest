@@ -46,6 +46,8 @@
             txtNombre = new TextBox();
             lblApellido = new Label();
             lblNombre = new Label();
+            lblRol = new Label();
+            cboRol = new ComboBox();
             dgvUsuarios = new DataGridView();
             btnCrearUsuario = new Button();
             btnModificarUsuario = new Button();
@@ -135,6 +137,8 @@
             // gbDatosUsuario
             // 
             gbDatosUsuario.BackColor = Color.LightSkyBlue;
+            gbDatosUsuario.Controls.Add(lblRol);
+            gbDatosUsuario.Controls.Add(cboRol);
             gbDatosUsuario.Controls.Add(txtNombreUsuario);
             gbDatosUsuario.Controls.Add(lblNombreUsuario);
             gbDatosUsuario.Controls.Add(chkActivo);
@@ -150,10 +154,28 @@
             gbDatosUsuario.Margin = new Padding(3, 4, 3, 4);
             gbDatosUsuario.Name = "gbDatosUsuario";
             gbDatosUsuario.Padding = new Padding(3, 4, 3, 4);
-            gbDatosUsuario.Size = new Size(697, 193);
+            gbDatosUsuario.Size = new Size(697, 250);
             gbDatosUsuario.TabIndex = 14;
             gbDatosUsuario.TabStop = false;
             gbDatosUsuario.Text = "Datos del Usuario";
+            //
+            // lblRol
+            //
+            lblRol.Location = new Point(23, 188);
+            lblRol.Name = "lblRol";
+            lblRol.Size = new Size(137, 31);
+            lblRol.TabIndex = 15;
+            lblRol.Text = "Rol:";
+            //
+            // cboRol
+            //
+            cboRol.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboRol.Font = new Font("Segoe UI", 10F);
+            cboRol.FormattingEnabled = true;
+            cboRol.Location = new Point(171, 185);
+            cboRol.Name = "cboRol";
+            cboRol.Size = new Size(255, 27);
+            cboRol.TabIndex = 16;
             // 
             // txtNombreUsuario
             // 
@@ -407,5 +429,7 @@
         private Label lblMensaje;
         private TextBox txtNombreUsuario;
         private Label lblNombreUsuario;
+        private Label lblRol;
+        private ComboBox cboRol;
     }
 }

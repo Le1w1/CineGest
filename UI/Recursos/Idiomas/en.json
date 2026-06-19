@@ -25,7 +25,7 @@
   "frmCambiarIdioma.LblIdioma": "Language:",
   "frmCambiarIdioma.BtnGuardar": "Save",
   "frmCambiarIdioma.BtnVolver": "Back",
-  "frmCambiarIdioma.MsgCambioExitoso": "Language changed successfully.",
+  "frmCambiarIdioma.MsgCambioExitoso": "Language changed successfully. It will be saved on logout.",
   "frmCambiarIdioma.MsgSeleccioneIdioma": "You must select a language.",
 
   "frmLogin.Title": "CineGest - Login",
@@ -87,6 +87,7 @@
   "frmAdministrador.LblDNI": "ID Number:",
   "frmAdministrador.LblEmail": "Email:",
   "frmAdministrador.LblNombreUsuario": "Username:",
+  "frmAdministrador.LblRol": "Role:",
   "frmAdministrador.ChkActivo": "Active",
   "frmAdministrador.BtnCrearUsuario": "Create User",
   "frmAdministrador.BtnModificarUsuario": "Edit User",
@@ -198,6 +199,8 @@
   "Errores.RBAC.ComposicionVacia": "You must assign at least one Permission or Family to the composition.",
   "Errores.RBAC.FamiliaNoEncontrada": "The specified Family was not found.",
   "Errores.RBAC.RolNoEncontrado": "The specified Role was not found.",
+  "Errores.RBAC.RolInactivo": "The selected Role is inactive.",
+  "Errores.RBAC.DebeSeleccionarRol": "You must select a Role for the user.",
   "Errores.RBAC.CicloDirecto": "A Family cannot contain itself: '{0}'.",
   "Errores.RBAC.CicloIndirecto": "Cycle detected: Family '{0}' already contains Family '{1}'. A loop cannot be created.",
   "Errores.RBAC.PermisoDuplicado": "Permission '{0}' is already included through {1}; it cannot also be added through {2}.",
@@ -221,5 +224,7 @@
   "frmGestionarRoles.MsgDesactivadoOK": "Item deactivated successfully.",
   "frmGestionarRoles.ConfirmarDesactivar": "Do you want to deactivate the selected item? It will be hidden when building new compositions, but existing compositions that reference it will remain.",
   "frmGestionarRoles.MsgSoloPrimerNivel": "You can only remove first-level items from the component being edited. To modify the content of a nested Family, select it from the dropdown and edit it directly.",
-  "frmGestionarRoles.ConfirmarDescartarBorrador": "The item you are creating has not been saved yet. If you change selection, it will be discarded.\n\nDo you want to discard it and continue?"
+  "frmGestionarRoles.ConfirmarDescartarBorrador": "The item you are creating has not been saved yet. If you change selection, it will be discarded.\n\nDo you want to discard it and continue?",
+  "frmGestionarRoles.ConfirmarDesactivarPorVacio": "The composition has become empty. Do you want to deactivate this item? It will be set as inactive in the database.\n\nIf you choose No, the in-memory changes are kept and you can cancel to revert.",
+  "frmGestionarRoles.MsgNoDesactivado": "Not deactivated. Use 'Cancel' to discard changes, or add at least one item to the composition and save."
 }
