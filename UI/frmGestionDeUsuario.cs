@@ -12,13 +12,13 @@ using System.Windows.Forms;
 
 namespace UI
 {
-    public partial class frmAdministrador : Form, IObservadorIdioma
+    public partial class frmGestionDeUsuario : Form, IObservadorIdioma
     {
         private readonly UsuarioBLL _usuarioBLL;
         private readonly RolBLL _rolBLL;
         private Usuario _usuarioSeleccionado;
 
-        public frmAdministrador()
+        public frmGestionDeUsuario()
         {
             InitializeComponent();
             dgvUsuarios.ClearSelection();

@@ -172,7 +172,7 @@ namespace UI
 
         private void administradorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            frmAdministrador formAdministrador = new frmAdministrador();
+            frmGestionDeUsuario formAdministrador = new frmGestionDeUsuario();
             formAdministrador.ShowDialog();
         }
 
@@ -220,7 +220,7 @@ namespace UI
 
         private void usuariosToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            frmAdministrador formAdministrador = new frmAdministrador();
+            frmGestionDeUsuario formAdministrador = new frmGestionDeUsuario();
             formAdministrador.ShowDialog();
         }
 

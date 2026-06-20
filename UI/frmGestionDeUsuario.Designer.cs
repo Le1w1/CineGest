@@ -1,6 +1,6 @@
 ﻿namespace UI
 {
-    partial class frmAdministrador
+    partial class frmGestionDeUsuario
     {
         /// <summary>
         /// Required designer variable.
@@ -35,6 +35,8 @@
             rbActivos = new RadioButton();
             lblCantidadUsuarios = new Label();
             gbDatosUsuario = new GroupBox();
+            lblRol = new Label();
+            cboRol = new ComboBox();
             txtNombreUsuario = new TextBox();
             lblNombreUsuario = new Label();
             chkActivo = new CheckBox();
@@ -46,8 +48,6 @@
             txtNombre = new TextBox();
             lblApellido = new Label();
             lblNombre = new Label();
-            lblRol = new Label();
-            cboRol = new ComboBox();
             dgvUsuarios = new DataGridView();
             btnCrearUsuario = new Button();
             btnModificarUsuario = new Button();
@@ -64,11 +64,11 @@
             // lblTitulo
             // 
             lblTitulo.Font = new Font("Segoe UI", 16F);
-            lblTitulo.Location = new Point(23, 20);
+            lblTitulo.Location = new Point(20, 15);
             lblTitulo.Name = "lblTitulo";
-            lblTitulo.Size = new Size(1017, 47);
+            lblTitulo.Size = new Size(890, 35);
             lblTitulo.TabIndex = 11;
-            lblTitulo.Text = "ADMINISTRADOR";
+            lblTitulo.Text = "Gestion de Usuarios";
             lblTitulo.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // gbFiltros
@@ -77,11 +77,9 @@
             gbFiltros.Controls.Add(rbTodos);
             gbFiltros.Controls.Add(rbBloqueados);
             gbFiltros.Controls.Add(rbActivos);
-            gbFiltros.Location = new Point(23, 80);
-            gbFiltros.Margin = new Padding(3, 4, 3, 4);
+            gbFiltros.Location = new Point(20, 60);
             gbFiltros.Name = "gbFiltros";
-            gbFiltros.Padding = new Padding(3, 4, 3, 4);
-            gbFiltros.Size = new Size(377, 87);
+            gbFiltros.Size = new Size(330, 65);
             gbFiltros.TabIndex = 12;
             gbFiltros.TabStop = false;
             gbFiltros.Text = "Filtros de Usuarios";
@@ -89,10 +87,9 @@
             // rbTodos
             // 
             rbTodos.AutoSize = true;
-            rbTodos.Location = new Point(269, 37);
-            rbTodos.Margin = new Padding(3, 4, 3, 4);
+            rbTodos.Location = new Point(235, 28);
             rbTodos.Name = "rbTodos";
-            rbTodos.Size = new Size(70, 24);
+            rbTodos.Size = new Size(57, 19);
             rbTodos.TabIndex = 2;
             rbTodos.Text = "Todos";
             rbTodos.UseVisualStyleBackColor = true;
@@ -101,10 +98,9 @@
             // rbBloqueados
             // 
             rbBloqueados.AutoSize = true;
-            rbBloqueados.Location = new Point(137, 37);
-            rbBloqueados.Margin = new Padding(3, 4, 3, 4);
+            rbBloqueados.Location = new Point(120, 28);
             rbBloqueados.Name = "rbBloqueados";
-            rbBloqueados.Size = new Size(109, 24);
+            rbBloqueados.Size = new Size(87, 19);
             rbBloqueados.TabIndex = 1;
             rbBloqueados.Text = "Bloqueados";
             rbBloqueados.UseVisualStyleBackColor = true;
@@ -114,10 +110,9 @@
             // 
             rbActivos.AutoSize = true;
             rbActivos.Checked = true;
-            rbActivos.Location = new Point(17, 37);
-            rbActivos.Margin = new Padding(3, 4, 3, 4);
+            rbActivos.Location = new Point(15, 28);
             rbActivos.Name = "rbActivos";
-            rbActivos.Size = new Size(78, 24);
+            rbActivos.Size = new Size(64, 19);
             rbActivos.TabIndex = 0;
             rbActivos.TabStop = true;
             rbActivos.Text = "Activos";
@@ -127,9 +122,9 @@
             // lblCantidadUsuarios
             // 
             lblCantidadUsuarios.Font = new Font("Segoe UI", 10F);
-            lblCantidadUsuarios.Location = new Point(743, 107);
+            lblCantidadUsuarios.Location = new Point(650, 80);
             lblCantidadUsuarios.Name = "lblCantidadUsuarios";
-            lblCantidadUsuarios.Size = new Size(297, 33);
+            lblCantidadUsuarios.Size = new Size(260, 25);
             lblCantidadUsuarios.TabIndex = 13;
             lblCantidadUsuarios.Text = "Número de Usuarios: 0";
             lblCantidadUsuarios.TextAlign = ContentAlignment.MiddleRight;
@@ -150,46 +145,44 @@
             gbDatosUsuario.Controls.Add(txtNombre);
             gbDatosUsuario.Controls.Add(lblApellido);
             gbDatosUsuario.Controls.Add(lblNombre);
-            gbDatosUsuario.Location = new Point(23, 487);
-            gbDatosUsuario.Margin = new Padding(3, 4, 3, 4);
+            gbDatosUsuario.Location = new Point(20, 365);
             gbDatosUsuario.Name = "gbDatosUsuario";
-            gbDatosUsuario.Padding = new Padding(3, 4, 3, 4);
-            gbDatosUsuario.Size = new Size(697, 250);
+            gbDatosUsuario.Size = new Size(610, 188);
             gbDatosUsuario.TabIndex = 14;
             gbDatosUsuario.TabStop = false;
             gbDatosUsuario.Text = "Datos del Usuario";
-            //
+            // 
             // lblRol
-            //
-            lblRol.Location = new Point(23, 188);
+            // 
+            lblRol.Location = new Point(20, 141);
             lblRol.Name = "lblRol";
-            lblRol.Size = new Size(137, 31);
+            lblRol.Size = new Size(120, 23);
             lblRol.TabIndex = 15;
             lblRol.Text = "Rol:";
-            //
+            // 
             // cboRol
-            //
+            // 
             cboRol.DropDownStyle = ComboBoxStyle.DropDownList;
             cboRol.Font = new Font("Segoe UI", 10F);
             cboRol.FormattingEnabled = true;
-            cboRol.Location = new Point(171, 185);
+            cboRol.Location = new Point(150, 139);
+            cboRol.Margin = new Padding(3, 2, 3, 2);
             cboRol.Name = "cboRol";
-            cboRol.Size = new Size(255, 27);
+            cboRol.Size = new Size(224, 25);
             cboRol.TabIndex = 16;
             // 
             // txtNombreUsuario
             // 
-            txtNombreUsuario.Location = new Point(171, 133);
-            txtNombreUsuario.Margin = new Padding(3, 4, 3, 4);
+            txtNombreUsuario.Location = new Point(150, 100);
             txtNombreUsuario.Name = "txtNombreUsuario";
-            txtNombreUsuario.Size = new Size(182, 27);
+            txtNombreUsuario.Size = new Size(160, 23);
             txtNombreUsuario.TabIndex = 14;
             // 
             // lblNombreUsuario
             // 
-            lblNombreUsuario.Location = new Point(23, 137);
+            lblNombreUsuario.Location = new Point(20, 103);
             lblNombreUsuario.Name = "lblNombreUsuario";
-            lblNombreUsuario.Size = new Size(137, 31);
+            lblNombreUsuario.Size = new Size(120, 23);
             lblNombreUsuario.TabIndex = 13;
             lblNombreUsuario.Text = "Nombre de Usuario:";
             // 
@@ -197,76 +190,71 @@
             // 
             chkActivo.Checked = true;
             chkActivo.CheckState = CheckState.Checked;
-            chkActivo.Location = new Point(491, 133);
-            chkActivo.Margin = new Padding(3, 4, 3, 4);
+            chkActivo.Location = new Point(430, 100);
             chkActivo.Name = "chkActivo";
             chkActivo.RightToLeft = RightToLeft.No;
-            chkActivo.Size = new Size(123, 31);
+            chkActivo.Size = new Size(108, 23);
             chkActivo.TabIndex = 11;
             chkActivo.Text = "Activo";
             chkActivo.UseVisualStyleBackColor = true;
             // 
             // txtEmail
             // 
-            txtEmail.Location = new Point(491, 83);
-            txtEmail.Margin = new Padding(3, 4, 3, 4);
+            txtEmail.Location = new Point(430, 62);
             txtEmail.Name = "txtEmail";
-            txtEmail.Size = new Size(171, 27);
+            txtEmail.Size = new Size(150, 23);
             txtEmail.TabIndex = 7;
             // 
             // txtDNI
             // 
-            txtDNI.Location = new Point(171, 83);
-            txtDNI.Margin = new Padding(3, 4, 3, 4);
+            txtDNI.Location = new Point(150, 62);
             txtDNI.Name = "txtDNI";
-            txtDNI.Size = new Size(182, 27);
+            txtDNI.Size = new Size(160, 23);
             txtDNI.TabIndex = 6;
             // 
             // lblEmail
             // 
-            lblEmail.Location = new Point(377, 87);
+            lblEmail.Location = new Point(330, 65);
             lblEmail.Name = "lblEmail";
-            lblEmail.Size = new Size(114, 31);
+            lblEmail.Size = new Size(100, 23);
             lblEmail.TabIndex = 5;
             lblEmail.Text = "Email:";
             // 
             // lblDNI
             // 
-            lblDNI.Location = new Point(23, 87);
+            lblDNI.Location = new Point(20, 65);
             lblDNI.Name = "lblDNI";
-            lblDNI.Size = new Size(137, 31);
+            lblDNI.Size = new Size(120, 23);
             lblDNI.TabIndex = 4;
             lblDNI.Text = "DNI:";
             // 
             // txtApellido
             // 
-            txtApellido.Location = new Point(491, 36);
-            txtApellido.Margin = new Padding(3, 4, 3, 4);
+            txtApellido.Location = new Point(430, 27);
             txtApellido.Name = "txtApellido";
-            txtApellido.Size = new Size(171, 27);
+            txtApellido.Size = new Size(150, 23);
             txtApellido.TabIndex = 3;
             // 
             // txtNombre
             // 
-            txtNombre.Location = new Point(171, 36);
-            txtNombre.Margin = new Padding(3, 4, 3, 4);
+            txtNombre.Location = new Point(150, 27);
             txtNombre.Name = "txtNombre";
-            txtNombre.Size = new Size(182, 27);
+            txtNombre.Size = new Size(160, 23);
             txtNombre.TabIndex = 2;
             // 
             // lblApellido
             // 
-            lblApellido.Location = new Point(377, 40);
+            lblApellido.Location = new Point(330, 30);
             lblApellido.Name = "lblApellido";
-            lblApellido.Size = new Size(114, 31);
+            lblApellido.Size = new Size(100, 23);
             lblApellido.TabIndex = 1;
             lblApellido.Text = "Apellido:";
             // 
             // lblNombre
             // 
-            lblNombre.Location = new Point(23, 40);
+            lblNombre.Location = new Point(20, 30);
             lblNombre.Name = "lblNombre";
-            lblNombre.Size = new Size(137, 31);
+            lblNombre.Size = new Size(120, 23);
             lblNombre.TabIndex = 0;
             lblNombre.Text = "Nombre:";
             // 
@@ -279,8 +267,7 @@
             dgvUsuarios.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvUsuarios.BackgroundColor = Color.White;
             dgvUsuarios.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvUsuarios.Location = new Point(23, 203);
-            dgvUsuarios.Margin = new Padding(3, 4, 3, 4);
+            dgvUsuarios.Location = new Point(20, 152);
             dgvUsuarios.MultiSelect = false;
             dgvUsuarios.Name = "dgvUsuarios";
             dgvUsuarios.ReadOnly = true;
@@ -288,16 +275,15 @@
             dgvUsuarios.RowHeadersWidth = 51;
             dgvUsuarios.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             dgvUsuarios.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvUsuarios.Size = new Size(825, 228);
+            dgvUsuarios.Size = new Size(722, 171);
             dgvUsuarios.TabIndex = 1;
             dgvUsuarios.SelectionChanged += dgvUsuarios_SelectionChanged;
             // 
             // btnCrearUsuario
             // 
-            btnCrearUsuario.Location = new Point(854, 203);
-            btnCrearUsuario.Margin = new Padding(3, 4, 3, 4);
+            btnCrearUsuario.Location = new Point(747, 152);
             btnCrearUsuario.Name = "btnCrearUsuario";
-            btnCrearUsuario.Size = new Size(185, 51);
+            btnCrearUsuario.Size = new Size(162, 38);
             btnCrearUsuario.TabIndex = 15;
             btnCrearUsuario.Text = "Crear Usuario";
             btnCrearUsuario.UseVisualStyleBackColor = true;
@@ -305,10 +291,9 @@
             // 
             // btnModificarUsuario
             // 
-            btnModificarUsuario.Location = new Point(855, 262);
-            btnModificarUsuario.Margin = new Padding(3, 4, 3, 4);
+            btnModificarUsuario.Location = new Point(748, 196);
             btnModificarUsuario.Name = "btnModificarUsuario";
-            btnModificarUsuario.Size = new Size(185, 51);
+            btnModificarUsuario.Size = new Size(162, 38);
             btnModificarUsuario.TabIndex = 16;
             btnModificarUsuario.Text = "Modificar Usuario";
             btnModificarUsuario.UseVisualStyleBackColor = true;
@@ -316,10 +301,9 @@
             // 
             // btnDesbloquearUsuario
             // 
-            btnDesbloquearUsuario.Location = new Point(854, 321);
-            btnDesbloquearUsuario.Margin = new Padding(3, 4, 3, 4);
+            btnDesbloquearUsuario.Location = new Point(747, 241);
             btnDesbloquearUsuario.Name = "btnDesbloquearUsuario";
-            btnDesbloquearUsuario.Size = new Size(185, 51);
+            btnDesbloquearUsuario.Size = new Size(162, 38);
             btnDesbloquearUsuario.TabIndex = 17;
             btnDesbloquearUsuario.Text = "Desbloquear Usuario";
             btnDesbloquearUsuario.UseVisualStyleBackColor = true;
@@ -327,10 +311,9 @@
             // 
             // btnActivarDesactivarUsuario
             // 
-            btnActivarDesactivarUsuario.Location = new Point(854, 380);
-            btnActivarDesactivarUsuario.Margin = new Padding(3, 4, 3, 4);
+            btnActivarDesactivarUsuario.Location = new Point(747, 285);
             btnActivarDesactivarUsuario.Name = "btnActivarDesactivarUsuario";
-            btnActivarDesactivarUsuario.Size = new Size(185, 51);
+            btnActivarDesactivarUsuario.Size = new Size(162, 38);
             btnActivarDesactivarUsuario.TabIndex = 18;
             btnActivarDesactivarUsuario.Text = "Activar / Desactivar Usuario";
             btnActivarDesactivarUsuario.UseVisualStyleBackColor = true;
@@ -338,10 +321,9 @@
             // 
             // btnLimpiar
             // 
-            btnLimpiar.Location = new Point(777, 547);
-            btnLimpiar.Margin = new Padding(3, 4, 3, 4);
+            btnLimpiar.Location = new Point(680, 410);
             btnLimpiar.Name = "btnLimpiar";
-            btnLimpiar.Size = new Size(126, 47);
+            btnLimpiar.Size = new Size(110, 35);
             btnLimpiar.TabIndex = 20;
             btnLimpiar.Text = "Limpiar";
             btnLimpiar.UseVisualStyleBackColor = true;
@@ -349,10 +331,9 @@
             // 
             // btnVolver
             // 
-            btnVolver.Location = new Point(914, 547);
-            btnVolver.Margin = new Padding(3, 4, 3, 4);
+            btnVolver.Location = new Point(800, 410);
             btnVolver.Name = "btnVolver";
-            btnVolver.Size = new Size(126, 47);
+            btnVolver.Size = new Size(110, 35);
             btnVolver.TabIndex = 21;
             btnVolver.Text = "Volver";
             btnVolver.UseVisualStyleBackColor = true;
@@ -361,18 +342,18 @@
             // lblMensaje
             // 
             lblMensaje.ForeColor = Color.DarkRed;
-            lblMensaje.Location = new Point(23, 700);
+            lblMensaje.Location = new Point(20, 525);
             lblMensaje.Name = "lblMensaje";
-            lblMensaje.Size = new Size(1017, 33);
+            lblMensaje.Size = new Size(890, 25);
             lblMensaje.TabIndex = 22;
             lblMensaje.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // frmAdministrador
+            // frmGestionDeUsuario
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.PowderBlue;
-            ClientSize = new Size(1067, 748);
+            ClientSize = new Size(934, 561);
             Controls.Add(lblMensaje);
             Controls.Add(btnVolver);
             Controls.Add(btnLimpiar);
@@ -387,13 +368,12 @@
             Controls.Add(dgvUsuarios);
             ForeColor = SystemColors.ControlText;
             FormBorderStyle = FormBorderStyle.FixedSingle;
-            Margin = new Padding(3, 4, 3, 4);
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "frmAdministrador";
+            Name = "frmGestionDeUsuario";
             ShowIcon = false;
             StartPosition = FormStartPosition.CenterParent;
-            Text = "CineGest - Administrador";
+            Text = "CineGest - Gestion de Usuarios";
             gbFiltros.ResumeLayout(false);
             gbFiltros.PerformLayout();
             gbDatosUsuario.ResumeLayout(false);

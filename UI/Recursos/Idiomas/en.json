@@ -9,7 +9,7 @@
   "frmMenuPrincipal.MenuCartelera": "Showtimes",
   "frmMenuPrincipal.MenuGerencia": "Management",
   "frmMenuPrincipal.MenuAdministrador": "Administrator",
-  "frmMenuPrincipal.MenuUsuarios": "Users",
+  "frmMenuPrincipal.MenuUsuarios": "Users Management",
   "frmMenuPrincipal.MenuBitacora": "Event Log",
   "frmMenuPrincipal.MenuGestionPerfiles": "Roles and Families Management",
   "frmMenuPrincipal.Titulo": "Welcome to CineGest",
@@ -25,7 +25,7 @@
   "frmCambiarIdioma.LblIdioma": "Language:",
   "frmCambiarIdioma.BtnGuardar": "Save",
   "frmCambiarIdioma.BtnVolver": "Back",
-  "frmCambiarIdioma.MsgCambioExitoso": "Language changed successfully. It will be saved on logout.",
+  "frmCambiarIdioma.MsgCambioExitoso": "Language changed successfully.",
   "frmCambiarIdioma.MsgSeleccioneIdioma": "You must select a language.",
 
   "frmLogin.Title": "CineGest - Login",
@@ -74,8 +74,8 @@
   "frmCambiarClave.MsgNoCoinciden": "The new password and confirmation do not match.",
   "frmCambiarClave.MsgRevise": "Please check the entered data.",
 
-  "frmAdministrador.Title": "CineGest - Administrator",
-  "frmAdministrador.LblTitulo": "ADMINISTRATOR",
+  "frmAdministrador.Title": "CineGest - User Management",
+  "frmAdministrador.LblTitulo": "User Management",
   "frmAdministrador.GbFiltros": "User Filters",
   "frmAdministrador.RbActivos": "Active",
   "frmAdministrador.RbBloqueados": "Locked",

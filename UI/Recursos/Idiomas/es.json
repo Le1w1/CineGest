@@ -9,7 +9,7 @@
   "frmMenuPrincipal.MenuCartelera": "Cartelera",
   "frmMenuPrincipal.MenuGerencia": "Gerencia",
   "frmMenuPrincipal.MenuAdministrador": "Administrador",
-  "frmMenuPrincipal.MenuUsuarios": "Usuarios",
+  "frmMenuPrincipal.MenuUsuarios": "Gestión de Usuarios",
   "frmMenuPrincipal.MenuBitacora": "Bitácora de Eventos",
   "frmMenuPrincipal.MenuGestionPerfiles": "Gestión de Roles y Familias",
   "frmMenuPrincipal.Titulo": "Bienvenido a CineGest",
@@ -25,7 +25,7 @@
   "frmCambiarIdioma.LblIdioma": "Idioma:",
   "frmCambiarIdioma.BtnGuardar": "Guardar",
   "frmCambiarIdioma.BtnVolver": "Volver",
-  "frmCambiarIdioma.MsgCambioExitoso": "Idioma cambiado correctamente. Se guardará al cerrar sesión.",
+  "frmCambiarIdioma.MsgCambioExitoso": "Idioma cambiado correctamente.",
   "frmCambiarIdioma.MsgSeleccioneIdioma": "Debe seleccionar un idioma.",
 
   "frmLogin.Title": "CineGest - Inicio de Sesión",
@@ -74,8 +74,8 @@
   "frmCambiarClave.MsgNoCoinciden": "La nueva clave y la confirmación no coinciden.",
   "frmCambiarClave.MsgRevise": "Revise los datos ingresados.",
 
-  "frmAdministrador.Title": "CineGest - Administrador",
-  "frmAdministrador.LblTitulo": "ADMINISTRADOR",
+  "frmAdministrador.Title": "CineGest - Gestión de Usuarios",
+  "frmAdministrador.LblTitulo": "Gestión de Usuarios",
   "frmAdministrador.GbFiltros": "Filtros de Usuarios",
   "frmAdministrador.RbActivos": "Activos",
   "frmAdministrador.RbBloqueados": "Bloqueados",
