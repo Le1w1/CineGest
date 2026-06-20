@@ -56,20 +56,20 @@ namespace UI
         {
             var t = Traductor.Instancia;
 
-            this.Text = t.Traducir("frmGestionarRoles.Title");
-            lblTitulo.Text = t.Traducir("frmGestionarRoles.LblTitulo");
-            lblRolFamilia.Text = t.Traducir("frmGestionarRoles.LblRolFamilia");
-            gbDisponibles.Text = t.Traducir("frmGestionarRoles.GbDisponibles");
-            gbComposicion.Text = t.Traducir("frmGestionarRoles.GbComposicion");
-            gbDatos.Text = t.Traducir("frmGestionarRoles.GbDatos");
-            lblNombre.Text = t.Traducir("frmGestionarRoles.LblNombre");
-            btnCrear.Text = t.Traducir("frmGestionarRoles.BtnCrear");
-            rbFamilia.Text = t.Traducir("frmGestionarRoles.RbFamilia");
-            rbRol.Text = t.Traducir("frmGestionarRoles.RbRol");
-            btnEliminarSeleccionado.Text = t.Traducir("frmGestionarRoles.BtnEliminar");
-            btnGuardarCambios.Text = t.Traducir("frmGestionarRoles.BtnGuardar");
-            btnCancelar.Text = t.Traducir("frmGestionarRoles.BtnCancelar");
-            btnDesactivar.Text = t.Traducir("frmGestionarRoles.BtnDesactivar");
+            this.Text = t.Traducir("frmGestionarRolesYFamilias.Title");
+            lblTitulo.Text = t.Traducir("frmGestionarRolesYFamilias.LblTitulo");
+            lblRolFamilia.Text = t.Traducir("frmGestionarRolesYFamilias.LblRolFamilia");
+            gbDisponibles.Text = t.Traducir("frmGestionarRolesYFamilias.GbDisponibles");
+            gbComposicion.Text = t.Traducir("frmGestionarRolesYFamilias.GbComposicion");
+            gbDatos.Text = t.Traducir("frmGestionarRolesYFamilias.GbDatos");
+            lblNombre.Text = t.Traducir("frmGestionarRolesYFamilias.LblNombre");
+            btnCrear.Text = t.Traducir("frmGestionarRolesYFamilias.BtnCrear");
+            rbFamilia.Text = t.Traducir("frmGestionarRolesYFamilias.RbFamilia");
+            rbRol.Text = t.Traducir("frmGestionarRolesYFamilias.RbRol");
+            btnEliminarSeleccionado.Text = t.Traducir("frmGestionarRolesYFamilias.BtnEliminarSeleccionado");
+            btnGuardarCambios.Text = t.Traducir("frmGestionarRolesYFamilias.BtnGuardar");
+            btnCancelar.Text = t.Traducir("frmGestionarRolesYFamilias.BtnCancelar");
+            btnEliminar.Text = t.Traducir("frmGestionarRolesYFamilias.BtnEliminar");
         }
 
         #region "Carga y refresco"
@@ -101,7 +101,7 @@ namespace UI
             foreach (PermisoSimple p in permisos) clbDisponibles.Items.Add(p);
 
             // Familias activas (las inactivas no se ofrecen para componer)
-            List<Familia> familias = _familiaBLL.ListarTodas(incluirInactivas: false);
+            List<Familia> familias = _familiaBLL.ListarTodas();
             foreach (Familia f in familias) clbDisponibles.Items.Add(f);
 
             _refrescandoCheckList = false;
@@ -114,12 +114,12 @@ namespace UI
             cboRolFamilia.Items.Clear();
 
             // Item especial: "(Nuevo)" como entry de creacion
-            cboRolFamilia.Items.Add(Traductor.Instancia.Traducir("frmGestionarRoles.ItemNuevo"));
+            cboRolFamilia.Items.Add(Traductor.Instancia.Traducir("frmGestionarRolesYFamilias.ItemNuevo"));
 
-            List<Familia> familias = _familiaBLL.ListarTodas(incluirInactivas: false);
+            List<Familia> familias = _familiaBLL.ListarTodas();
             foreach (Familia f in familias) cboRolFamilia.Items.Add(f);
 
-            List<Rol> roles = _rolBLL.ListarTodos(incluirInactivos: false);
+            List<Rol> roles = _rolBLL.ListarTodos();
             foreach (Rol r in roles) cboRolFamilia.Items.Add(r);
 
             cboRolFamilia.SelectedIndex = 0;
@@ -198,7 +198,7 @@ namespace UI
             clbDisponibles.Enabled = false;
             btnEliminarSeleccionado.Enabled = false;
             btnGuardarCambios.Enabled = false;
-            btnDesactivar.Enabled = false;
+            btnEliminar.Enabled = false;
 
             RefrescarCheckListSegunComponente(); // limpia checks
         }
@@ -217,7 +217,7 @@ namespace UI
             btnGuardarCambios.Enabled = true;
 
             // Solo se puede desactivar una entidad YA persistida
-            btnDesactivar.Enabled = !_esNuevo;
+            btnEliminar.Enabled = !_esNuevo;
 
             RefrescarCheckListSegunComponente();
         }
@@ -261,8 +261,8 @@ namespace UI
             {
                 var t = Traductor.Instancia;
                 DialogResult resp = MessageBox.Show(
-                    t.Traducir("frmGestionarRoles.ConfirmarDescartarBorrador"),
-                    t.Traducir("frmGestionarRoles.Title"),
+                    t.Traducir("frmGestionarRolesYFamilias.ConfirmarDescartarBorrador"),
+                    t.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
 
@@ -317,7 +317,7 @@ namespace UI
             {
                 lblMensaje.Text = t.Traducir("Errores.RBAC.NombreObligatorio");
                 MessageBox.Show(t.Traducir("Errores.RBAC.NombreObligatorio"),
-                    t.Traducir("frmGestionarRoles.Title"),
+                    t.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -325,11 +325,11 @@ namespace UI
             Componente nuevo;
             if (rbFamilia.Checked)
             {
-                nuevo = new Familia { Nombre = nombre, Activo = true };
+                nuevo = new Familia { Nombre = nombre };
             }
             else
             {
-                nuevo = new Rol { Nombre = nombre, Activo = true };
+                nuevo = new Rol { Nombre = nombre };
             }
 
             // Agregamos al combo y seleccionamos
@@ -384,8 +384,8 @@ namespace UI
             if (nodo.Parent != null)
             {
                 MessageBox.Show(
-                    Traductor.Instancia.Traducir("frmGestionarRoles.MsgSoloPrimerNivel"),
-                    Traductor.Instancia.Traducir("frmGestionarRoles.Title"),
+                    Traductor.Instancia.Traducir("frmGestionarRolesYFamilias.MsgSoloPrimerNivel"),
+                    Traductor.Instancia.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
@@ -430,7 +430,7 @@ namespace UI
                     return;
                 }
 
-                DesactivarPorComposicionVacia();
+                EliminarPorComposicionVacia();
                 return;
             }
 
@@ -448,8 +448,8 @@ namespace UI
                 }
 
                 MessageBox.Show(
-                    t.Traducir("frmGestionarRoles.MsgGuardadoOK"),
-                    t.Traducir("frmGestionarRoles.Title"),
+                    t.Traducir("frmGestionarRolesYFamilias.MsgGuardadoOK"),
+                    t.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 RecargarTodo();
@@ -457,42 +457,42 @@ namespace UI
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRoles.Title"),
+                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         /// <summary>
-        /// Pregunta al admin si quiere desactivar la entidad (Familia o Rol)
-        /// porque su composición quedó vacía. Si confirma, ejecuta el Desactivar
-        /// del BLL correspondiente. Si no, no se guarda nada — la entidad queda
-        /// como estaba en BD y se descarta el cambio en memoria.
+        /// Pregunta al admin si quiere eliminar la entidad (Familia o Rol)
+        /// porque su composición quedó vacía. Si confirma, ejecuta el Eliminar
+        /// del BLL correspondiente (que valida que no esté en uso). Si no,
+        /// la entidad queda como estaba en BD y se descarta el cambio en memoria.
         /// </summary>
-        private void DesactivarPorComposicionVacia()
+        private void EliminarPorComposicionVacia()
         {
             var t = Traductor.Instancia;
 
             DialogResult resp = MessageBox.Show(
-                t.Traducir("frmGestionarRoles.ConfirmarDesactivarPorVacio"),
-                t.Traducir("frmGestionarRoles.Title"),
+                t.Traducir("frmGestionarRolesYFamilias.ConfirmarEliminarPorVacio"),
+                t.Traducir("frmGestionarRolesYFamilias.Title"),
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (resp != DialogResult.Yes)
             {
-                // El admin dijo NO: no desactivamos, pero los cambios en memoria
+                // El admin dijo NO: no eliminamos, pero los cambios en memoria
                 // siguen ahí. Le avisamos que use Cancelar si quiere descartar.
-                lblMensaje.Text = t.Traducir("frmGestionarRoles.MsgNoDesactivado");
+                lblMensaje.Text = t.Traducir("frmGestionarRolesYFamilias.MsgNoEliminado");
                 return;
             }
 
             try
             {
-                if (_enEdicion is Familia f) _familiaBLL.Desactivar(f.IdFamilia);
-                else if (_enEdicion is Rol r) _rolBLL.Desactivar(r.IdRol);
+                if (_enEdicion is Familia f) _familiaBLL.Eliminar(f.IdFamilia);
+                else if (_enEdicion is Rol r) _rolBLL.Eliminar(r.IdRol);
 
                 MessageBox.Show(
-                    t.Traducir("frmGestionarRoles.MsgDesactivadoOK"),
-                    t.Traducir("frmGestionarRoles.Title"),
+                    t.Traducir("frmGestionarRolesYFamilias.MsgEliminadoOK"),
+                    t.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 RecargarTodo();
@@ -500,7 +500,7 @@ namespace UI
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRoles.Title"),
+                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -510,27 +510,27 @@ namespace UI
             RecargarTodo();
         }
 
-        private void btnDesactivar_Click(object sender, EventArgs e)
+        private void btnEliminar_Click(object sender, EventArgs e)
         {
             if (_enEdicion == null || _esNuevo) return;
 
             var t = Traductor.Instancia;
 
             DialogResult respuesta = MessageBox.Show(
-                t.Traducir("frmGestionarRoles.ConfirmarDesactivar"),
-                t.Traducir("frmGestionarRoles.Title"),
+                t.Traducir("frmGestionarRolesYFamilias.ConfirmarEliminar"),
+                t.Traducir("frmGestionarRolesYFamilias.Title"),
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (respuesta != DialogResult.Yes) return;
 
             try
             {
-                if (_enEdicion is Familia f) _familiaBLL.Desactivar(f.IdFamilia);
-                else if (_enEdicion is Rol r) _rolBLL.Desactivar(r.IdRol);
+                if (_enEdicion is Familia f) _familiaBLL.Eliminar(f.IdFamilia);
+                else if (_enEdicion is Rol r) _rolBLL.Eliminar(r.IdRol);
 
                 MessageBox.Show(
-                    t.Traducir("frmGestionarRoles.MsgDesactivadoOK"),
-                    t.Traducir("frmGestionarRoles.Title"),
+                    t.Traducir("frmGestionarRolesYFamilias.MsgEliminadoOK"),
+                    t.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 RecargarTodo();
@@ -538,7 +538,7 @@ namespace UI
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRoles.Title"),
+                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }

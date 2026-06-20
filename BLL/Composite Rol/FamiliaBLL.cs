@@ -15,7 +15,7 @@ namespace BLL
 
         // --- Lectura ---
 
-        public List<Familia> ListarTodas(bool incluirInactivas = false) => _familiaDAL.ListarTodas(incluirInactivas);
+        public List<Familia> ListarTodas() => _familiaDAL.ListarTodas();
 
         public Familia ObtenerPorId(int idFamilia) => _familiaDAL.ObtenerPorId(idFamilia);
 
@@ -52,12 +52,16 @@ namespace BLL
             RegistrarBitacora("Modificar Familia", "El administrador modificó la Familia: " + familia.Nombre);
         }
 
-        public void Desactivar(int idFamilia)
+        public void Eliminar(int idFamilia)
         {
-            Familia f = _familiaDAL.ObtenerPorId(idFamilia)?? throw new Exception(T("Errores.RBAC.FamiliaNoEncontrada"));
+            Familia f = _familiaDAL.ObtenerPorId(idFamilia)
+                ?? throw new Exception(T("Errores.RBAC.FamiliaNoEncontrada"));
 
-            _familiaDAL.Desactivar(idFamilia);
-            RegistrarBitacora("Desactivar Familia", "El administrador desactivó la Familia: " + f.Nombre);
+            if (_familiaDAL.EstaUsada(idFamilia))
+                throw new Exception(T("Errores.RBAC.FamiliaEnUso"));
+
+            _familiaDAL.Eliminar(idFamilia);
+            RegistrarBitacora("Eliminar Familia", "El administrador eliminó la Familia: " + f.Nombre);
         }
 
         // --- Validaciones ---
@@ -108,19 +112,23 @@ namespace BLL
         private static IEnumerable<string> CodigosDe(Componente c)
         {
             if (c is PermisoSimple ps) return new[] { ps.Codigo };
-            if (c is Familia f && f.Activo) return f.Hijos.SelectMany(CodigosDe);
-            if (c is Rol r && r.Activo) return r.Hijos.SelectMany(CodigosDe);
+            if (c is Familia f) return f.Hijos.SelectMany(CodigosDe);
+            if (c is Rol r) return r.Hijos.SelectMany(CodigosDe);
             return Enumerable.Empty<string>();
         }
 
         // Recorre el subárbol buscando una Familia con el Id indicado.
-        private static bool ContieneFamiliaConId(Familia f, int idBuscar) => f?.Hijos.OfType<Familia>().Any(h => h.IdFamilia == idBuscar || ContieneFamiliaConId(h, idBuscar))?? false;
+        private static bool ContieneFamiliaConId(Familia f, int idBuscar) =>
+            f?.Hijos.OfType<Familia>()
+                .Any(h => h.IdFamilia == idBuscar || ContieneFamiliaConId(h, idBuscar))
+            ?? false;
 
         private void RegistrarBitacora(string accion, string descripcion)
         {
             Usuario u = SM.Instancia.UsuarioActual;
             if (u == null) return;
-            _bitacoraEventoBLL.Registrar(u.IdUsuario, u.NombreUsuario,"Administrador", accion, "Alta", "Exitoso", descripcion);
+            _bitacoraEventoBLL.Registrar(u.IdUsuario, u.NombreUsuario,
+                "Administrador", accion, "Alta", "Exitoso", descripcion);
         }
     }
 }

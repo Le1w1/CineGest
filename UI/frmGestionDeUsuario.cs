@@ -163,7 +163,7 @@ namespace UI
         {
             try
             {
-                List<Rol> roles = _rolBLL.ListarTodos(incluirInactivos: false);
+                List<Rol> roles = _rolBLL.ListarTodos();
                 cboRol.DataSource = roles;
                 cboRol.DisplayMember = "Nombre";
                 cboRol.ValueMember = "IdRol";

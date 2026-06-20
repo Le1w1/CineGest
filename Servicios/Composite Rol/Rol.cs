@@ -3,17 +3,19 @@ using System.Collections.Generic;
 
 namespace Servicios
 {
-   
+    /// <summary>
+    /// Composite "raiz" del modelo RBAC. Contiene PermisoSimples y Familias.
+    /// Misma forma estructural que Familia pero conceptualmente es lo que
+    /// se asigna a un Usuario (via tabla Usuario_Rol).
+    /// </summary>
     public class Rol : Componente
     {
         public int IdRol { get; set; }
-        public bool Activo { get; set; }
         public List<Componente> Hijos { get; private set; }
 
         public Rol()
         {
             Hijos = new List<Componente>();
-            Activo = true;
         }
 
         public void Agregar(Componente componente)
@@ -35,6 +37,7 @@ namespace Servicios
 
         public override List<int> ObtenerPermisos()
         {
+            // No deduplicamos: ver comentario en Familia.ObtenerPermisos().
             List<int> resultado = new List<int>();
 
             foreach (Componente hijo in Hijos)
@@ -48,8 +51,6 @@ namespace Servicios
         public override bool TienePermiso(string codigo)
         {
             if (string.IsNullOrWhiteSpace(codigo)) return false;
-
-            if (!Activo) return false;
 
             foreach (Componente hijo in Hijos)
             {

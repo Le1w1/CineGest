@@ -33,7 +33,7 @@
             btnEliminarSeleccionado = new Button();
             btnGuardarCambios = new Button();
             btnCancelar = new Button();
-            btnDesactivar = new Button();
+            btnEliminar = new Button();
             lblMensaje = new Label();
             gbDisponibles.SuspendLayout();
             gbComposicion.SuspendLayout();
@@ -73,7 +73,6 @@
             // 
             // gbDisponibles
             // 
-            gbDisponibles.BackColor = Color.DeepSkyBlue;
             gbDisponibles.Controls.Add(clbDisponibles);
             gbDisponibles.Font = new Font("Segoe UI", 9F);
             gbDisponibles.Location = new Point(20, 100);
@@ -97,7 +96,6 @@
             // 
             // gbComposicion
             // 
-            gbComposicion.BackColor = Color.DeepSkyBlue;
             gbComposicion.Controls.Add(tvComposicion);
             gbComposicion.Font = new Font("Segoe UI", 9F);
             gbComposicion.Location = new Point(320, 100);
@@ -119,7 +117,6 @@
             // 
             // gbDatos
             // 
-            gbDatos.BackColor = Color.DeepSkyBlue;
             gbDatos.Controls.Add(lblNombre);
             gbDatos.Controls.Add(txtNombre);
             gbDatos.Controls.Add(btnCrear);
@@ -155,7 +152,7 @@
             // 
             // btnCrear
             // 
-            btnCrear.BackColor = SystemColors.ButtonHighlight;
+            btnCrear.BackColor = Color.LightSkyBlue;
             btnCrear.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnCrear.Location = new Point(15, 85);
             btnCrear.Name = "btnCrear";
@@ -191,19 +188,19 @@
             // 
             // btnEliminarSeleccionado
             // 
-            btnEliminarSeleccionado.BackColor = SystemColors.ButtonHighlight;
+            btnEliminarSeleccionado.BackColor = Color.LightSalmon;
             btnEliminarSeleccionado.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnEliminarSeleccionado.Location = new Point(15, 215);
             btnEliminarSeleccionado.Name = "btnEliminarSeleccionado";
-            btnEliminarSeleccionado.Size = new Size(205, 52);
+            btnEliminarSeleccionado.Size = new Size(205, 50);
             btnEliminarSeleccionado.TabIndex = 5;
-            btnEliminarSeleccionado.Text = "Eliminar\r\nseleccionado";
+            btnEliminarSeleccionado.Text = "Quitar item\r\ndel panel";
             btnEliminarSeleccionado.UseVisualStyleBackColor = false;
             btnEliminarSeleccionado.Click += btnEliminarSeleccionado_Click;
             // 
             // btnGuardarCambios
             // 
-            btnGuardarCambios.BackColor = SystemColors.ButtonHighlight;
+            btnGuardarCambios.BackColor = Color.LightGreen;
             btnGuardarCambios.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnGuardarCambios.Location = new Point(20, 480);
             btnGuardarCambios.Name = "btnGuardarCambios";
@@ -215,7 +212,7 @@
             // 
             // btnCancelar
             // 
-            btnCancelar.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnCancelar.Font = new Font("Segoe UI", 10F);
             btnCancelar.Location = new Point(200, 480);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(140, 42);
@@ -224,18 +221,18 @@
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
             // 
-            // btnDesactivar
+            // btnEliminar
             // 
-            btnDesactivar.BackColor = SystemColors.ButtonHighlight;
-            btnDesactivar.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnDesactivar.ForeColor = Color.Black;
-            btnDesactivar.Location = new Point(758, 480);
-            btnDesactivar.Name = "btnDesactivar";
-            btnDesactivar.Size = new Size(170, 42);
-            btnDesactivar.TabIndex = 8;
-            btnDesactivar.Text = "Desactivar";
-            btnDesactivar.UseVisualStyleBackColor = false;
-            btnDesactivar.Click += btnDesactivar_Click;
+            btnEliminar.BackColor = Color.IndianRed;
+            btnEliminar.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnEliminar.ForeColor = Color.White;
+            btnEliminar.Location = new Point(755, 480);
+            btnEliminar.Name = "btnEliminar";
+            btnEliminar.Size = new Size(170, 63);
+            btnEliminar.TabIndex = 8;
+            btnEliminar.Text = "Eliminar\r\nFamilia / Rol";
+            btnEliminar.UseVisualStyleBackColor = false;
+            btnEliminar.Click += btnEliminar_Click;
             // 
             // lblMensaje
             // 
@@ -261,7 +258,7 @@
             Controls.Add(gbDatos);
             Controls.Add(btnGuardarCambios);
             Controls.Add(btnCancelar);
-            Controls.Add(btnDesactivar);
+            Controls.Add(btnEliminar);
             Controls.Add(lblMensaje);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
@@ -295,7 +292,7 @@
         private Button btnEliminarSeleccionado;
         private Button btnGuardarCambios;
         private Button btnCancelar;
-        private Button btnDesactivar;
+        private Button btnEliminar;
         private Label lblMensaje;
     }
 }

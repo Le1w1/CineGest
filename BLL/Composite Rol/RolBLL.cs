@@ -15,7 +15,7 @@ namespace BLL
 
         // --- Lectura ---
 
-        public List<Rol> ListarTodos(bool incluirInactivos = false) => _rolDAL.ListarTodos(incluirInactivos);
+        public List<Rol> ListarTodos() => _rolDAL.ListarTodos();
 
         public Rol ObtenerPorId(int idRol) => _rolDAL.ObtenerPorId(idRol);
 
@@ -51,13 +51,16 @@ namespace BLL
             RegistrarBitacora("Modificar Rol", "El administrador modificó el Rol: " + rol.Nombre);
         }
 
-        public void Desactivar(int idRol)
+        public void Eliminar(int idRol)
         {
             Rol r = _rolDAL.ObtenerPorId(idRol)
                 ?? throw new Exception(T("Errores.RBAC.RolNoEncontrado"));
 
-            _rolDAL.Desactivar(idRol);
-            RegistrarBitacora("Desactivar Rol", "El administrador desactivó el Rol: " + r.Nombre);
+            if (_rolDAL.EstaUsado(idRol))
+                throw new Exception(T("Errores.RBAC.RolEnUso"));
+
+            _rolDAL.Eliminar(idRol);
+            RegistrarBitacora("Eliminar Rol", "El administrador eliminó el Rol: " + r.Nombre);
         }
 
         // --- Validaciones ---
@@ -94,8 +97,8 @@ namespace BLL
         private static IEnumerable<string> CodigosDe(Componente c)
         {
             if (c is PermisoSimple ps) return new[] { ps.Codigo };
-            if (c is Familia f && f.Activo) return f.Hijos.SelectMany(CodigosDe);
-            if (c is Rol r && r.Activo) return r.Hijos.SelectMany(CodigosDe);
+            if (c is Familia f) return f.Hijos.SelectMany(CodigosDe);
+            if (c is Rol r) return r.Hijos.SelectMany(CodigosDe);
             return Enumerable.Empty<string>();
         }
 

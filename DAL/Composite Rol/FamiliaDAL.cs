@@ -8,34 +8,65 @@ namespace DAL
     {
         private readonly DAO_AccesoDatos _conexionDAL = new DAO_AccesoDatos();
 
-        public List<Familia> ListarTodas(bool incluirInactivas = false)
+        // ===== LECTURA =====
+
+        public List<Familia> ListarTodas()
         {
             using SqlConnection conexion = _conexionDAL.ObtenerConexion();
             conexion.Open();
 
-            // 1) Cargamos todos los Permisos y todas las Familias (cáscaras) en diccionarios para resolver las referencias rápidamente en memoria.
+            // 1) Cargamos todos los Permisos y todas las Familias (cáscaras) en diccionarios
+            //    para resolver las referencias rápidamente en memoria.
             var permisos = LeerPermisos(conexion);
-            var familias = LeerFamilias(conexion, incluirInactivas);
+            var familias = LeerFamilias(conexion);
 
             // 2) Resolvemos los hijos: una Familia puede contener otras Familias y/o PermisoSimples.
-            AgregarHijosDeRelaciones(conexion,"SELECT IdFamiliaPadre, IdFamiliaHija FROM Familia_Familia","IdFamiliaPadre", "IdFamiliaHija",familias, familias);
-            AgregarHijosDeRelaciones(conexion,"SELECT IdFamilia, IdPermisoSimple FROM PermisoSimple_Familia","IdFamilia", "IdPermisoSimple",familias, permisos);
+            AgregarHijosDeRelaciones(conexion,
+                "SELECT IdFamiliaPadre, IdFamiliaHija FROM Familia_Familia",
+                "IdFamiliaPadre", "IdFamiliaHija",
+                familias, familias);
+
+            AgregarHijosDeRelaciones(conexion,
+                "SELECT IdFamilia, IdPermisoSimple FROM PermisoSimple_Familia",
+                "IdFamilia", "IdPermisoSimple",
+                familias, permisos);
+
             return familias.Values.OrderBy(f => f.Nombre).ToList();
         }
 
-        public Familia ObtenerPorId(int idFamilia) =>ListarTodas(incluirInactivas: true).FirstOrDefault(f => f.IdFamilia == idFamilia);
+        public Familia ObtenerPorId(int idFamilia) =>
+            ListarTodas().FirstOrDefault(f => f.IdFamilia == idFamilia);
+
+        /// <summary>
+        /// True si la Familia esta siendo usada por otras Familias (como hija)
+        /// o por Roles. NO cuenta sus propias relaciones (composicion propia).
+        /// Se usa para decidir si es seguro eliminar fisicamente.
+        /// </summary>
+        public bool EstaUsada(int idFamilia)
+        {
+            using SqlConnection conexion = _conexionDAL.ObtenerConexion();
+            using SqlCommand cmd = new SqlCommand(@"
+                SELECT
+                    (SELECT COUNT(1) FROM Familia_Familia WHERE IdFamiliaHija = @Id)
+                  + (SELECT COUNT(1) FROM Rol_Familia    WHERE IdFamilia    = @Id)
+                AS Cnt", conexion);
+            cmd.Parameters.AddWithValue("@Id", idFamilia);
+            conexion.Open();
+            return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+        }
 
         public bool ExistePorNombre(string nombre, int idExcluir = 0)
         {
             using SqlConnection conexion = _conexionDAL.ObtenerConexion();
-            using SqlCommand cmd = new SqlCommand("SELECT COUNT(1) FROM Familia WHERE Nombre = @Nombre AND IdFamilia <> @Excluir", conexion);
+            using SqlCommand cmd = new SqlCommand(
+                "SELECT COUNT(1) FROM Familia WHERE Nombre = @Nombre AND IdFamilia <> @Excluir", conexion);
             cmd.Parameters.AddWithValue("@Nombre", nombre);
             cmd.Parameters.AddWithValue("@Excluir", idExcluir);
             conexion.Open();
             return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
         }
 
-        #region "ADM"
+        // ===== ESCRITURA (transaccional) =====
 
         public int InsertarConComposicion(Familia familia)
         {
@@ -59,28 +90,47 @@ namespace DAL
             using SqlTransaction tx = conexion.BeginTransaction();
             try
             {
-                Ejecutar(conexion, tx,"UPDATE Familia SET Nombre = @Nombre, Activo = @Activo WHERE IdFamilia = @Id",("@Nombre", familia.Nombre), ("@Activo", familia.Activo), ("@Id", familia.IdFamilia));
+                Ejecutar(conexion, tx,
+                    "UPDATE Familia SET Nombre = @Nombre WHERE IdFamilia = @Id",
+                    ("@Nombre", familia.Nombre), ("@Id", familia.IdFamilia));
+
                 Ejecutar(conexion, tx, "DELETE FROM PermisoSimple_Familia WHERE IdFamilia = @Id", ("@Id", familia.IdFamilia));
                 Ejecutar(conexion, tx, "DELETE FROM Familia_Familia WHERE IdFamiliaPadre = @Id", ("@Id", familia.IdFamilia));
 
                 InsertarHijos(conexion, tx, familia.IdFamilia, familia.Hijos);
+
                 tx.Commit();
             }
             catch { tx.Rollback(); throw; }
         }
 
-        public void Desactivar(int idFamilia)
+        /// <summary>
+        /// Elimina FISICAMENTE una Familia con su composicion propia.
+        /// El BLL debe haber validado antes que NO este en uso.
+        /// Todo en una transaccion: si algo falla, rollback.
+        /// </summary>
+        public void Eliminar(int idFamilia)
         {
             using SqlConnection conexion = _conexionDAL.ObtenerConexion();
-            using SqlCommand cmd = new SqlCommand("UPDATE Familia SET Activo = 0 WHERE IdFamilia = @Id", conexion);
-            cmd.Parameters.AddWithValue("@Id", idFamilia);
             conexion.Open();
-            if (cmd.ExecuteNonQuery() == 0) throw new Exception("No se encontró la Familia a desactivar.");
+            using SqlTransaction tx = conexion.BeginTransaction();
+            try
+            {
+                // Borrar composicion propia
+                Ejecutar(conexion, tx, "DELETE FROM PermisoSimple_Familia WHERE IdFamilia = @Id", ("@Id", idFamilia));
+                Ejecutar(conexion, tx, "DELETE FROM Familia_Familia WHERE IdFamiliaPadre = @Id", ("@Id", idFamilia));
+
+                // Borrar cascara
+                using SqlCommand cmd = new SqlCommand("DELETE FROM Familia WHERE IdFamilia = @Id", conexion, tx);
+                cmd.Parameters.AddWithValue("@Id", idFamilia);
+                if (cmd.ExecuteNonQuery() == 0) throw new Exception("No se encontró la Familia a eliminar.");
+
+                tx.Commit();
+            }
+            catch { tx.Rollback(); throw; }
         }
 
-        #endregion
-
-        #region"Metodos refactorizados"
+        // ===== HELPERS PRIVADOS =====
 
         private Dictionary<int, PermisoSimple> LeerPermisos(SqlConnection conexion)
         {
@@ -95,25 +145,25 @@ namespace DAL
             return dict;
         }
 
-        private Dictionary<int, Familia> LeerFamilias(SqlConnection conexion, bool incluirInactivas)
+        private Dictionary<int, Familia> LeerFamilias(SqlConnection conexion)
         {
             var dict = new Dictionary<int, Familia>();
-            string sql = "SELECT IdFamilia, Nombre, Activo FROM Familia" + (incluirInactivas ? "" : " WHERE Activo = 1");
-            using SqlCommand cmd = new SqlCommand(sql, conexion);
+            using SqlCommand cmd = new SqlCommand("SELECT IdFamilia, Nombre FROM Familia", conexion);
             using SqlDataReader r = cmd.ExecuteReader();
             while (r.Read())
             {
                 int id = (int)r["IdFamilia"];
-                dict[id] = new Familia { IdFamilia = id, Nombre = r["Nombre"].ToString(), Activo = (bool)r["Activo"] };
+                dict[id] = new Familia { IdFamilia = id, Nombre = r["Nombre"].ToString() };
             }
             return dict;
         }
 
         // Lee una tabla relacional y agrega cada hijo al padre correspondiente.
-        // Genérico: sirve tanto para Familia_Familia como para PermisoSimple_Familia.}
-        // Solo agrega la relación en memoria, no toca la base de datos. 
-        // Requiere que los diccionarios de padres e hijos ya estén cargados para resolver las referencias.
-        private void AgregarHijosDeRelaciones<TPadre, THijo>(SqlConnection conexion, string sql, string colPadre, string colHijo,Dictionary<int, TPadre> padres, Dictionary<int, THijo> hijos) where TPadre : Componente where THijo : Componente
+        // Genérico: sirve tanto para Familia_Familia como para PermisoSimple_Familia.
+        private void AgregarHijosDeRelaciones<TPadre, THijo>(
+            SqlConnection conexion, string sql, string colPadre, string colHijo,
+            Dictionary<int, TPadre> padres, Dictionary<int, THijo> hijos)
+            where TPadre : Componente where THijo : Componente
         {
             using SqlCommand cmd = new SqlCommand(sql, conexion);
             using SqlDataReader r = cmd.ExecuteReader();
@@ -130,9 +180,10 @@ namespace DAL
 
         private int InsertarCascaraFamilia(SqlConnection conexion, SqlTransaction tx, Familia familia)
         {
-            using SqlCommand cmd = new SqlCommand("INSERT INTO Familia (Nombre, Activo) OUTPUT INSERTED.IdFamilia VALUES (@Nombre, @Activo)",conexion, tx);
+            using SqlCommand cmd = new SqlCommand(
+                "INSERT INTO Familia (Nombre) OUTPUT INSERTED.IdFamilia VALUES (@Nombre)",
+                conexion, tx);
             cmd.Parameters.AddWithValue("@Nombre", familia.Nombre);
-            cmd.Parameters.AddWithValue("@Activo", familia.Activo);
             return (int)cmd.ExecuteScalar();
         }
 
@@ -141,9 +192,13 @@ namespace DAL
             foreach (Componente hijo in hijos)
             {
                 if (hijo is PermisoSimple ps)
-                    Ejecutar(conexion, tx,"INSERT INTO PermisoSimple_Familia (IdFamilia, IdPermisoSimple) VALUES (@Fam, @Ps)",("@Fam", idFamilia), ("@Ps", ps.IdPermisoSimple));
+                    Ejecutar(conexion, tx,
+                        "INSERT INTO PermisoSimple_Familia (IdFamilia, IdPermisoSimple) VALUES (@Fam, @Ps)",
+                        ("@Fam", idFamilia), ("@Ps", ps.IdPermisoSimple));
                 else if (hijo is Familia fam)
-                    Ejecutar(conexion, tx,"INSERT INTO Familia_Familia (IdFamiliaPadre, IdFamiliaHija) VALUES (@Padre, @Hija)",("@Padre", idFamilia), ("@Hija", fam.IdFamilia));
+                    Ejecutar(conexion, tx,
+                        "INSERT INTO Familia_Familia (IdFamiliaPadre, IdFamiliaHija) VALUES (@Padre, @Hija)",
+                        ("@Padre", idFamilia), ("@Hija", fam.IdFamilia));
             }
         }
 
@@ -153,6 +208,5 @@ namespace DAL
             foreach (var p in parametros) cmd.Parameters.AddWithValue(p.nombre, p.valor);
             cmd.ExecuteNonQuery();
         }
-        #endregion
     }
 }

@@ -270,7 +270,6 @@ namespace BLL
             if (idRol <= 0) throw new Exception(T("Errores.RBAC.DebeSeleccionarRol"));
             Rol rolSeleccionado = new RolDAL().ObtenerPorId(idRol)
                 ?? throw new Exception(T("Errores.RBAC.RolNoEncontrado"));
-            if (!rolSeleccionado.Activo) throw new Exception(T("Errores.RBAC.RolInactivo"));
             string nombreSinEspacios = GenerarNombreUsuario(nombre, dni);
 
             #region "Validaciones con REGEX"
@@ -364,7 +363,6 @@ namespace BLL
             if (idRol <= 0) throw new Exception(T("Errores.RBAC.DebeSeleccionarRol"));
             Rol rolSeleccionado = _rolDAL.ObtenerPorId(idRol)
                 ?? throw new Exception(T("Errores.RBAC.RolNoEncontrado"));
-            if (!rolSeleccionado.Activo) throw new Exception(T("Errores.RBAC.RolInactivo"));
 
             #region "Validaciones con REGEX y de Unicidad"
 
