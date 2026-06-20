@@ -216,7 +216,7 @@
   "frmGestionarRolesYFamilias.BtnCrear": "Crear",
   "frmGestionarRolesYFamilias.RbFamilia": "Familia",
   "frmGestionarRolesYFamilias.RbRol": "Rol",
-  "frmGestionarRolesYFamilias.BtnEliminarSeleccionado": "Quitar item\r\ndel panel",
+  "frmGestionarRolesYFamilias.BtnEliminarSeleccionado": "Quitar item\r\ndel TreeView",
   "frmGestionarRolesYFamilias.BtnGuardar": "Guardar cambios",
   "frmGestionarRolesYFamilias.BtnCancelar": "Cancelar",
   "frmGestionarRolesYFamilias.BtnEliminar": "Eliminar\r\nFamilia / Rol",

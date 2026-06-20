@@ -194,7 +194,7 @@
             btnEliminarSeleccionado.Name = "btnEliminarSeleccionado";
             btnEliminarSeleccionado.Size = new Size(205, 50);
             btnEliminarSeleccionado.TabIndex = 5;
-            btnEliminarSeleccionado.Text = "Quitar item\r\ndel panel";
+            btnEliminarSeleccionado.Text = "Quitar item\r\ndel TreeView";
             btnEliminarSeleccionado.UseVisualStyleBackColor = false;
             btnEliminarSeleccionado.Click += btnEliminarSeleccionado_Click;
             // 
