@@ -18,6 +18,7 @@ namespace DAL
             _conexionDAL = new DAO_AccesoDatos();
         }
 
+        //Registrar un evento en la bitácora
         public void Registrar(BitacoraEvento evento)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -48,6 +49,9 @@ namespace DAL
                 }
             }
         }
+
+
+        // Obtener eventos de la bitácora según los filtros proporcionados
         public List<BitacoraEvento> ObtenerEventos(DateTime fechaDesde,DateTime fechaHasta,string usuario,string modulo,string accion,string criticidad,string resultado,string descripcion)
         {
             List<BitacoraEvento> eventos = new List<BitacoraEvento>();

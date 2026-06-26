@@ -14,7 +14,7 @@ namespace Servicios
             return new List<int> { IdPermisoSimple };
         }
 
-        public override bool TienePermiso(string codigo)
+        public override bool TienePermiso(string codigo) 
         {
             if (string.IsNullOrWhiteSpace(codigo)) return false;
             return string.Equals(Codigo, codigo, StringComparison.Ordinal);

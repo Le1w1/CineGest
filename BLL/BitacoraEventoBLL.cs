@@ -17,6 +17,8 @@ namespace BLL
             _bitacoraEventoDAL = new BitacoraEventoDAL();
         }
 
+
+        //Registrar un evento en la bitácora
         public void Registrar(int idUsuario, string usuario, string modulo, string accion, string criticidad, string resultado, string descripcion)
         {
             BitacoraEvento evento = new BitacoraEvento
@@ -33,7 +35,9 @@ namespace BLL
 
             _bitacoraEventoDAL.Registrar(evento);
         }
-        
+
+
+        // Obtener eventos de la bitácora según los filtros proporcionados
         public List<BitacoraEvento> ObtenerEventos(DateTime fechaDesde,DateTime fechaHasta,string usuario,string modulo,string accion,string criticidad,string resultado,string descripcion)
         {
             if (fechaDesde.Date > fechaHasta.Date)

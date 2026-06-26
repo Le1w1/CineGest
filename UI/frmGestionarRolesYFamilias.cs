@@ -159,9 +159,8 @@ namespace UI
 
         private void RefrescarCheckListSegunComponente()
         {
-            // Marca los items del clbDisponibles que estan en la composicion
-            // del componente en edicion. Asi al cambiar de seleccion en el
-            // combo, el checklist refleja el estado actual.
+            // Marca los items del clbDisponibles que estan en la composicion del componente en edicion.
+            // Asi al cambiar de seleccion en el combo, el checklist refleja el estado actual.
             _refrescandoCheckList = true;
 
             try
@@ -205,8 +204,7 @@ namespace UI
 
         private void ActivarEstadoEdicion()
         {
-            // Hay una entidad en edicion: bloqueamos los controles de creacion
-            // y habilitamos los de edicion de composicion.
+            // Hay una entidad en edicion: bloqueamos los controles de creacion y habilitamos los de edicion de composicion.
             rbFamilia.Enabled = false;
             rbRol.Enabled = false;
             txtNombre.Enabled = false;
@@ -224,7 +222,7 @@ namespace UI
 
         #endregion
 
-        #region "Helpers Composite"
+        #region "Metodos privados para el Composite"
 
         private List<Componente> ObtenerHijos(Componente c)
         {
@@ -247,7 +245,7 @@ namespace UI
 
         #endregion
 
-        #region "Handlers de eventos"
+        #region "Eventos de controles"
 
         private void cboRolFamilia_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -255,16 +253,11 @@ namespace UI
 
             object seleccionado = cboRolFamilia.SelectedItem;
 
-            // Si hay un borrador (componente nuevo NO guardado) y se esta saliendo
-            // de el (selecciono otro item), preguntar al usuario si descartarlo.
+            // Si hay un borrador (componente nuevo NO guardado) y se esta saliendo de el (selecciono otro item), preguntar al usuario si descartarlo.
             if (_esNuevo && _enEdicion != null && !ReferenceEquals(seleccionado, _enEdicion))
             {
                 var t = Traductor.Instancia;
-                DialogResult resp = MessageBox.Show(
-                    t.Traducir("frmGestionarRolesYFamilias.ConfirmarDescartarBorrador"),
-                    t.Traducir("frmGestionarRolesYFamilias.Title"),
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
+                DialogResult resp = MessageBox.Show(t.Traducir("frmGestionarRolesYFamilias.ConfirmarDescartarBorrador"),t.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.YesNo,MessageBoxIcon.Question);
 
                 if (resp != DialogResult.Yes)
                 {
@@ -289,7 +282,7 @@ namespace UI
                 _esNuevo = false;
             }
 
-            // (Nuevo) → estado inicial
+            //  Estado inicial del Nuevo
             if (seleccionado is string)
             {
                 _enEdicion = null;
@@ -316,9 +309,7 @@ namespace UI
             if (string.IsNullOrWhiteSpace(nombre))
             {
                 lblMensaje.Text = t.Traducir("Errores.RBAC.NombreObligatorio");
-                MessageBox.Show(t.Traducir("Errores.RBAC.NombreObligatorio"),
-                    t.Traducir("frmGestionarRolesYFamilias.Title"),
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(t.Traducir("Errores.RBAC.NombreObligatorio"),t.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -356,8 +347,7 @@ namespace UI
             Componente item = clbDisponibles.Items[e.Index] as Componente;
             if (item == null) return;
 
-            // CheckedListBox.ItemCheck se dispara ANTES de cambiar el estado,
-            // por eso usamos e.NewValue (no .CurrentValue).
+            // CheckedListBox.ItemCheck se dispara ANTES de cambiar el estado, por eso usamos e.NewValue (no .CurrentValue).
             if (e.NewValue == CheckState.Checked)
             {
                 AgregarHijo(_enEdicion, item);
@@ -367,8 +357,7 @@ namespace UI
                 QuitarHijo(_enEdicion, item);
             }
 
-            // Refrescamos el TreeView en el siguiente tick (cuando el checkbox
-            // ya cambio efectivamente de estado).
+            // Refrescamos el TreeView en el siguiente tick (cuando el checkbox ya cambio efectivamente de estado).
             BeginInvoke(new Action(RefrescarTreeView));
         }
 
@@ -378,15 +367,11 @@ namespace UI
 
             TreeNode nodo = tvComposicion.SelectedNode;
 
-            // Solo permitimos eliminar items del primer nivel del componente
-            // en edicion. Los hijos anidados (de Familias) NO se pueden quitar
-            // desde aca — para eso hay que editar esa Familia especificamente.
+            // Solo permitimos eliminar items del primer nivel del componente en edicion.
+            // Los hijos anidados (de Familias) NO se pueden quitar desde aca — para eso hay que editar esa Familia especificamente.
             if (nodo.Parent != null)
             {
-                MessageBox.Show(
-                    Traductor.Instancia.Traducir("frmGestionarRolesYFamilias.MsgSoloPrimerNivel"),
-                    Traductor.Instancia.Traducir("frmGestionarRolesYFamilias.Title"),
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Traductor.Instancia.Traducir("frmGestionarRolesYFamilias.MsgSoloPrimerNivel"),Traductor.Instancia.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -417,23 +402,19 @@ namespace UI
             var t = Traductor.Instancia;
 
             // Caso: composición quedó vacía.
-            //  - Si es NUEVO → no se puede guardar (mensaje específico).
-            //  - Si es EXISTENTE → ofrecer auto-desactivar la entidad.
+            //  - Si es NUEVO:  no se puede guardar (mensaje específico).
+            //  - Si es EXISTENTE: ofrecer auto-desactivar la entidad.
             bool composicionVacia = ObtenerHijos(_enEdicion).Count == 0;
             if (composicionVacia)
             {
                 if (_esNuevo)
                 {
-                    MessageBox.Show(t.Traducir("Errores.RBAC.ComposicionVacia"),
-                        t.Traducir("frmGestionarRoles.Title"),
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(t.Traducir("Errores.RBAC.ComposicionVacia"),t.Traducir("frmGestionarRoles.Title"),MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-
                 EliminarPorComposicionVacia();
                 return;
             }
-
             try
             {
                 if (_enEdicion is Familia f)
@@ -447,40 +428,30 @@ namespace UI
                     else _rolBLL.Modificar(r);
                 }
 
-                MessageBox.Show(
-                    t.Traducir("frmGestionarRolesYFamilias.MsgGuardadoOK"),
-                    t.Traducir("frmGestionarRolesYFamilias.Title"),
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(t.Traducir("frmGestionarRolesYFamilias.MsgGuardadoOK"),t.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 RecargarTodo();
             }
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRolesYFamilias.Title"),
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        /// <summary>
-        /// Pregunta al admin si quiere eliminar la entidad (Familia o Rol)
-        /// porque su composición quedó vacía. Si confirma, ejecuta el Eliminar
-        /// del BLL correspondiente (que valida que no esté en uso). Si no,
-        /// la entidad queda como estaba en BD y se descarta el cambio en memoria.
-        /// </summary>
+        /// Pregunta al admin si quiere eliminar la entidad (Familia o Rol) porque su composición quedó vacía. 
+        /// Si confirma, ejecuta el Eliminar del BLL correspondiente (que valida que no esté en uso). 
+        /// Si no, la entidad queda como estaba en BD y se descarta el cambio en memoria.
         private void EliminarPorComposicionVacia()
         {
             var t = Traductor.Instancia;
 
-            DialogResult resp = MessageBox.Show(
-                t.Traducir("frmGestionarRolesYFamilias.ConfirmarEliminarPorVacio"),
-                t.Traducir("frmGestionarRolesYFamilias.Title"),
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult resp = MessageBox.Show(t.Traducir("frmGestionarRolesYFamilias.ConfirmarEliminarPorVacio"),t.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (resp != DialogResult.Yes)
             {
-                // El admin dijo NO: no eliminamos, pero los cambios en memoria
-                // siguen ahí. Le avisamos que use Cancelar si quiere descartar.
+                // El admin dijo NO: no eliminamos, pero los cambios en memoria siguen ahí.
+                // Le avisamos que use Cancelar si quiere descartar.
                 lblMensaje.Text = t.Traducir("frmGestionarRolesYFamilias.MsgNoEliminado");
                 return;
             }
@@ -490,18 +461,14 @@ namespace UI
                 if (_enEdicion is Familia f) _familiaBLL.Eliminar(f.IdFamilia);
                 else if (_enEdicion is Rol r) _rolBLL.Eliminar(r.IdRol);
 
-                MessageBox.Show(
-                    t.Traducir("frmGestionarRolesYFamilias.MsgEliminadoOK"),
-                    t.Traducir("frmGestionarRolesYFamilias.Title"),
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(t.Traducir("frmGestionarRolesYFamilias.MsgEliminadoOK"),t.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 RecargarTodo();
             }
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRolesYFamilias.Title"),
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -516,10 +483,7 @@ namespace UI
 
             var t = Traductor.Instancia;
 
-            DialogResult respuesta = MessageBox.Show(
-                t.Traducir("frmGestionarRolesYFamilias.ConfirmarEliminar"),
-                t.Traducir("frmGestionarRolesYFamilias.Title"),
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(t.Traducir("frmGestionarRolesYFamilias.ConfirmarEliminar"),t.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (respuesta != DialogResult.Yes) return;
 
@@ -528,9 +492,7 @@ namespace UI
                 if (_enEdicion is Familia f) _familiaBLL.Eliminar(f.IdFamilia);
                 else if (_enEdicion is Rol r) _rolBLL.Eliminar(r.IdRol);
 
-                MessageBox.Show(
-                    t.Traducir("frmGestionarRolesYFamilias.MsgEliminadoOK"),
-                    t.Traducir("frmGestionarRolesYFamilias.Title"),
+                MessageBox.Show(t.Traducir("frmGestionarRolesYFamilias.MsgEliminadoOK"),t.Traducir("frmGestionarRolesYFamilias.Title"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 RecargarTodo();
@@ -538,8 +500,7 @@ namespace UI
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
-                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRolesYFamilias.Title"),
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(ex.Message, t.Traducir("frmGestionarRolesYFamilias.Title"),MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

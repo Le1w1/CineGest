@@ -20,7 +20,7 @@ namespace UI
         {
             InitializeComponent();
 
-            // Traducir YA, antes de que el form se pinte.
+            // Traducir antes de que el form se cargue.
             ActualizarIdioma();
         }
 
@@ -28,20 +28,13 @@ namespace UI
         {
             // Suscripcion al Observer de idioma.
             SM.Instancia.Suscribir(this);
-
             CargarDatosSesion();
             AplicarPermisos();
         }
 
-        /// <summary>
-        /// Recorre los items del menu y los habilita/deshabilita segun los
-        /// permisos del usuario logueado. NO oculta nada: items deshabilitados
-        /// quedan visibles pero en gris (decision de UX: el usuario ve que el
-        /// modulo existe aunque no pueda usarlo).
-        ///
-        /// Excepcion: "Cerrar Sesion" SIEMPRE habilitado por seguridad
-        /// operativa, sin importar los permisos del rol.
-        /// </summary>
+        /// Recorre los items del menu y los habilita/deshabilita segun los permisos del usuario logueado. 
+        /// Excepcion: "Cerrar Sesion" SIEMPRE habilitado por seguridad operativa, sin importar los permisos del rol.
+        
         private void AplicarPermisos()
         {
             var sm = SM.Instancia;
@@ -53,44 +46,24 @@ namespace UI
             cerrarSesionToolStripMenuItem.Enabled = true; // siempre habilitado
 
             // --- Menu Boleteria ---
-            empleadoDeBoleteríaToolStripMenuItem.Enabled =
-                sm.TienePermiso("BOL_VENDER")
-                || sm.TienePermiso("BOL_DEVOLVER")
-                || sm.TienePermiso("BOL_CONSULTAR");
+            empleadoDeBoleteríaToolStripMenuItem.Enabled = sm.TienePermiso("BOL_VENDER")|| sm.TienePermiso("BOL_DEVOLVER")|| sm.TienePermiso("BOL_CONSULTAR");
 
             // --- Menu Cartelera ---
-            gerenciaToolStripMenuItem.Enabled =
-                sm.TienePermiso("CART_VER")
-                || sm.TienePermiso("CART_CREAR_FUNCION")
-                || sm.TienePermiso("CART_MODIFICAR_FUNCION")
-                || sm.TienePermiso("CART_ELIMINAR_FUNCION")
-                || sm.TienePermiso("CART_GESTIONAR_PELICULAS");
+            gerenciaToolStripMenuItem.Enabled =sm.TienePermiso("CART_VER")|| sm.TienePermiso("CART_CREAR_FUNCION")|| sm.TienePermiso("CART_MODIFICAR_FUNCION")|| sm.TienePermiso("CART_ELIMINAR_FUNCION")|| sm.TienePermiso("CART_GESTIONAR_PELICULAS");
 
             // --- Menu Gerencia ---
-            gerenciaToolStripMenuItem1.Enabled =
-                sm.TienePermiso("GER_REPORTES")
-                || sm.TienePermiso("GER_DASHBOARD")
-                || sm.TienePermiso("GER_EXPORTAR_DATOS");
+            gerenciaToolStripMenuItem1.Enabled =sm.TienePermiso("GER_REPORTES")|| sm.TienePermiso("GER_DASHBOARD")|| sm.TienePermiso("GER_EXPORTAR_DATOS");
 
             // --- Menu Administrador ---
-            usuariosToolStripMenuItem.Enabled =
-                sm.TienePermiso("USR_LISTAR")
-                || sm.TienePermiso("USR_CREAR")
-                || sm.TienePermiso("USR_MODIFICAR");
+            usuariosToolStripMenuItem.Enabled =sm.TienePermiso("USR_LISTAR")|| sm.TienePermiso("USR_CREAR")|| sm.TienePermiso("USR_MODIFICAR");
 
             bitacoraEventosToolStripMenuItem.Enabled = sm.TienePermiso("BIT_AUDITAR");
 
-            gestionarPerfilToolStripMenuItem.Enabled =
-                sm.TienePermiso("ROL_GESTIONAR")
-                || sm.TienePermiso("FAM_GESTIONAR");
+            gestionarPerfilToolStripMenuItem.Enabled =sm.TienePermiso("ROL_GESTIONAR")|| sm.TienePermiso("FAM_GESTIONAR");
 
-            // --- Menus padre: deshabilitados si TODOS sus hijos estan deshabilitados ---
-            mnuAdministrador.Enabled =
-                usuariosToolStripMenuItem.Enabled
-                || bitacoraEventosToolStripMenuItem.Enabled
-                || gestionarPerfilToolStripMenuItem.Enabled;
+            // Menus padre: deshabilitados si TODOS sus hijos estan deshabilitados 
+            mnuAdministrador.Enabled = usuariosToolStripMenuItem.Enabled|| bitacoraEventosToolStripMenuItem.Enabled|| gestionarPerfilToolStripMenuItem.Enabled;
 
-            // mnuSesion no se deshabilita nunca porque Cerrar Sesion siempre esta activo.
         }
 
         private void frmMenuPrincipal_FormClosed(object sender, FormClosedEventArgs e)
@@ -98,10 +71,7 @@ namespace UI
             SM.Instancia.Desuscribir(this);
         }
 
-        /// <summary>
-        /// Implementacion del Observer: el SM nos llama cuando cambia el idioma.
-        /// Recorre todos los textos del form y aplica las traducciones.
-        /// </summary>
+        /// Implementacion del Observer: el SM nos llama cuando cambia el idioma. Recorre todos los textos del form y aplica las traducciones.
         public void ActualizarIdioma()
         {
             var t = Traductor.Instancia;
@@ -152,24 +122,6 @@ namespace UI
             }
         }
 
-        private void mnuSesion_Click(object sender, EventArgs e)
-        {
-            frmSesion formSesion = new frmSesion();
-            formSesion.ShowDialog();
-
-            if (formSesion.ReLoginExitoso)
-            {
-                CargarDatosSesion();
-                return;
-            }
-
-            if (formSesion.SesionCerrada)
-            {
-                this.Close();
-                return;
-            }
-        }
-
         private void administradorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             frmGestionDeUsuario formAdministrador = new frmGestionDeUsuario();
@@ -180,11 +132,7 @@ namespace UI
         {
             var t = Traductor.Instancia;
 
-            DialogResult respuesta = MessageBox.Show(
-                t.Traducir("frmMenuPrincipal.ConfirmarCerrarSesion"),
-                t.Traducir("frmMenuPrincipal.CerrarSesionTitulo"),
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(t.Traducir("frmMenuPrincipal.ConfirmarCerrarSesion"),t.Traducir("frmMenuPrincipal.CerrarSesionTitulo"),MessageBoxButtons.YesNo,MessageBoxIcon.Question);
 
             if (respuesta == DialogResult.Yes)
             {
@@ -235,5 +183,6 @@ namespace UI
             frmGestionarRolesYFamilias formGestionar = new frmGestionarRolesYFamilias();
             formGestionar.ShowDialog();
         }
+
     }
 }

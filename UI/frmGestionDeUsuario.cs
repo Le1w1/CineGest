@@ -30,7 +30,7 @@ namespace UI
             CargarRolesEnCombo();
             ConfigurarModoCreacion();
 
-            // Traducir YA, antes de que el form se pinte.
+            // Traducir  antes de que el form se cargue.
             ActualizarIdioma();
 
             this.Load += frmAdministrador_Load;
@@ -84,9 +84,7 @@ namespace UI
             }
             else
             {
-                btnActivarDesactivarUsuario.Text = _usuarioSeleccionado.Activo
-                    ? t.Traducir("frmAdministrador.BtnDesactivar")
-                    : t.Traducir("frmAdministrador.BtnActivar");
+                btnActivarDesactivarUsuario.Text = _usuarioSeleccionado.Activo? t.Traducir("frmAdministrador.BtnDesactivar"): t.Traducir("frmAdministrador.BtnActivar");
             }
 
             // Cabeceras del DataGridView
@@ -154,11 +152,8 @@ namespace UI
             btnActivarDesactivarUsuario.Text = Traductor.Instancia.Traducir("frmAdministrador.BtnActivarDesactivar");
         }
 
-        /// <summary>
-        /// Carga los Roles activos en el ComboBox. Lo llamo una sola vez al
-        /// abrir el form. Si el admin crea/desactiva roles desde otro form,
-        /// hay que reabrir Administrador para verlos.
-        /// </summary>
+        /// Carga los Roles activos en el ComboBox. Lo llamo una sola vez al abrir el form. Si el admin crea/desactiva roles desde otro form hay que reabrir Administrador para verlos.
+        
         private void CargarRolesEnCombo()
         {
             try
@@ -293,9 +288,7 @@ namespace UI
             txtNombreUsuario.Text = usuario.NombreUsuario;
 
             chkActivo.Checked = usuario.Activo;
-            btnActivarDesactivarUsuario.Text = usuario.Activo
-                ? t.Traducir("frmAdministrador.BtnDesactivar")
-                : t.Traducir("frmAdministrador.BtnActivar");
+            btnActivarDesactivarUsuario.Text = usuario.Activo? t.Traducir("frmAdministrador.BtnDesactivar"): t.Traducir("frmAdministrador.BtnActivar");
 
             // Mostrar el rol actual del usuario en el combo
             if (cboRol.Items.Count > 0 && usuario.IdRol > 0)
@@ -370,11 +363,7 @@ namespace UI
                 return;
             }
 
-            DialogResult respuesta = MessageBox.Show(
-                t.Traducir("frmAdministrador.ConfirmarModificar"),
-                t.Traducir("frmAdministrador.BtnModificarUsuario"),
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(t.Traducir("frmAdministrador.ConfirmarModificar"),t.Traducir("frmAdministrador.BtnModificarUsuario"),MessageBoxButtons.YesNo,MessageBoxIcon.Question);
 
             if (respuesta == DialogResult.No) return;
 
@@ -388,11 +377,7 @@ namespace UI
 
                 lblMensaje.Text = t.Traducir("frmAdministrador.MsgUsuarioModificado");
 
-                MessageBox.Show(
-                    t.Traducir("frmAdministrador.MsgUsuarioModificado"),
-                    t.Traducir("frmAdministrador.BtnModificarUsuario"),
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(t.Traducir("frmAdministrador.MsgUsuarioModificado"),t.Traducir("frmAdministrador.BtnModificarUsuario"),MessageBoxButtons.OK,MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -412,11 +397,7 @@ namespace UI
                 return;
             }
 
-            DialogResult respuesta = MessageBox.Show(
-                t.Traducir("frmAdministrador.ConfirmarDesbloquear"),
-                t.Traducir("frmAdministrador.BtnDesbloquearUsuario"),
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(t.Traducir("frmAdministrador.ConfirmarDesbloquear"),t.Traducir("frmAdministrador.BtnDesbloquearUsuario"),MessageBoxButtons.YesNo,MessageBoxIcon.Question);
 
             if (respuesta != DialogResult.Yes) return;
 
@@ -428,11 +409,7 @@ namespace UI
 
                 lblMensaje.Text = t.Traducir("frmAdministrador.MsgUsuarioDesbloqueado");
 
-                MessageBox.Show(
-                    t.Traducir("frmAdministrador.MsgUsuarioDesbloqueado"),
-                    t.Traducir("frmAdministrador.BtnDesbloquearUsuario"),
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(t.Traducir("frmAdministrador.MsgUsuarioDesbloqueado"),t.Traducir("frmAdministrador.BtnDesbloquearUsuario"),MessageBoxButtons.OK,MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -452,15 +429,9 @@ namespace UI
                 return;
             }
 
-            string mensajeConfirmacion = _usuarioSeleccionado.Activo
-                ? t.Traducir("frmAdministrador.ConfirmarDesactivar")
-                : t.Traducir("frmAdministrador.ConfirmarActivar");
+            string mensajeConfirmacion = _usuarioSeleccionado.Activo? t.Traducir("frmAdministrador.ConfirmarDesactivar"): t.Traducir("frmAdministrador.ConfirmarActivar");
 
-            DialogResult respuesta = MessageBox.Show(
-                mensajeConfirmacion,
-                t.Traducir("frmAdministrador.BtnActivarDesactivar"),
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(mensajeConfirmacion,t.Traducir("frmAdministrador.BtnActivarDesactivar"),MessageBoxButtons.YesNo,MessageBoxIcon.Question);
 
             if (respuesta == DialogResult.No) return;
 
@@ -471,9 +442,7 @@ namespace UI
                 CargarUsuarios();
                 LimpiarCampos();
 
-                string mensaje = quedoActivo
-                    ? t.Traducir("frmAdministrador.MsgUsuarioActivado")
-                    : t.Traducir("frmAdministrador.MsgUsuarioDesactivado");
+                string mensaje = quedoActivo? t.Traducir("frmAdministrador.MsgUsuarioActivado"): t.Traducir("frmAdministrador.MsgUsuarioDesactivado");
 
                 lblMensaje.Text = mensaje;
 

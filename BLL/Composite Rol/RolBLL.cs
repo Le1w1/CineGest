@@ -13,16 +13,16 @@ namespace BLL
 
         private static string T(string clave) => Traductor.Instancia.Traducir(clave);
 
-        // --- Lectura ---
-
+        
         public List<Rol> ListarTodos() => _rolDAL.ListarTodos();
 
         public Rol ObtenerPorId(int idRol) => _rolDAL.ObtenerPorId(idRol);
 
+        
         public List<Rol> ListarRolesDeUsuario(int idUsuario) => _rolDAL.ListarRolesDeUsuario(idUsuario);
 
-        // --- Escritura ---
 
+        //Crear Rol
         public void Crear(Rol rol)
         {
             if (rol == null) throw new Exception(T("Errores.RBAC.ComposicionVacia"));
@@ -31,12 +31,11 @@ namespace BLL
 
             ValidarNombreYUnicidad(rol.Nombre, 0);
             ValidarComposicion(rol.Hijos);
-            // El Rol no contiene Roles, no hay ciclos posibles.
-
             rol.IdRol = _rolDAL.InsertarConComposicion(rol);
             RegistrarBitacora("Crear Rol", "El administrador creó el Rol: " + rol.Nombre);
         }
 
+        //Modificar Rol
         public void Modificar(Rol rol)
         {
             if (rol == null || rol.IdRol <= 0)
@@ -51,6 +50,7 @@ namespace BLL
             RegistrarBitacora("Modificar Rol", "El administrador modificó el Rol: " + rol.Nombre);
         }
 
+        //Eliminar Rol
         public void Eliminar(int idRol)
         {
             Rol r = _rolDAL.ObtenerPorId(idRol)
@@ -63,7 +63,6 @@ namespace BLL
             RegistrarBitacora("Eliminar Rol", "El administrador eliminó el Rol: " + r.Nombre);
         }
 
-        // --- Validaciones ---
 
         private void ValidarNombreYUnicidad(string nombre, int idExcluir)
         {
@@ -74,6 +73,8 @@ namespace BLL
                 throw new Exception(T("Errores.RBAC.NombreRolYaExiste"));
         }
 
+
+        // Valida que la composición de un rol sea correcta, es decir, que no esté vacía y que no haya permisos duplicados.
         private void ValidarComposicion(List<Componente> hijos)
         {
             if (hijos == null || hijos.Count == 0)
@@ -93,6 +94,7 @@ namespace BLL
             }
         }
 
+   
         // Devuelve todos los códigos de PermisoSimple alcanzables desde un componente.
         private static IEnumerable<string> CodigosDe(Componente c)
         {
@@ -102,12 +104,13 @@ namespace BLL
             return Enumerable.Empty<string>();
         }
 
+
+        // Registra un evento en la bitácora de eventos del sistema.
         private void RegistrarBitacora(string accion, string descripcion)
         {
             Usuario u = SM.Instancia.UsuarioActual;
             if (u == null) return;
-            _bitacoraEventoBLL.Registrar(u.IdUsuario, u.NombreUsuario,
-                "Administrador", accion, "Alta", "Exitoso", descripcion);
+            _bitacoraEventoBLL.Registrar(u.IdUsuario, u.NombreUsuario,"Administrador", accion, "Alta", "Exitoso", descripcion);
         }
     }
 }

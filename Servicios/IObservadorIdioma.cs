@@ -8,6 +8,7 @@ namespace Servicios
 {
     public interface IObservadorIdioma
     {
+        // metodo que se llamará cuando se actualice el idioma
         void ActualizarIdioma();
     }
 }

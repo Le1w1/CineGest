@@ -128,21 +128,21 @@
             // usuariosToolStripMenuItem
             // 
             usuariosToolStripMenuItem.Name = "usuariosToolStripMenuItem";
-            usuariosToolStripMenuItem.Size = new Size(216, 22);
+            usuariosToolStripMenuItem.Size = new Size(219, 22);
             usuariosToolStripMenuItem.Text = "Gestionar Usuarios";
             usuariosToolStripMenuItem.Click += usuariosToolStripMenuItem_Click;
             // 
             // bitacoraEventosToolStripMenuItem
             // 
             bitacoraEventosToolStripMenuItem.Name = "bitacoraEventosToolStripMenuItem";
-            bitacoraEventosToolStripMenuItem.Size = new Size(216, 22);
-            bitacoraEventosToolStripMenuItem.Text = "Bitacora Eventos";
+            bitacoraEventosToolStripMenuItem.Size = new Size(219, 22);
+            bitacoraEventosToolStripMenuItem.Text = "Auditar Bitacora de Eventos";
             bitacoraEventosToolStripMenuItem.Click += bitacoraEventosToolStripMenuItem_Click;
             // 
             // gestionarPerfilToolStripMenuItem
             // 
             gestionarPerfilToolStripMenuItem.Name = "gestionarPerfilToolStripMenuItem";
-            gestionarPerfilToolStripMenuItem.Size = new Size(216, 22);
+            gestionarPerfilToolStripMenuItem.Size = new Size(219, 22);
             gestionarPerfilToolStripMenuItem.Text = "Gestion de Roles y Familias";
             gestionarPerfilToolStripMenuItem.Click += gestionarPerfilToolStripMenuItem_Click;
             // 

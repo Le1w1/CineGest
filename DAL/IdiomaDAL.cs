@@ -18,6 +18,7 @@ namespace DAL
             _conexionDAL = new DAO_AccesoDatos();
         }
 
+        /// Lista todos los idiomas disponibles en la base de datos.
         public List<Idioma> ListarIdiomas()
         {
             List<Idioma> idiomas = new List<Idioma>();
@@ -48,6 +49,8 @@ namespace DAL
             return idiomas;
         }
 
+       
+        /// Obtiene un idioma por su ID.
         public Idioma ObtenerPorId(int idIdioma)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -78,6 +81,8 @@ namespace DAL
             return null;
         }
 
+      
+        /// Obtiene un idioma por su código.
         public Idioma ObtenerPorCodigo(string codigo)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())

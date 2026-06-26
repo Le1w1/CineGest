@@ -19,20 +19,24 @@ namespace BLL
             _bitacoraEventoBLL = new BitacoraEventoBLL();
         }
 
+        // Listar todos los idiomas disponibles en la base de datos.
         public List<Idioma> ListarIdiomas()
         {
             return _idiomaDAL.ListarIdiomas();
         }
 
+        // Obtener un idioma por su ID.
         public Idioma ObtenerPorId(int idIdioma)
         {
             return _idiomaDAL.ObtenerPorId(idIdioma);
         }
 
+        // Obtener un idioma por su código.
         public Idioma ObtenerPorCodigo(string codigo)
         {
             return _idiomaDAL.ObtenerPorCodigo(codigo);
         }
+
 
         /// Cambia el idioma EN MEMORIA (no toca la BD).
         /// La persistencia se realiza al Logout, comparando con el idioma inicial.

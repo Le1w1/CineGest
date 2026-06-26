@@ -24,10 +24,9 @@ namespace UI
             _bitacoraEventoBLL = new BitacoraEventoBLL();
             _usuarioBLL = new UsuarioBLL();
 
-            // Traducir YA los labels/botones, antes de que el form se pinte.
+            // Traducir  los labels/botones, antes de que el form se cargue.
             // Las cabeceras de la grilla se traducen mas abajo, despues del BuscarEventos.
             ActualizarIdioma();
-
             this.FormClosed += frmAuditarEventos_FormClosed;
         }
 
@@ -145,9 +144,8 @@ namespace UI
 
         private void ConfigurarCombos()
         {
-            // Nota: Los items de los combos NO se traducen porque son los
-            // valores exactos por los que se filtra en la bitacora (deben
-            // coincidir con los strings guardados en BD).
+            // Nota: Los items de los combos NO se traducen porque son los valores exactos por los que se filtra en la bitacora
+            // (deben // coincidir con los strings guardados en BD).
             cmbModulo.Items.Clear();
             cmbModulo.Items.Add("Todos");
             cmbModulo.Items.Add("Usuario");
@@ -227,9 +225,7 @@ namespace UI
                     txtApellido.Clear();
                 }
 
-                lblMensaje.Text = eventos.Count == 0
-                    ? t.Traducir("frmAuditarEventos.MsgSinEventos")
-                    : t.Traducir("frmAuditarEventos.MsgEventosEncontrados") + " " + eventos.Count;
+                lblMensaje.Text = eventos.Count == 0 ? t.Traducir("frmAuditarEventos.MsgSinEventos"): t.Traducir("frmAuditarEventos.MsgEventosEncontrados") + " " + eventos.Count;
             }
             catch (Exception ex)
             {
@@ -319,6 +315,7 @@ namespace UI
         }
 
         #region "Imprimir y Exportar a PDF"
+        // Este método maneja el evento de clic del botón "Imprimir" y exporta los eventos a un archivo PDF.
         private void btnImprimir_Click(object sender, EventArgs e)
         {
             var t = Traductor.Instancia;
@@ -369,6 +366,7 @@ namespace UI
             }
         }
 
+        // Este método registra un evento en la bitácora indicando que el usuario intentó imprimir/exportar a PDF la auditoría de eventos.
         private void RegistrarEventoImprimirPdf(string resultado, string descripcion)
         {
             Usuario usuarioActual = SM.Instancia.UsuarioActual;
@@ -379,6 +377,7 @@ namespace UI
             _bitacoraEventoBLL.Registrar(idUsuario, nombreUsuario, "Administrador", "Imprimir PDF", "Media", resultado, descripcion);
         }
 
+        // Este método exporta los eventos mostrados en el DataGridView a un archivo PDF en la ruta especificada.
         private void ExportarEventosAPdf(string rutaArchivo)
         {
             List<DataGridViewColumn> columnas = ObtenerColumnasParaExportar();
@@ -452,6 +451,7 @@ namespace UI
             }
         }
 
+        // Este método obtiene las columnas visibles del DataGridView que se van a exportar al PDF, excluyendo ciertas columnas específicas.
         private List<DataGridViewColumn> ObtenerColumnasParaExportar()
         {
             return dgvEventos.Columns
@@ -465,6 +465,7 @@ namespace UI
                 .ToList();
         }
 
+        // Este método agrega una celda de cabecera a la tabla PDF con el texto y fuente especificados.
         private void AgregarCeldaCabecera(PdfPTable tabla, string texto, ITextFont fuente)
         {
             PdfPCell celda = new PdfPCell(new ITextPhrase(texto, fuente));
@@ -475,6 +476,7 @@ namespace UI
             tabla.AddCell(celda);
         }
 
+        // Este método agrega una celda de dato a la tabla PDF con el texto y fuente especificados.
         private void AgregarCeldaDato(PdfPTable tabla, string texto, ITextFont fuente)
         {
             PdfPCell celda = new PdfPCell(new ITextPhrase(texto, fuente));
@@ -484,6 +486,7 @@ namespace UI
             tabla.AddCell(celda);
         }
 
+        // Este método obtiene el valor de una celda específica de una fila del DataGridView, dado el nombre de la columna.
         private string ObtenerValorCelda(DataGridViewRow fila, string nombreColumna)
         {
             if (!dgvEventos.Columns.Contains(nombreColumna)) return string.Empty;
@@ -495,6 +498,7 @@ namespace UI
             return valor.ToString();
         }
 
+        // Este método obtiene el texto de un filtro, devolviendo "Todos" si el valor es nulo o vacío, o el valor recortado en caso contrario.
         private string ObtenerTextoFiltro(string valor)
         {
             if (string.IsNullOrWhiteSpace(valor)) return "Todos";

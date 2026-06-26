@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Servicios
 {
-  
-    public abstract class Componente
+    //clase abstracta que representa un componente en el patrón Composite
+    public abstract class Componente 
     {
         public string Nombre { get; set; }
 

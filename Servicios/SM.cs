@@ -46,9 +46,8 @@ namespace Servicios
 
         public void IniciarSesion(Usuario usuario) => _usuarioActual = usuario;
 
-        /// <summary>
+
         /// Limpia el estado de la sesion (usuario + idioma).
-        /// </summary>
         public void CerrarSesion()
         {
             _usuarioActual = null;
@@ -64,11 +63,9 @@ namespace Servicios
         public Idioma IdiomaActual { get { return _idiomaActual; } }
         public Idioma IdiomaInicial { get { return _idiomaInicial; } }
 
-        /// <summary>
         /// Fija el idioma con el que el usuario inicio sesion.
         /// Se llama UNA SOLA VEZ desde el Login (BLL) despues de IniciarSesion.
         /// Carga el JSON pero NO notifica observadores (todavia no hay forms abiertos).
-        /// </summary>
         public void EstablecerIdiomaInicial(Idioma idioma)
         {
             if (idioma == null) throw new Exception("Debe indicar un idioma valido.");
@@ -79,10 +76,8 @@ namespace Servicios
             Traductor.Instancia.CargarIdioma(idioma.Codigo);
         }
 
-        /// <summary>
-        /// Cambia el idioma EN MEMORIA. No persiste en BD.
-        /// La persistencia ocurre al Logout, comparando con el IdiomaInicial.
-        /// </summary>
+
+        /// Cambia el idioma EN MEMORIA. No persiste en BD. La persistencia ocurre al Logout, comparando con el IdiomaInicial.
         public void CambiarIdioma(Idioma idioma)
         {
             if (idioma == null) throw new Exception("Debe indicar un idioma valido.");
@@ -94,16 +89,15 @@ namespace Servicios
             NotificarCambioIdioma();
         }
 
-        /// <summary>
-        /// Devuelve true si el idioma actual difiere del inicial.
-        /// Lo usa el Logout para decidir si hay que escribir BD.
-        /// </summary>
+
+        /// Devuelve true si el idioma actual difiere del inicial. Lo usa el Logout para decidir si hay que escribir BD.
         public bool RequierePersistirIdioma()
         {
             if (_idiomaActual == null || _idiomaInicial == null) return false;
             return _idiomaActual.IdIdioma != _idiomaInicial.IdIdioma;
         }
 
+        
         public void Suscribir(IObservadorIdioma observador)
         {
             if (observador == null) return;
@@ -122,21 +116,15 @@ namespace Servicios
 
         public List<Rol> RolesUsuario { get { return _rolesUsuario; } }
 
-        /// <summary>
-        /// Recibe los Roles del usuario logueado tal como vienen del DAL
-        /// (con su composicion Composite ya armada). El SM solo los guarda;
-        /// los chequeos puntuales se delegan al patron Composite.
-        /// </summary>
+        /// Recibe los Roles del usuario logueado tal como vienen del DAL(con su composicion Composite ya armada). 
+        /// El SM solo los guarda.
         public void EstablecerRolesUsuario(List<Rol> roles)
         {
             _rolesUsuario = roles ?? new List<Rol>();
         }
 
-        /// <summary>
         /// Pregunta a cada Rol asignado si contiene el codigo solicitado.
-        /// El recorrido recursivo lo hace cada Componente por si mismo
-        /// (TienePermiso esta declarado abstract en Componente).
-        /// </summary>
+        /// El recorrido recursivo lo hace cada Componente por si mismo(TienePermiso esta declarado abstract en Componente).
         public bool TienePermiso(string codigo)
         {
             if (string.IsNullOrWhiteSpace(codigo)) return false;
@@ -154,10 +142,10 @@ namespace Servicios
 
         #region "Notificacion de cambio de idioma"
 
+        /// Notifica a todos los observadores que el idioma ha cambiado.
         private void NotificarCambioIdioma()
         {
-            // Recorremos una copia para evitar errores si un observador
-            // se desuscribe a si mismo dentro de ActualizarIdioma().
+            // Recorremos una copia para evitar errores si un observador se desuscribe a si mismo dentro de ActualizarIdioma().
             var copia = _observadores.ToList();
 
             foreach (var observador in copia)

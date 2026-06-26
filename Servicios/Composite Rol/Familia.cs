@@ -4,9 +4,7 @@ using System.Linq;
 
 namespace Servicios
 {
-    /// <summary>
-    /// Composite recursivo. Puede contener PermisoSimples y otras Familias.
-    /// </summary>
+    /// La familia puede contener PermisoSimples y otras Familias.
     public class Familia : Componente
     {
         public int IdFamilia { get; set; }
@@ -17,10 +15,7 @@ namespace Servicios
             Hijos = new List<Componente>();
         }
 
-        /// <summary>
-        /// Agrega un Componente como hijo. NO valida ciclos ni duplicados:
-        /// esa logica vive en la BLL para mantener la entidad limpia.
-        /// </summary>
+        
         public void Agregar(Componente componente)
         {
             if (componente == null) return;
@@ -40,9 +35,7 @@ namespace Servicios
 
         public override List<int> ObtenerPermisos()
         {
-            // NO deduplicamos a proposito: la BLL valida duplicados con
-            // mensaje especifico ("el permiso X ya esta incluido via Familia Y").
-            // Si el caller solo quiere el set efectivo, hace .Distinct() afuera.
+            
             List<int> resultado = new List<int>();
 
             foreach (Componente hijo in Hijos)
@@ -65,11 +58,8 @@ namespace Servicios
             return false;
         }
 
-        /// <summary>
-        /// Determina si esta Familia contiene (directa o indirectamente) al
-        /// componente indicado. Recorre todo el subarbol.
-        /// Lo usa la BLL para detectar ciclos antes de agregar un hijo.
-        /// </summary>
+        /// Determina si esta Familia contiene (directa o indirectamente) alcomponente indicado.
+        /// Recorre todo el subarbol.
         public override bool Contiene(Componente otro)
         {
             if (otro == null) return false;

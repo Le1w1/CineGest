@@ -11,16 +11,18 @@ namespace BLL
         private readonly FamiliaDAL _familiaDAL = new FamiliaDAL();
         private readonly BitacoraEventoBLL _bitacoraEventoBLL = new BitacoraEventoBLL();
 
+        //Traductor de mensajes de error
         private static string T(string clave) => Traductor.Instancia.Traducir(clave);
 
-        // --- Lectura ---
-
+        //Lista todas las Familias, sin sus hijos (para mostrar en grilla).
         public List<Familia> ListarTodas() => _familiaDAL.ListarTodas();
 
+   
+        //Obtiene una Familia con todos sus hijos (para editar).
         public Familia ObtenerPorId(int idFamilia) => _familiaDAL.ObtenerPorId(idFamilia);
 
-        // --- Escritura ---
 
+        //Crea una nueva Familia con su composición de hijos, validando que no haya ciclos ni permisos duplicados.
         public void Crear(Familia familia)
         {
             if (familia == null) throw new Exception(T("Errores.RBAC.ComposicionVacia"));
@@ -29,13 +31,13 @@ namespace BLL
 
             ValidarNombreYUnicidad(familia.Nombre, 0);
             ValidarComposicion(familia.Hijos);
-            // Al crear no hay ciclos posibles: la Familia aun no existe en BD.
-
             familia.IdFamilia = _familiaDAL.InsertarConComposicion(familia);
 
             RegistrarBitacora("Crear Familia", "El administrador creó la Familia: " + familia.Nombre);
         }
 
+
+        //Modifica una Familia existente con su composición de hijos, validando que no haya ciclos ni permisos duplicados.
         public void Modificar(Familia familia)
         {
             if (familia == null || familia.IdFamilia <= 0)
@@ -52,10 +54,11 @@ namespace BLL
             RegistrarBitacora("Modificar Familia", "El administrador modificó la Familia: " + familia.Nombre);
         }
 
+
+        // Elimina una Familia existente, validando que no esté en uso por ningún Rol ni Usuario.
         public void Eliminar(int idFamilia)
         {
-            Familia f = _familiaDAL.ObtenerPorId(idFamilia)
-                ?? throw new Exception(T("Errores.RBAC.FamiliaNoEncontrada"));
+            Familia f = _familiaDAL.ObtenerPorId(idFamilia)?? throw new Exception(T("Errores.RBAC.FamiliaNoEncontrada"));
 
             if (_familiaDAL.EstaUsada(idFamilia))
                 throw new Exception(T("Errores.RBAC.FamiliaEnUso"));
@@ -64,8 +67,8 @@ namespace BLL
             RegistrarBitacora("Eliminar Familia", "El administrador eliminó la Familia: " + f.Nombre);
         }
 
-        // --- Validaciones ---
 
+        //Valida que el nombre no esté vacío y que no exista otra Familia con el mismo nombre (excluyendo la propia en caso de edición).
         private void ValidarNombreYUnicidad(string nombre, int idExcluir)
         {
             if (string.IsNullOrWhiteSpace(nombre))
@@ -75,6 +78,8 @@ namespace BLL
                 throw new Exception(T("Errores.RBAC.NombreFamiliaYaExiste"));
         }
 
+
+        //Valida que la composición de hijos no esté vacía y que no haya permisos duplicados (directa o indirectamente).
         private void ValidarComposicion(List<Componente> hijos)
         {
             if (hijos == null || hijos.Count == 0)
@@ -94,6 +99,8 @@ namespace BLL
             }
         }
 
+
+        //Valida que la Familia no contenga a sí misma (directa o indirectamente) en su composición de hijos.
         private void ValidarSinCiclos(Familia familiaEnEdicion)
         {
             foreach (Familia hija in familiaEnEdicion.Hijos.OfType<Familia>())
@@ -106,9 +113,8 @@ namespace BLL
             }
         }
 
-        // --- Helpers Composite ---
 
-        // Devuelve todos los códigos de PermisoSimple alcanzables desde un componente.
+        // Devuelve todos los códigos de permisos que aporta un Componente (directa o indirectamente).
         private static IEnumerable<string> CodigosDe(Componente c)
         {
             if (c is PermisoSimple ps) return new[] { ps.Codigo };
@@ -117,18 +123,17 @@ namespace BLL
             return Enumerable.Empty<string>();
         }
 
-        // Recorre el subárbol buscando una Familia con el Id indicado.
-        private static bool ContieneFamiliaConId(Familia f, int idBuscar) =>
-            f?.Hijos.OfType<Familia>()
-                .Any(h => h.IdFamilia == idBuscar || ContieneFamiliaConId(h, idBuscar))
-            ?? false;
 
+        // Devuelve true si la Familia f contiene (directa o indirectamente) a una Familia con el Id especificado.
+        private static bool ContieneFamiliaConId(Familia f, int idBuscar) =>f?.Hijos.OfType<Familia>().Any(h => h.IdFamilia == idBuscar || ContieneFamiliaConId(h, idBuscar))?? false;
+
+
+        // Registra un evento en la bitácora de auditoría.
         private void RegistrarBitacora(string accion, string descripcion)
         {
             Usuario u = SM.Instancia.UsuarioActual;
             if (u == null) return;
-            _bitacoraEventoBLL.Registrar(u.IdUsuario, u.NombreUsuario,
-                "Administrador", accion, "Alta", "Exitoso", descripcion);
+            _bitacoraEventoBLL.Registrar(u.IdUsuario, u.NombreUsuario,"Administrador", accion, "Alta", "Exitoso", descripcion);
         }
     }
 }

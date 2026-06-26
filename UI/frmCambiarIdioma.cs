@@ -21,7 +21,7 @@ namespace UI
             InitializeComponent();
             _idiomaBLL = new IdiomaBLL();
 
-            // Traducir YA, antes de que el form se pinte.
+            // Traducir antes de que el form se cargue.
             ActualizarIdioma();
         }
 
@@ -29,14 +29,13 @@ namespace UI
         {
             CargarIdiomas();
 
-            // Suscripcion al Observer: si el idioma cambia mientras
-            // este form esta abierto, ActualizarIdioma() se ejecuta solo.
+            // Suscripcion al Observer: si el idioma cambia mientras este form esta abierto ActualizarIdioma() se ejecuta solo.
             SM.Instancia.Suscribir(this);
         }
 
         private void frmCambiarIdioma_FormClosed(object sender, FormClosedEventArgs e)
         {
-            // Desuscribirse para evitar memory leaks y notificaciones a un form cerrado.
+            // Desuscribirse para evitar notificaciones a un form cerrado.
             SM.Instancia.Desuscribir(this);
         }
 
@@ -45,7 +44,6 @@ namespace UI
             try
             {
                 List<Idioma> idiomas = _idiomaBLL.ListarIdiomas();
-
                 cboIdiomas.DataSource = idiomas;
                 cboIdiomas.DisplayMember = "Nombre";
                 cboIdiomas.ValueMember = "IdIdioma";
@@ -87,11 +85,7 @@ namespace UI
             {
                 _idiomaBLL.CambiarIdioma(seleccionado);
 
-                MessageBox.Show(
-                    Traductor.Instancia.Traducir("frmCambiarIdioma.MsgCambioExitoso"),
-                    Traductor.Instancia.Traducir("frmCambiarIdioma.Title"),
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(Traductor.Instancia.Traducir("frmCambiarIdioma.MsgCambioExitoso"),Traductor.Instancia.Traducir("frmCambiarIdioma.Title"),MessageBoxButtons.OK,MessageBoxIcon.Information);
 
                 this.Close();
             }
@@ -107,10 +101,8 @@ namespace UI
             this.Close();
         }
 
-        /// <summary>
         /// Implementacion de IObservadorIdioma.
         /// Aplica las traducciones a todos los controles del form.
-        /// </summary>
         public void ActualizarIdioma()
         {
             var t = Traductor.Instancia;

@@ -13,6 +13,7 @@ namespace DAL
             _conexionDAL = new DAO_AccesoDatos();
         }
 
+        // ListarTodos: Obtiene todos los permisos simples de la base de datos.
         public List<PermisoSimple> ListarTodos()
         {
             List<PermisoSimple> permisos = new List<PermisoSimple>();
@@ -40,6 +41,8 @@ namespace DAL
             return permisos;
         }
 
+
+        // ObtenerPorId: Obtiene un permiso simple por su ID.
         public PermisoSimple ObtenerPorId(int idPermisoSimple)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -63,6 +66,8 @@ namespace DAL
             return null;
         }
 
+
+        // MapearPermisoSimple: Mapea un registro de la base de datos a un objeto PermisoSimple.
         private PermisoSimple MapearPermisoSimple(SqlDataReader reader)
         {
             return new PermisoSimple

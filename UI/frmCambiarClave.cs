@@ -21,7 +21,7 @@ namespace UI
             InitializeComponent();
             _usuarioBLL = new UsuarioBLL();
 
-            // Traducir YA, antes de que el form se pinte.
+            // Traducir antes de que el form se cargue.
             ActualizarIdioma();
 
             this.Load += frmCambiarClave_Load;
@@ -63,11 +63,7 @@ namespace UI
             {
                 _usuarioBLL.CambiarClave(txtClaveActual.Text, txtNuevaClave.Text, txtConfirmarClave.Text);
 
-                MessageBox.Show(
-                    t.Traducir("frmCambiarClave.MsgExito"),
-                    "CineGest",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(t.Traducir("frmCambiarClave.MsgExito"),"CineGest",MessageBoxButtons.OK,MessageBoxIcon.Information);
 
                 this.Close();
             }

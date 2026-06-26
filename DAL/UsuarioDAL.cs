@@ -10,7 +10,7 @@ namespace DAL
         private readonly DAO_AccesoDatos _conexionDAL;
 
         // Lista de columnas reutilizada por todos los SELECT.
-        // Si en el futuro se agrega un campo, se cambia aca y en MapearUsuario.
+        // Si en el futuro se agrega un campo, se cambia aca y en MapearUsuario(SqlDataReader reader).
         private const string COLUMNAS_USUARIO ="IdUsuario, Nombre, Apellido, DNI, Email, NombreUsuario, PasswordHash, Activo, Bloqueado, IntentosFallidos, DebeCambiarClave, IdIdioma, IdRol";
 
         public UsuarioDAL()
@@ -19,7 +19,6 @@ namespace DAL
         }
 
         /// Mapea una fila del SqlDataReader a un objeto Usuario.
-        /// Centralizado para evitar duplicar el mapeo en cada SELECT.
         private Usuario MapearUsuario(SqlDataReader reader)
         {
             return new Usuario
@@ -40,6 +39,8 @@ namespace DAL
             };
         }
 
+
+        /// Busca un usuario por su email. Devuelve null si no se encuentra.
         public Usuario BuscarPorEmail(string email)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -64,6 +65,8 @@ namespace DAL
             return null;
         }
 
+        
+        /// Busca un usuario por su IdUsuario. Devuelve null si no se encuentra.
         public Usuario BuscarPorId(int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -88,6 +91,8 @@ namespace DAL
             return null;
         }
 
+       
+        /// Busca un usuario por su NombreUsuario. Devuelve null si no se encuentra.
         public Usuario BuscarPorNombreUsuario(string nombreUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -113,6 +118,8 @@ namespace DAL
             return null;
         }
 
+       
+        /// Lista todos los usuarios según el filtro. Filtro puede ser "ACTIVOS" o "BLOQUEADOS".
         public List<Usuario> ListarUsuarios(string filtro)
         {
             List<Usuario> usuarios = new List<Usuario>();
@@ -149,20 +156,18 @@ namespace DAL
             return usuarios;
         }
 
+       
+        /// Inserta un nuevo usuario en la base de datos y devuelve el IdUsuario generado.
         public int Insertar(Usuario usuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
             {
                 string query = @"
             INSERT INTO Usuario
-            (
-                Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave,IdIdioma,IdRol
-            )
+            (Nombre,Apellido,DNI,Email,NombreUsuario,PasswordHash,Activo,Bloqueado,IntentosFallidos,DebeCambiarClave,IdIdioma,IdRol)
             OUTPUT INSERTED.IdUsuario 
             VALUES
-            (
-                @Nombre,@Apellido,@DNI,@Email,@NombreUsuario,@PasswordHash,@Activo,@Bloqueado,@IntentosFallidos,@DebeCambiarClave,@IdIdioma,@IdRol
-            )";
+            (@Nombre,@Apellido,@DNI,@Email,@NombreUsuario,@PasswordHash,@Activo,@Bloqueado,@IntentosFallidos,@DebeCambiarClave,@IdIdioma,@IdRol)";
 
                 using (SqlCommand comando = new SqlCommand(query, conexion))
                 {
@@ -185,6 +190,8 @@ namespace DAL
             }
         }
 
+       
+        /// Modifica un usuario existente en la base de datos. Lanza excepción si no se encuentra el usuario.
         public void Modificar(Usuario usuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -213,6 +220,8 @@ namespace DAL
             }
         }
 
+
+        /// Incrementa el contador de intentos fallidos de un usuario. Lanza excepción si no se encuentra el usuario.
         public void IncrementarIntentosFallidos(int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -228,6 +237,8 @@ namespace DAL
             }
         }
 
+
+        /// Bloquea un usuario estableciendo el campo Bloqueado a 1. Lanza excepción si no se encuentra el usuario.
         public void Bloquear(int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -243,6 +254,7 @@ namespace DAL
             }
         }
 
+        /// Desbloquea un usuario estableciendo el campo Bloqueado a 0 y reiniciando el contador de intentos fallidos. Lanza excepción si no se encuentra el usuario.
         public void DesbloquearUsuario(int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -263,6 +275,8 @@ namespace DAL
             }
         }
 
+
+        /// Reinicia el contador de intentos fallidos de un usuario a 0. Lanza excepción si no se encuentra el usuario.
         public void ReiniciarIntentosFallidos(int idUsuario)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -279,6 +293,8 @@ namespace DAL
             }
         }
 
+
+        /// Actualiza el password hash de un usuario y establece DebeCambiarClave a 0. Lanza excepción si no se encuentra el usuario.
         public void ActualizarPassword(int idUsuario, string nuevoPasswordHash)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -299,6 +315,7 @@ namespace DAL
             }
         }
 
+      
         /// Persiste el idioma del usuario. Lo invoca el Logout si SM.RequierePersistirIdioma() == true.
         public void ActualizarIdioma(int idUsuario, int idIdioma)
         {
@@ -319,6 +336,8 @@ namespace DAL
             }
         }
 
+
+        /// Cambia el estado activo de un usuario. Lanza excepción si no se encuentra el usuario.
         public void CambiarEstadoActivo(int idUsuario, bool activo)
         {
             using (SqlConnection conexion = _conexionDAL.ObtenerConexion())
@@ -343,6 +362,8 @@ namespace DAL
                 }
             }
         }
+
+
 
         #region "Validaciones de existencia en otros usuarios"
         public bool ExisteEmailEnOtroUsuario(string email, int idUsuario)

@@ -14,11 +14,14 @@ namespace BLL
             _permisoSimpleDAL = new PermisoSimpleDAL();
         }
 
+        //lista todos los permisos simples
         public List<PermisoSimple> ListarTodos()
         {
             return _permisoSimpleDAL.ListarTodos();
         }
 
+
+        // Obtiene un permiso simple por su ID
         public PermisoSimple ObtenerPorId(int idPermisoSimple)
         {
             return _permisoSimpleDAL.ObtenerPorId(idPermisoSimple);

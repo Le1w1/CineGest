@@ -66,8 +66,7 @@ namespace UI
 
         private void CargarComboIdiomas()
         {
-            // Solo carga los items. El SelectedIndex se setea en
-            // SincronizarCboIdioma (que es llamado por ActualizarIdioma).
+            // Solo carga los items. El SelectedIndex se setea en SincronizarCboIdioma (que es llamado por ActualizarIdioma).
             _cargandoCboIdioma = true;
 
             cboIdioma.Items.Clear();
@@ -100,8 +99,7 @@ namespace UI
         {
             if (_cargandoCboIdioma) return;
 
-            // Cambio "ligero" de idioma: solo el Traductor (no toca SM ni BD).
-            // No hay sesion activa todavia, asi que no podemos usar IdiomaBLL.
+            // Cambio de idioma: solo el Traductor (no toca SM ni BD). No hay sesion activa todavia, asi que no podemos usar IdiomaBLL.
             string codigo = (cboIdioma.SelectedIndex == 1) ? "EN" : "ES";
 
             try
@@ -138,11 +136,7 @@ namespace UI
 
                 if (usuario.DebeCambiarClave)
                 {
-                    DialogResult respuesta = MessageBox.Show(
-                        t.Traducir("frmLogin.MsgCambioClaveRecomendado"),
-                        t.Traducir("frmLogin.TitleCambioClave"),
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Information);
+                    DialogResult respuesta = MessageBox.Show(t.Traducir("frmLogin.MsgCambioClaveRecomendado"),t.Traducir("frmLogin.TitleCambioClave"),MessageBoxButtons.YesNo,MessageBoxIcon.Information);
 
                     if (respuesta == DialogResult.Yes)
                     {
@@ -150,6 +144,7 @@ namespace UI
                         formCambiarClave.ShowDialog();
                     }
                 }
+
                 lblMensaje.Text = string.Empty;
                 frmMenuPrincipal menu = new frmMenuPrincipal();
 
@@ -171,11 +166,7 @@ namespace UI
         {
             var t = Traductor.Instancia;
 
-            DialogResult respuesta = MessageBox.Show(
-                t.Traducir("frmLogin.MsgConfirmarSalir"),
-                t.Traducir("frmLogin.TitleSalir"),
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(t.Traducir("frmLogin.MsgConfirmarSalir"),t.Traducir("frmLogin.TitleSalir"),MessageBoxButtons.YesNo,MessageBoxIcon.Question);
 
             if (respuesta == DialogResult.Yes) Application.Exit();
         }

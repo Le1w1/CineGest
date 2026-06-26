@@ -11,15 +11,19 @@ namespace Servicios
     public class Traductor
     {
         private static Traductor _instancia;
+        // Diccionario para almacenar las traducciones cargadas desde el archivo JSON
         private Dictionary<string, string> _traducciones;
+        // Variable para almacenar el código del idioma actual
         private string _codigoIdiomaActual;
 
         private Traductor()
         {
             _traducciones = new Dictionary<string, string>();
+            // Inicializar el idioma por defecto (por ejemplo, español)
             _codigoIdiomaActual = "ES";
         }
 
+        // Propiedad para acceder a la instancia única de Traductor
         public static Traductor Instancia
         {
             get
@@ -39,6 +43,7 @@ namespace Servicios
 
             string codigoNormalizado = codigo.Trim().ToUpper();
 
+            // Construir la ruta completa del archivo JSON de idioma
             string rutaBase = AppDomain.CurrentDomain.BaseDirectory;
             string rutaArchivo = Path.Combine(rutaBase, "Recursos", "Idiomas", codigoNormalizado.ToLower() + ".json");
 
@@ -47,6 +52,7 @@ namespace Servicios
 
             string contenido = File.ReadAllText(rutaArchivo, Encoding.UTF8);
 
+            // Deserializar el contenido del archivo JSON a un diccionario
             var diccionario = JsonSerializer.Deserialize<Dictionary<string, string>>(contenido);
 
             _traducciones = diccionario ?? new Dictionary<string, string>();
@@ -58,7 +64,7 @@ namespace Servicios
         public string Traducir(string clave)
         {
             if (string.IsNullOrWhiteSpace(clave)) return string.Empty;
-
+            // Intentar obtener la traducción desde el diccionario
             if (_traducciones != null && _traducciones.TryGetValue(clave, out string valor))
             {
                 return valor;

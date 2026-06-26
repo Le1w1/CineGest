@@ -26,9 +26,11 @@ namespace BLL
             _bitacoraEventoBLL = new BitacoraEventoBLL();
         }
 
-        // Helper para acortar las llamadas a traduccion.
+        // Traducción de claves de error
         private static string T(string clave) => Traductor.Instancia.Traducir(clave);
 
+
+        // Método para Login de usuario, con validaciones y registro de eventos en bitácora
         public Usuario Login(string email, string contraseñia)
         {
             if (string.IsNullOrWhiteSpace(email)) throw new Exception(T("Errores.DebeIngresarEmail"));
@@ -91,13 +93,12 @@ namespace BLL
 
             SM.Instancia.IniciarSesion(usuario);
 
-            // Cargar el idioma del usuario en la sesion (con fallback a ES si esta corrupto)
+            // Cargar el idioma del usuario en la sesion (con por defecto a ES si esta corrupto)
             Idioma idioma = _idiomaDAL.ObtenerPorId(usuario.IdIdioma);
             if (idioma == null) idioma = _idiomaDAL.ObtenerPorCodigo("ES");
             if (idioma != null) SM.Instancia.EstablecerIdiomaInicial(idioma);
 
-            // Cargar los Roles del usuario (con su composicion completa Composite)
-            // en el SM. A partir de aca SM.TienePermiso(codigo) responde en O(1).
+            // Cargar los Roles del usuario (con su composicion completa Composite)en el SM. A partir de aca SM.TienePermiso(codigo) responde en O o 1.
             List<Rol> rolesUsuario = _rolDAL.ListarRolesDeUsuario(usuario.IdUsuario);
             SM.Instancia.EstablecerRolesUsuario(rolesUsuario);
 
@@ -105,6 +106,8 @@ namespace BLL
             return usuario;
         }
 
+
+        // Método para Re-Login de usuario, con validaciones y registro de eventos en bitácora
         public Usuario ReLogin(string email, string contrasenia)
         {
             if (string.IsNullOrWhiteSpace(email)) throw new Exception(T("Errores.DebeIngresarEmail"));
@@ -150,6 +153,8 @@ namespace BLL
             throw new Exception(T("Errores.NoHaySesionParaReLogin"));
         }
 
+
+        // Método para Logout de usuario, con validaciones y registro de eventos en bitácora
         public void Logout()
         {
             if (!SM.Instancia.HaySesionActiva())
@@ -166,20 +171,15 @@ namespace BLL
 
                 _usuarioDAL.ActualizarIdioma(usuario.IdUsuario, idiomaFinal.IdIdioma);
 
-                _bitacoraEventoBLL.Registrar(
-                    usuario.IdUsuario,
-                    usuario.NombreUsuario,
-                    "Idioma",
-                    "Persistir idioma",
-                    "Baja",
-                    "Exitoso",
-                    "Se persistió el idioma del usuario al cerrar sesión: " + idiomaFinal.Nombre + ".");
+                _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Idioma","Persistir idioma","Baja","Exitoso","Se persistió el idioma del usuario al cerrar sesión: " + idiomaFinal.Nombre + ".");
             }
 
             _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cierre de sesión", "Baja", "Exitoso", "El usuario cerró sesión correctamente");
             SM.Instancia.CerrarSesion();
         }
 
+
+        // Método para Activar o Desactivar un usuario, con validaciones y registro de eventos en bitácora
         public bool ActivarDesactivarUsuario(int idUsuario)
         {
             Usuario usuarioSeleccionado = _usuarioDAL.BuscarPorId(idUsuario);
@@ -200,6 +200,8 @@ namespace BLL
             return nuevoEstado;
         }
 
+
+        // Método para Desbloquear un usuario, con validaciones y registro de eventos en bitácora
         public void DesbloquearUsuario(Usuario usuarioSeleccionado)
         {
             if (usuarioSeleccionado == null) throw new Exception(T("Errores.DebeSeleccionarUsuarioDesbloquear"));
@@ -213,6 +215,8 @@ namespace BLL
             _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Desbloquear Usuario", "Alta", "Exitoso", "El administrador desbloqueó el usuario: " + usuarioSeleccionado.NombreUsuario);
         }
 
+
+        // Método para Cambiar la clave de un usuario, con validaciones y registro de eventos en bitácora
         public void CambiarClave(string claveActual, string nuevaClave, string confirmarClave)
         {
             if (!SM.Instancia.HaySesionActiva()) { throw new Exception(T("Errores.NoHaySesionActiva")); }
@@ -251,6 +255,7 @@ namespace BLL
         }
 
 
+        // Método para Crear un usuario, con validaciones y registro de eventos en bitácora
         public void CrearUsuario(string nombre, string apellido, string dni, string email, bool activo, int idRol)
         {
             nombre = (nombre ?? string.Empty).Trim();
@@ -258,18 +263,14 @@ namespace BLL
             dni = (dni ?? string.Empty).Trim();
             email = (email ?? string.Empty).Trim();
 
-            if (string.IsNullOrWhiteSpace(nombre) ||
-                string.IsNullOrWhiteSpace(apellido) ||
-                string.IsNullOrWhiteSpace(dni) ||
-                string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(nombre) ||string.IsNullOrWhiteSpace(apellido) ||string.IsNullOrWhiteSpace(dni) ||string.IsNullOrWhiteSpace(email))
             {
                 throw new Exception(T("Errores.CamposObligatorios"));
             }
 
             // Validar Rol seleccionado: existe, esta activo y vino del combo
             if (idRol <= 0) throw new Exception(T("Errores.RBAC.DebeSeleccionarRol"));
-            Rol rolSeleccionado = new RolDAL().ObtenerPorId(idRol)
-                ?? throw new Exception(T("Errores.RBAC.RolNoEncontrado"));
+            Rol rolSeleccionado = new RolDAL().ObtenerPorId(idRol) ?? throw new Exception(T("Errores.RBAC.RolNoEncontrado"));
             string nombreSinEspacios = GenerarNombreUsuario(nombre, dni);
 
             #region "Validaciones con REGEX"
@@ -342,13 +343,12 @@ namespace BLL
             };
 
             _usuarioDAL.Insertar(nuevoUsuario);
-
             Usuario administrador = SM.Instancia.UsuarioActual;
-
-            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Crear Usuario", "Alta", "Exitoso",
-                "El administrador creó el usuario: " + nombreSinEspacios + " con el Rol: " + rolSeleccionado.Nombre);
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Crear Usuario", "Alta", "Exitoso","El administrador creó el usuario: " + nombreSinEspacios + " con el Rol: " + rolSeleccionado.Nombre);
         }
 
+
+        // Método para Modificar un usuario, con validaciones y registro de eventos en bitácora
         public void ModificarUsuario(int idUsuario, string nombre, string apellido, string dni, string email, string nombreUsuario, bool activo, int idRol)
         {
             nombre = (nombre ?? string.Empty).Trim();
@@ -435,35 +435,42 @@ namespace BLL
 
 
         #region "Validaciones con REGEX"
+        // Validación de seguridad de la clave: al menos 8 caracteres, al menos una letra mayúscula, al menos un número, no puede contener espacios.
         private bool EsClaveSegura(string clave)
         {
             if (string.IsNullOrWhiteSpace(clave)) { return false; }
             string patron = @"^(?=.*[A-Z])(?=.*\d)(?!.*\s).{8,}$";
             return Regex.IsMatch(clave, patron);
         }
+        // Validación de nombre o apellido: solo letras, espacios, guiones y apóstrofes, entre 2 y 50 caracteres.
         private bool EsNombreOApellidoValido(string valor)
         {
             string patron = @"^[\p{L}\s'-]{2,50}$";
             return Regex.IsMatch(valor, patron);
         }
 
+        // Validación de DNI: solo números, entre 7 y 8 dígitos.
         private bool EsDNIValido(string dni)
         {
             string patron = @"^\d{7,8}$";
             return Regex.IsMatch(dni, patron);
         }
 
+        // Validación de email: formato básico de email.
         private bool EsEmailValido(string email)
         {
             string patron = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
             return Regex.IsMatch(email, patron);
         }
 
+        // Validación de nombre de usuario: solo letras, números, guiones bajos, puntos y guiones, entre 4 y 100 caracteres.
         private string GenerarNombreUsuario(string nombre, string dni)
         {
             string nombreSinEspacios = Regex.Replace(nombre.Trim(), @"\s+", "");
             return nombreSinEspacios + dni;
         }
+
+        // Validación de nombre de usuario: solo letras, números, guiones bajos, puntos y guiones, entre 4 y 100 caracteres.
         private bool EsNombreUsuarioValido(string nombreUsuario)
         {
             string patron = @"^[\p{L}0-9._-]{4,100}$";
@@ -471,15 +478,17 @@ namespace BLL
         }
         #endregion
 
+
+        // Método para Listar usuarios con filtro, con validaciones y registro de eventos en bitácora
         public List<Usuario> ListarUsuarios(string filtro)
         {
             if (string.IsNullOrWhiteSpace(filtro)) filtro = "ACTIVOS";
-
             filtro = filtro.Trim().ToUpper();
-
             return _usuarioDAL.ListarUsuarios(filtro);
         }
 
+
+        // Método para Buscar un usuario por nombre de usuario, con validaciones y registro de eventos en bitácora
         public Usuario BuscarPorNombreUsuario(string nombreUsuario)
         {
             nombreUsuario = (nombreUsuario ?? string.Empty).Trim();
@@ -488,7 +497,6 @@ namespace BLL
             {
                 return null;
             }
-
             return _usuarioDAL.BuscarPorNombreUsuario(nombreUsuario);
         }
     }
