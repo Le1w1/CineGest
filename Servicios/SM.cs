@@ -47,13 +47,17 @@ namespace Servicios
         public void IniciarSesion(Usuario usuario) => _usuarioActual = usuario;
 
 
-        /// Limpia el estado de la sesion (usuario + idioma).
+        /// Limpia el estado de la sesion (usuario + idioma) y restaura el idioma por defecto del sistema (ES).
+        /// El Traductor es un Singleton de proceso: si no se resetea, queda con el idioma que tenia el usuario al cerrar sesion.
         public void CerrarSesion()
         {
             _usuarioActual = null;
             _idiomaInicial = null;
             _idiomaActual = null;
             _rolesUsuario = new List<Rol>();
+
+            // Restaurar idioma por defecto del sistema (Español) para la pantalla pre-sesion (Login).
+            Traductor.Instancia.CargarIdioma("ES");
         }
 
         #endregion

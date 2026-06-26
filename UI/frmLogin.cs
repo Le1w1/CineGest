@@ -148,9 +148,21 @@ namespace UI
                 lblMensaje.Text = string.Empty;
                 frmMenuPrincipal menu = new frmMenuPrincipal();
 
+                // Mientras el menu esta activo, el Login no debe recibir notificaciones de cambio de idioma:
+                // esta oculto y no es parte de la sesion. Sin esto, los textos del Login terminan en el idioma
+                // que el usuario haya elegido durante la sesion.
+                SM.Instancia.Desuscribir(this);
+                
+                
+
                 this.Hide();
                 menu.ShowDialog();
                 this.Show();
+
+                // Despues del Logout, SM.CerrarSesion() ya restauro el Traductor a ES.
+                // Re-suscribimos al Login y refrescamos sus textos para que arranque siempre en Español.
+                SM.Instancia.Suscribir(this);
+                ActualizarIdioma();
 
                 txtContrasenia.Clear();
                 txtEmail.Focus();
