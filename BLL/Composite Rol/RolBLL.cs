@@ -25,6 +25,9 @@ namespace BLL
         //Crear Rol
         public void Crear(Rol rol)
         {
+            // Defensa en profundidad: la UI ya deshabilita la acción, la BLL valida igual.
+            SM.Instancia.RequierePermiso("ROL_GESTIONAR");
+
             if (rol == null) throw new Exception(T("Errores.RBAC.ComposicionVacia"));
 
             rol.Nombre = (rol.Nombre ?? "").Trim();
@@ -38,6 +41,9 @@ namespace BLL
         //Modificar Rol
         public void Modificar(Rol rol)
         {
+            // Defensa en profundidad: la UI ya deshabilita la acción, la BLL valida igual.
+            SM.Instancia.RequierePermiso("ROL_GESTIONAR");
+
             if (rol == null || rol.IdRol <= 0)
                 throw new Exception(T("Errores.RBAC.RolNoEncontrado"));
 
@@ -53,6 +59,9 @@ namespace BLL
         //Eliminar Rol
         public void Eliminar(int idRol)
         {
+            // Defensa en profundidad: la UI ya deshabilita la acción, la BLL valida igual.
+            SM.Instancia.RequierePermiso("ROL_GESTIONAR");
+
             Rol r = _rolDAL.ObtenerPorId(idRol)
                 ?? throw new Exception(T("Errores.RBAC.RolNoEncontrado"));
 

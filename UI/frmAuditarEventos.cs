@@ -36,9 +36,24 @@ namespace UI
             ConfigurarEstadoInicial();
             BuscarEventos();
 
+            // Aplica permisos por boton. btnImprimir requiere BIT_IMPRIMIR_PDF (codigo distinto a BIT_AUDITAR).
+            AplicarPermisos();
+
             // Suscribirse al Observer despues de tener la grilla cargada.
             SM.Instancia.Suscribir(this);
             ActualizarCabecerasGrilla();
+        }
+
+        /// Habilita/deshabilita cada boton del form segun los permisos del Rol logueado.
+        /// El menu padre filtra la entrada con BIT_AUDITAR, pero btnImprimir requiere BIT_IMPRIMIR_PDF,
+        /// que es un permiso simple distinto. btnVolver SIEMPRE habilitado.
+        private void AplicarPermisos()
+        {
+            var sm = SM.Instancia;
+
+            btnBuscar.Enabled   = sm.TienePermiso("BIT_AUDITAR");
+            btnLimpiar.Enabled  = sm.TienePermiso("BIT_AUDITAR");
+            btnImprimir.Enabled = sm.TienePermiso("BIT_IMPRIMIR_PDF");
         }
 
         private void frmAuditarEventos_FormClosed(object sender, FormClosedEventArgs e)

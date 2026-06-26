@@ -25,6 +25,9 @@ namespace BLL
         //Crea una nueva Familia con su composición de hijos, validando que no haya ciclos ni permisos duplicados.
         public void Crear(Familia familia)
         {
+            // Defensa en profundidad: la UI ya deshabilita la acción, la BLL valida igual.
+            SM.Instancia.RequierePermiso("FAM_GESTIONAR");
+
             if (familia == null) throw new Exception(T("Errores.RBAC.ComposicionVacia"));
 
             familia.Nombre = (familia.Nombre ?? "").Trim();
@@ -40,6 +43,9 @@ namespace BLL
         //Modifica una Familia existente con su composición de hijos, validando que no haya ciclos ni permisos duplicados.
         public void Modificar(Familia familia)
         {
+            // Defensa en profundidad: la UI ya deshabilita la acción, la BLL valida igual.
+            SM.Instancia.RequierePermiso("FAM_GESTIONAR");
+
             if (familia == null || familia.IdFamilia <= 0)
                 throw new Exception(T("Errores.RBAC.FamiliaNoEncontrada"));
 
@@ -58,6 +64,9 @@ namespace BLL
         // Elimina una Familia existente, validando que no esté en uso por ningún Rol ni Usuario.
         public void Eliminar(int idFamilia)
         {
+            // Defensa en profundidad: la UI ya deshabilita la acción, la BLL valida igual.
+            SM.Instancia.RequierePermiso("FAM_GESTIONAR");
+
             Familia f = _familiaDAL.ObtenerPorId(idFamilia)?? throw new Exception(T("Errores.RBAC.FamiliaNoEncontrada"));
 
             if (_familiaDAL.EstaUsada(idFamilia))

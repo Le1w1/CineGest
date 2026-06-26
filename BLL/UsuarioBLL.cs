@@ -182,6 +182,9 @@ namespace BLL
         // Método para Activar o Desactivar un usuario, con validaciones y registro de eventos en bitácora
         public bool ActivarDesactivarUsuario(int idUsuario)
         {
+            // Defensa en profundidad: la UI ya deshabilita el botón, la BLL valida igual.
+            SM.Instancia.RequierePermiso("USR_ACTIVAR_DESACTIVAR");
+
             Usuario usuarioSeleccionado = _usuarioDAL.BuscarPorId(idUsuario);
 
             if (usuarioSeleccionado == null) { throw new Exception(T("Errores.UsuarioSeleccionadoNoEncontrado")); }
@@ -204,6 +207,9 @@ namespace BLL
         // Método para Desbloquear un usuario, con validaciones y registro de eventos en bitácora
         public void DesbloquearUsuario(Usuario usuarioSeleccionado)
         {
+            // Defensa en profundidad: la UI ya deshabilita el botón, la BLL valida igual.
+            SM.Instancia.RequierePermiso("USR_DESBLOQUEAR");
+
             if (usuarioSeleccionado == null) throw new Exception(T("Errores.DebeSeleccionarUsuarioDesbloquear"));
             if (!usuarioSeleccionado.Bloqueado) throw new Exception(T("Errores.UsuarioNoBloqueado"));
 
@@ -258,6 +264,9 @@ namespace BLL
         // Método para Crear un usuario, con validaciones y registro de eventos en bitácora
         public void CrearUsuario(string nombre, string apellido, string dni, string email, bool activo, int idRol)
         {
+            // Defensa en profundidad: la UI ya deshabilita el botón, la BLL valida igual.
+            SM.Instancia.RequierePermiso("USR_CREAR");
+
             nombre = (nombre ?? string.Empty).Trim();
             apellido = (apellido ?? string.Empty).Trim();
             dni = (dni ?? string.Empty).Trim();
@@ -351,6 +360,9 @@ namespace BLL
         // Método para Modificar un usuario, con validaciones y registro de eventos en bitácora
         public void ModificarUsuario(int idUsuario, string nombre, string apellido, string dni, string email, string nombreUsuario, bool activo, int idRol)
         {
+            // Defensa en profundidad: la UI ya deshabilita el botón, la BLL valida igual.
+            SM.Instancia.RequierePermiso("USR_MODIFICAR");
+
             nombre = (nombre ?? string.Empty).Trim();
             apellido = (apellido ?? string.Empty).Trim();
             dni = (dni ?? string.Empty).Trim();

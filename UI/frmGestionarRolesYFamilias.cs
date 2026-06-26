@@ -28,6 +28,11 @@ namespace UI
         private bool _cargandoCombo;
         private bool _refrescandoCheckList;
 
+        // Permisos del Rol logueado, cacheados una sola vez al abrir el form.
+        // Determinan si el usuario puede operar sobre Roles, sobre Familias o sobre ambos.
+        private bool _puedeGestionarRol;
+        private bool _puedeGestionarFamilia;
+
         public frmGestionarRolesYFamilias()
         {
             InitializeComponent();
@@ -35,10 +40,43 @@ namespace UI
             _rolBLL = new RolBLL();
             _permisoSimpleBLL = new PermisoSimpleBLL();
 
+            // Aplica permisos: ROL_GESTIONAR y FAM_GESTIONAR son permisos simples DISTINTOS.
+            // El menu padre se habilita con OR, asi que adentro hay que filtrar por radio button y combo.
+            AplicarPermisos();
+
             ActualizarIdioma();
 
             this.Load += frmGestionar_Load;
             this.FormClosed += frmGestionar_FormClosed;
+        }
+
+        /// Cachea los permisos del Rol logueado y ajusta los radio buttons.
+        /// Caso edge: si no tiene ninguno de los dos, el form bloquea todo (defensa, no deberia haberse abierto).
+        private void AplicarPermisos()
+        {
+            var sm = SM.Instancia;
+            _puedeGestionarRol     = sm.TienePermiso("ROL_GESTIONAR");
+            _puedeGestionarFamilia = sm.TienePermiso("FAM_GESTIONAR");
+
+            // Los radios reflejan que tipo de entidad puede crear el usuario logueado.
+            rbRol.Enabled     = _puedeGestionarRol;
+            rbFamilia.Enabled = _puedeGestionarFamilia;
+
+            // Seleccionar por defecto un radio que SI pueda usar
+            if (_puedeGestionarFamilia)  rbFamilia.Checked = true;
+            else if (_puedeGestionarRol) rbRol.Checked     = true;
+
+            // Sin ninguno de los dos: el form se bloquea por completo (defensa en profundidad).
+            if (!_puedeGestionarRol && !_puedeGestionarFamilia)
+            {
+                txtNombre.Enabled = false;
+                btnCrear.Enabled = false;
+                cboRolFamilia.Enabled = false;
+                clbDisponibles.Enabled = false;
+                btnGuardarCambios.Enabled = false;
+                btnEliminar.Enabled = false;
+                btnEliminarSeleccionado.Enabled = false;
+            }
         }
 
         private void frmGestionar_Load(object sender, EventArgs e)
@@ -292,6 +330,31 @@ namespace UI
                 return;
             }
 
+            // Validacion de permiso: el combo lista Familias Y Roles. Un usuario con solo FAM_GESTIONAR
+            // no debe poder editar/desactivar Roles, y viceversa.
+            if (seleccionado is Familia && !_puedeGestionarFamilia)
+            {
+                var t = Traductor.Instancia;
+                MessageBox.Show(t.Traducir("Errores.PermisoDenegado"),
+                    t.Traducir("frmGestionarRolesYFamilias.Title"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                _cargandoCombo = true;
+                cboRolFamilia.SelectedIndex = 0; // volver a "(Nuevo)"
+                _cargandoCombo = false;
+                return;
+            }
+            if (seleccionado is Rol && !_puedeGestionarRol)
+            {
+                var t = Traductor.Instancia;
+                MessageBox.Show(t.Traducir("Errores.PermisoDenegado"),
+                    t.Traducir("frmGestionarRolesYFamilias.Title"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                _cargandoCombo = true;
+                cboRolFamilia.SelectedIndex = 0; // volver a "(Nuevo)"
+                _cargandoCombo = false;
+                return;
+            }
+
             if (seleccionado is Componente c)
             {
                 _enEdicion = c;
@@ -305,6 +368,22 @@ namespace UI
         {
             string nombre = (txtNombre.Text ?? string.Empty).Trim();
             var t = Traductor.Instancia;
+
+            // Validacion de permiso por tipo de entidad a crear.
+            if (rbFamilia.Checked && !_puedeGestionarFamilia)
+            {
+                MessageBox.Show(t.Traducir("Errores.PermisoDenegado"),
+                    t.Traducir("frmGestionarRolesYFamilias.Title"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (rbRol.Checked && !_puedeGestionarRol)
+            {
+                MessageBox.Show(t.Traducir("Errores.PermisoDenegado"),
+                    t.Traducir("frmGestionarRolesYFamilias.Title"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
             if (string.IsNullOrWhiteSpace(nombre))
             {

@@ -30,6 +30,10 @@ namespace UI
             CargarRolesEnCombo();
             ConfigurarModoCreacion();
 
+            // Aplica permisos por boton segun el Rol del usuario logueado.
+            // Va DESPUES de ConfigurarModoCreacion para pisar cualquier .Enabled que se haya seteado ahi.
+            AplicarPermisos();
+
             // Traducir  antes de que el form se cargue.
             ActualizarIdioma();
 
@@ -109,6 +113,24 @@ namespace UI
             lblCantidadUsuarios.Text = Traductor.Instancia.Traducir("frmAdministrador.LblCantidadUsuarios") + " " + cantidad;
         }
 
+        /// Habilita/deshabilita cada boton del form segun los permisos del Rol logueado.
+        /// El menu padre ya filtro la entrada con un OR (USR_LISTAR || USR_CREAR || USR_MODIFICAR),
+        /// pero dentro del form cada accion necesita SU permiso especifico. Sin esto, un usuario con
+        /// solo USR_CREAR podria modificar, desbloquear y activar/desactivar.
+        /// btnLimpiar y btnVolver SIEMPRE habilitados (igual que Cerrar Sesion en el menu principal).
+        private void AplicarPermisos()
+        {
+            var sm = SM.Instancia;
+
+            btnCrearUsuario.Enabled             = sm.TienePermiso("USR_CREAR");
+            btnModificarUsuario.Enabled         = sm.TienePermiso("USR_MODIFICAR");
+            btnDesbloquearUsuario.Enabled       = sm.TienePermiso("USR_DESBLOQUEAR");
+            btnActivarDesactivarUsuario.Enabled = sm.TienePermiso("USR_ACTIVAR_DESACTIVAR");
+
+            // El combo de Rol solo es editable si puede asignar rol Y si hay roles cargados.
+            cboRol.Enabled = sm.TienePermiso("USR_ASIGNAR_ROL") && cboRol.Items.Count > 0;
+        }
+
         #region "Configuracion del DataGridView"
         private void CargarUsuarios()
         {
@@ -146,10 +168,12 @@ namespace UI
             // El combo de Rol solo aplica para creación de usuarios nuevos.
             lblRol.Visible = true;
             cboRol.Visible = true;
-            cboRol.Enabled = true;
             if (cboRol.Items.Count > 0) cboRol.SelectedIndex = 0;
 
             btnActivarDesactivarUsuario.Text = Traductor.Instancia.Traducir("frmAdministrador.BtnActivarDesactivar");
+
+            // Re-aplicar permisos: cboRol.Enabled depende de USR_ASIGNAR_ROL, no del modo.
+            AplicarPermisos();
         }
 
         /// Carga los Roles activos en el ComboBox. Lo llamo una sola vez al abrir el form. Si el admin crea/desactiva roles desde otro form hay que reabrir Administrador para verlos.
@@ -180,10 +204,12 @@ namespace UI
             lblNombreUsuario.Visible = true;
             txtNombreUsuario.Visible = true;
 
-            // En modo edición el combo SI se muestra: el admin puede cambiar el rol.
+            // En modo edición el combo SI se muestra: el admin puede cambiar el rol (si tiene USR_ASIGNAR_ROL).
             lblRol.Visible = true;
             cboRol.Visible = true;
-            cboRol.Enabled = cboRol.Items.Count > 0;
+
+            // Re-aplicar permisos: cboRol.Enabled depende de USR_ASIGNAR_ROL, no del modo.
+            AplicarPermisos();
         }
 
         private string ObtenerFiltroSeleccionado()

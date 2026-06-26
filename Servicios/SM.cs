@@ -142,6 +142,15 @@ namespace Servicios
             return false;
         }
 
+        /// Lanza excepción si el usuario logueado no tiene el permiso indicado.
+        /// La UI ya filtra, pero la BLL no debe confiar en eso. 
+        /// Si algún día se invoca a la BLL desde otra UI o desde una prueba, este check mantiene la autorización vigente.
+        public void RequierePermiso(string codigo)
+        {
+            if (!TienePermiso(codigo))
+                throw new Exception(Traductor.Instancia.Traducir("Errores.PermisoDenegado"));
+        }
+
         #endregion
 
         #region "Notificacion de cambio de idioma"

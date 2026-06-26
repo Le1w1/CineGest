@@ -153,6 +153,7 @@
   "frmAuditarEventos.MsgPdfError": "Could not export the PDF.",
 
   "Errores.DebeIngresarEmail": "You must enter the Email.",
+  "Errores.PermisoDenegado": "You do not have permission to perform this operation.",
   "Errores.DebeIngresarContrasenia": "You must enter the Password.",
   "Errores.CredencialesIncorrectas": "The credentials are incorrect.",
   "Errores.CuentaInactiva": "The account is inactive. Contact the Administrator.",

@@ -122,12 +122,6 @@ namespace UI
             }
         }
 
-        private void administradorToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            frmGestionDeUsuario formAdministrador = new frmGestionDeUsuario();
-            formAdministrador.ShowDialog();
-        }
-
         private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var t = Traductor.Instancia;
