@@ -16,13 +16,11 @@ namespace UI
     public partial class frmAuditarEventos : Form, IObservadorIdioma
     {
         private readonly BitacoraEventoBLL _bitacoraEventoBLL;
-        private readonly UsuarioBLL _usuarioBLL;
 
         public frmAuditarEventos()
         {
             InitializeComponent();
             _bitacoraEventoBLL = new BitacoraEventoBLL();
-            _usuarioBLL = new UsuarioBLL();
 
             // Traducir  los labels/botones, antes de que el form se cargue.
             // Las cabeceras de la grilla se traducen mas abajo, despues del BuscarEventos.
