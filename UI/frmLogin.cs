@@ -1,7 +1,6 @@
 using BLL;
 using Servicios;
-using Servicios.DigitoVerificadorServicio;
-
+using Servicios.DigitoVerificador;
 namespace UI
 {
     public partial class frmLogin : Form, IObservadorIdioma

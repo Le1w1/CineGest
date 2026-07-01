@@ -1,13 +1,7 @@
 ﻿using DAL;
 using Servicios;
 using Servicios.DigitoVerificador;
-using Servicios.DigitoVerificadorServicio;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace BLL
 {

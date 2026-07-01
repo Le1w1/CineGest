@@ -1,11 +1,6 @@
-﻿using Servicios.DigitoVerificador;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
-namespace Servicios.DigitoVerificadorServicio
+namespace Servicios.DigitoVerificador
 {
     /// Se lanza durante el Login cuando la verificacion de Digito Verificador
     /// detecta que la integridad de una o mas tablas protegidas fue comprometida.

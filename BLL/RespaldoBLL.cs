@@ -1,11 +1,6 @@
 ﻿using DAL;
-using Microsoft.Data.SqlClient;
 using Servicios;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BLL
 {
