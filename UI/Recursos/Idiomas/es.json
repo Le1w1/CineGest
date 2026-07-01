@@ -229,5 +229,22 @@
   "frmGestionarRolesYFamilias.MsgSoloPrimerNivel": "Solo se pueden eliminar elementos del primer nivel del componente en edición. Para modificar el contenido de una Familia anidada, seleccionala en el combo y editala directamente.",
   "frmGestionarRolesYFamilias.ConfirmarDescartarBorrador": "El elemento que estás creando aún no fue guardado. Si cambias de selección, se va a descartar.\n\n¿Querés descartarlo y continuar?",
   "frmGestionarRolesYFamilias.ConfirmarEliminarPorVacio": "La composición quedó vacía. ¿Querés eliminar este elemento? Se borra definitivamente de la base de datos. Solo se permite si NO está siendo usado por otras Familias o Roles.\n\nSi elegís No, los cambios en memoria se mantienen y podés cancelar para volver al estado anterior.",
-  "frmGestionarRolesYFamilias.MsgNoEliminado": "No se eliminó. Usá 'Cancelar' para descartar los cambios o agregá al menos un elemento a la composición y guardá."
+  "frmGestionarRolesYFamilias.MsgNoEliminado": "No se eliminó. Usá 'Cancelar' para descartar los cambios o agregá al menos un elemento a la composición y guardá.",
+
+  "Errores.SinPermisoRespaldo": "No tiene permisos para gestionar respaldos.",
+  "Errores.DebeSeleccionarCarpeta": "Debe seleccionar una carpeta de destino.",
+  "Errores.CarpetaNoExiste": "La carpeta seleccionada no existe: {0}",
+  "Errores.DebeSeleccionarArchivo": "Debe seleccionar un archivo de backup.",
+  "Errores.ArchivoNoExiste": "El archivo de backup no existe: {0}",
+  "Errores.ArchivoNoBak": "El archivo seleccionado no tiene extensión .bak",
+  "Errores.BackupFallido": "No se pudo completar el backup: {0}",
+  "Errores.RestoreFallido": "No se pudo completar el restore: {0}",
+  "Respaldo.AccionCrearBackup": "Crear Backup",
+  "Respaldo.AccionRestaurarBackup": "Restaurar Backup",
+  "Respaldo.ResultadoIniciado": "Iniciado",
+  "Respaldo.DescBackupExitoso": "Se realizó un backup de la base en: {0}",
+  "Respaldo.DescBackupFallido": "Falló el backup en: {0}. Detalle: {1}",
+  "Respaldo.DescRestoreIniciado": "Se inicia restore de la base desde: {0}",
+  "Respaldo.DescRestoreFallido": "Falló el restore desde: {0}. Detalle: {1}"
+
 }

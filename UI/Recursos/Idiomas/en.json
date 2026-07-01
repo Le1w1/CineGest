@@ -229,5 +229,28 @@
   "frmGestionarRolesYFamilias.MsgSoloPrimerNivel": "You can only remove first-level items from the component being edited. To modify the content of a nested Family, select it from the dropdown and edit it directly.",
   "frmGestionarRolesYFamilias.ConfirmarDescartarBorrador": "The item you are creating has not been saved yet. If you change selection, it will be discarded.\n\nDo you want to discard it and continue?",
   "frmGestionarRolesYFamilias.ConfirmarEliminarPorVacio": "The composition has become empty. Do you want to delete this item? It will be permanently removed from the database. Only allowed if it is NOT being used by other Families or Roles.\n\nIf you choose No, the in-memory changes are kept and you can cancel to revert.",
-  "frmGestionarRolesYFamilias.MsgNoEliminado": "Not deleted. Use 'Cancel' to discard changes, or add at least one item to the composition and save."
+  "frmGestionarRolesYFamilias.MsgNoEliminado": "Not deleted. Use 'Cancel' to discard changes, or add at least one item to the composition and save.",
+
+  "private" "static",
+  "string" "T(string",
+  "clave)" "=>",
+  "Traductor.Instancia.Traducir(clave);": null,
+
+  "Errores.SinPermisoRespaldo": "You do not have permission to manage backups.",
+  "Errores.DebeSeleccionarCarpeta": "You must select a destination folder.",
+  "Errores.CarpetaNoExiste": "The selected folder does not exist: {0}",
+  "Errores.DebeSeleccionarArchivo": "You must select a backup file.",
+  "Errores.ArchivoNoExiste": "The backup file does not exist: {0}",
+  "Errores.ArchivoNoBak": "The selected file does not have a .bak extension",
+  "Errores.BackupFallido": "Could not complete the backup: {0}",
+  "Errores.RestoreFallido": "Could not complete the restore: {0}",
+  "Respaldo.AccionCrearBackup": "Create Backup",
+  "Respaldo.AccionRestaurarBackup": "Restore Backup",
+  "Respaldo.ResultadoIniciado": "Started",
+  "Respaldo.ResultadoExitoso": "Successful",
+  "Respaldo.ResultadoFallido": "Failed",
+  "Respaldo.DescBackupExitoso": "A database backup was created at: {0}",
+  "Respaldo.DescBackupFallido": "Backup failed at: {0}. Detail: {1}",
+  "Respaldo.DescRestoreIniciado": "Starting database restore from: {0}",
+  "Respaldo.DescRestoreFallido": "Restore failed from: {0}. Detail: {1}"
 }

@@ -30,7 +30,7 @@ namespace Servicios.DigitoVerificador
         /// Columnas que forman la clave primaria. Sirven para construir el
         /// identificador del registro que se reporta como inconsistente.
         /// 1 columna en tablas con PK simple, 2 en las tablas puente.
-        /// 
+        
         public IReadOnlyList<string> ColumnasPk { get; }
 
         public TablaProtegida(string nombre, string[] columnasDatos, string[] columnasPk)
@@ -41,7 +41,7 @@ namespace Servicios.DigitoVerificador
         }
     }
 
-    /// Catalogo de las 9 tablas protegidas por Digito Verificador.
+    /// Catalogo de las 10 tablas protegidas por Digito Verificador.
     /// BitacoraEvento queda EXCLUIDA por no ser tabla sensible
 
     /// El orden de las columnas en ColumnasDatos es el ORDEN CONGELADO del DVH.
@@ -75,7 +75,11 @@ namespace Servicios.DigitoVerificador
                 new[] { "IdIdioma", "Codigo", "Nombre" },
                 new[] { "IdIdioma" }),
  
-            
+            new TablaProtegida("RespaldoBD",
+                new[] { "IdRespaldo", "FechaHora", "TipoOperacion","RutaArchivo",
+                        "NombreArchivo","Resultado","Descripcion","IdUsuario"},
+                new[] { "IdRespaldo" }),
+
             // ----- Tablas puente (PK compuesta) -----
             // Sus unicas columnas son las dos FK: son a la vez su PK y todo su
             // contenido, por eso ColumnasDatos == ColumnasPk.
