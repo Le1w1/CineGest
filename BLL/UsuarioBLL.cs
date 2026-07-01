@@ -35,6 +35,51 @@ namespace BLL
         private static string T(string clave) => Traductor.Instancia.Traducir(clave);
 
 
+
+        /// Valida credenciales en MODO REPARACION
+        /// Se llama solo despues de que VerificarIntegridad() detecto una
+        /// inconsistencia y el flujo de Login normal fue interrumpido.
+
+        /// Diferencias con Login():
+        ///   - NO verifica integridad (ya se sabe que esta rota).
+        ///   - NO cuenta intentos fallidos ni bloquea la cuenta (no queremos bloquear al admin que viene a reparar).
+        ///   - NO modifica ningun dato en la base (modo read-only: la base esta corrupta, cualquier escritura previa a la reparacion
+        ///     puede empeorar las cosas).
+        ///   - NO registra bitacora aca; la registra el llamador cuando
+        ///     corresponda (para no ensuciar la Bitacora con cada intento).
+        
+        /// Devuelve el Usuario validado. Lanza excepcion si las credenciales no son validas o si el usuario no existe / esta inactivo.
+        
+        /// IMPORTANTE: el rol y permisos del Usuario devuelto se leen de una
+        /// base potencialmente corrupta. El llamador debe asumir y acotar las acciones
+        /// permitidas al minimo indispensable (solo reparacion).
+
+        public Usuario ValidarCredencialesMinimo(string email, string contraseñia)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                throw new Exception(T("Errores.DebeIngresarEmail"));
+
+            if (string.IsNullOrWhiteSpace(contraseñia))
+                throw new Exception(T("Errores.DebeIngresarContrasenia"));
+
+            email = email.Trim().ToLower();
+            Usuario usuario = _usuarioDAL.BuscarPorEmail(email);
+
+            if (usuario == null)
+                throw new Exception(T("Errores.CredencialesIncorrectas"));
+
+            if (!usuario.Activo)
+                throw new Exception(T("Errores.CuentaInactiva"));
+
+            string hashIngresado = _cripto.ObtenerHashSha256(contraseñia);
+
+            if (hashIngresado != usuario.PasswordHash)
+                throw new Exception(T("Errores.CredencialesIncorrectas"));
+
+            return usuario;
+        }
+
+
         // Método para Login de usuario, con validaciones y registro de eventos en bitácora
         public Usuario Login(string email, string contraseñia)
         {

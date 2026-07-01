@@ -43,7 +43,6 @@
             lblMensaje = new Label();
             errorProviderLogin = new ErrorProvider(components);
             sqlCommandBuilder1 = new Microsoft.Data.SqlClient.SqlCommandBuilder();
-            button1 = new Button();
             ((System.ComponentModel.ISupportInitialize)errorProviderLogin).BeginInit();
             SuspendLayout();
             // 
@@ -167,16 +166,6 @@
             // 
             errorProviderLogin.ContainerControl = this;
             // 
-            // button1
-            // 
-            button1.Location = new Point(325, 439);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 11;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
-            // 
             // frmLogin
             // 
             AcceptButton = btnIngresar;
@@ -185,7 +174,6 @@
             BackColor = Color.PowderBlue;
             CancelButton = btnSalir;
             ClientSize = new Size(404, 481);
-            Controls.Add(button1);
             Controls.Add(lblTitulo);
             Controls.Add(lblMensaje);
             Controls.Add(cboIdioma);
@@ -225,6 +213,5 @@
         private Label lblMensaje;
         private ErrorProvider errorProviderLogin;
         private Microsoft.Data.SqlClient.SqlCommandBuilder sqlCommandBuilder1;
-        private Button button1;
     }
 }

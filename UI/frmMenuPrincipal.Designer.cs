@@ -48,6 +48,7 @@
             tableLayoutPanel1 = new TableLayoutPanel();
             lblDescripcionInicio = new Label();
             lblTituloInicio = new Label();
+            gestionDeRespaldoToolStripMenuItem = new ToolStripMenuItem();
             menuPrincipal.SuspendLayout();
             statusStrip1.SuspendLayout();
             pnlInicio.SuspendLayout();
@@ -120,7 +121,7 @@
             // 
             // mnuAdministrador
             // 
-            mnuAdministrador.DropDownItems.AddRange(new ToolStripItem[] { usuariosToolStripMenuItem, bitacoraEventosToolStripMenuItem, gestionarPerfilToolStripMenuItem });
+            mnuAdministrador.DropDownItems.AddRange(new ToolStripItem[] { usuariosToolStripMenuItem, bitacoraEventosToolStripMenuItem, gestionarPerfilToolStripMenuItem, gestionDeRespaldoToolStripMenuItem });
             mnuAdministrador.Name = "mnuAdministrador";
             mnuAdministrador.Size = new Size(95, 20);
             mnuAdministrador.Text = "Administrador";
@@ -222,6 +223,13 @@
             lblTituloInicio.Text = "Bienvenido a Cinegest";
             lblTituloInicio.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // gestionDeRespaldoToolStripMenuItem
+            // 
+            gestionDeRespaldoToolStripMenuItem.Name = "gestionDeRespaldoToolStripMenuItem";
+            gestionDeRespaldoToolStripMenuItem.Size = new Size(219, 22);
+            gestionDeRespaldoToolStripMenuItem.Text = "Gestion de Respaldo";
+            gestionDeRespaldoToolStripMenuItem.Click += gestionDeRespaldoToolStripMenuItem_Click;
+            // 
             // frmMenuPrincipal
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -270,5 +278,6 @@
         private ToolStripMenuItem usuariosToolStripMenuItem;
         private ToolStripMenuItem bitacoraEventosToolStripMenuItem;
         private ToolStripMenuItem gestionarPerfilToolStripMenuItem;
+        private ToolStripMenuItem gestionDeRespaldoToolStripMenuItem;
     }
 }
