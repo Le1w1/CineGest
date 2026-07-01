@@ -10,6 +10,7 @@ namespace BLL
     {
         private readonly RolDAL _rolDAL = new RolDAL();
         private readonly BitacoraEventoBLL _bitacoraEventoBLL = new BitacoraEventoBLL();
+        private readonly DigitoVerificadorBLL _digitoVerificadorBLL = new DigitoVerificadorBLL();   // ← agregar
 
         private static string T(string clave) => Traductor.Instancia.Traducir(clave);
 
@@ -36,6 +37,8 @@ namespace BLL
             ValidarComposicion(rol.Hijos);
             rol.IdRol = _rolDAL.InsertarConComposicion(rol);
             RegistrarBitacora("Crear Rol", "El administrador creó el Rol: " + rol.Nombre);
+            RecalcularDVRol();   
+
         }
 
         //Modificar Rol
@@ -54,6 +57,8 @@ namespace BLL
 
             _rolDAL.ModificarConComposicion(rol);
             RegistrarBitacora("Modificar Rol", "El administrador modificó el Rol: " + rol.Nombre);
+            RecalcularDVRol();   
+
         }
 
         //Eliminar Rol
@@ -70,6 +75,8 @@ namespace BLL
 
             _rolDAL.Eliminar(idRol);
             RegistrarBitacora("Eliminar Rol", "El administrador eliminó el Rol: " + r.Nombre);
+            RecalcularDVRol();   
+
         }
 
 
@@ -120,6 +127,14 @@ namespace BLL
             Usuario u = SM.Instancia.UsuarioActual;
             if (u == null) return;
             _bitacoraEventoBLL.Registrar(u.IdUsuario, u.NombreUsuario,"Administrador", accion, "Alta", "Exitoso", descripcion);
+        }
+
+        // Recalcula el DV de las tres tablas que toca una operación de Rol.
+        private void RecalcularDVRol()
+        {
+            _digitoVerificadorBLL.RecalcularDV("Rol");
+            _digitoVerificadorBLL.RecalcularDV("Rol_Familia");
+            _digitoVerificadorBLL.RecalcularDV("Rol_PermisoSimple");
         }
     }
 }

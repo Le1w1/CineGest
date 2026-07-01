@@ -163,6 +163,7 @@
   "Errores.NoHaySesionParaReLogin": "There is no active session for Re-Login.",
   "Errores.NoHaySesionParaCerrar": "There is no active session to close.",
   "Errores.NoHaySesionActiva": "There is no active session.",
+  "Errores.IntegridadComprometida": "A data integrity violation was detected. The system requires repair by an administrator.",
 
   "Errores.UsuarioSeleccionadoNoEncontrado": "Selected user was not found.",
   "Errores.DebeSeleccionarUsuarioDesbloquear": "You must select a user to unlock.",

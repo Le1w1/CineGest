@@ -1,5 +1,7 @@
 ﻿using DAL;
 using Servicios;
+using Servicios.DigitoVerificador;
+using Servicios.DigitoVerificadorServicio;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,7 @@ namespace BLL
         private readonly RolDAL _rolDAL;
         private readonly Cripto _cripto;
         private readonly BitacoraEventoBLL _bitacoraEventoBLL;
+        private readonly DigitoVerificadorBLL _digitoVerificadorBLL;
 
         public UsuarioBLL()
         {
@@ -24,6 +27,8 @@ namespace BLL
             _rolDAL = new RolDAL();
             _cripto = new Cripto();
             _bitacoraEventoBLL = new BitacoraEventoBLL();
+            _digitoVerificadorBLL = new DigitoVerificadorBLL();   
+
         }
 
         // Traducción de claves de error
@@ -33,9 +38,26 @@ namespace BLL
         // Método para Login de usuario, con validaciones y registro de eventos en bitácora
         public Usuario Login(string email, string contraseñia)
         {
+            
             if (string.IsNullOrWhiteSpace(email)) throw new Exception(T("Errores.DebeIngresarEmail"));
             if (string.IsNullOrWhiteSpace(contraseñia)) throw new Exception(T("Errores.DebeIngresarContrasenia"));
 
+            // Verificacion de integridad ANTES de validar credenciales.
+            // Si alguna tabla protegida fue alterada por fuera del sistema, no se puede
+            // confiar en los datos. Se registra en Bitacora y se corta el login normal
+            // lanzando la excepcion de integridad (la UI la captura y abre reparacion).
+            List<Inconsistencia> inconsistencias = _digitoVerificadorBLL.VerificarIntegridad();
+
+            if (inconsistencias.Count > 0)
+            {
+                // Registrar CADA inconsistencia en Bitacora (tabla + PK afectada).
+                foreach (Inconsistencia inc in inconsistencias)
+                {
+                    _bitacoraEventoBLL.Registrar(0,email,"Integridad","Verificacion de integridad","Alta","Fallido",inc.ToString());  
+                }
+
+                throw new IntegridadComprometidaException(T("Errores.IntegridadComprometida"),inconsistencias);
+            }
 
             email = email.Trim().ToLower();
             Usuario usuario = _usuarioDAL.BuscarPorEmail(email);
@@ -80,17 +102,18 @@ namespace BLL
                 {
                     _usuarioDAL.Bloquear(usuario.IdUsuario);
                     _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Login", "Bloqueo de cuenta", "Alta", "Exitoso", "La cuenta fue bloqueada por superar la cantidad de intentos permitidos.");
+                    _digitoVerificadorBLL.RecalcularDV("Usuario");   
 
                     throw new Exception(T("Errores.CuentaBloqueadaIntentos"));
                 }
-
+                _digitoVerificadorBLL.RecalcularDV("Usuario");   
                 throw new Exception(T("Errores.CredencialesIncorrectas"));
             }
 
             #endregion
 
             _usuarioDAL.ReiniciarIntentosFallidos(usuario.IdUsuario);
-
+            _digitoVerificadorBLL.RecalcularDV("Usuario"); 
             SM.Instancia.IniciarSesion(usuario);
 
             // Cargar el idioma del usuario en la sesion (con por defecto a ES si esta corrupto)
@@ -134,13 +157,15 @@ namespace BLL
                 if (usuario.IntentosFallidos >= 3)
                 {
                     _usuarioDAL.Bloquear(usuario.IdUsuario);
+                    _digitoVerificadorBLL.RecalcularDV("Usuario");  
                     throw new Exception(T("Errores.CuentaBloqueadaIntentos"));
                 }
-
+                _digitoVerificadorBLL.RecalcularDV("Usuario"); 
                 throw new Exception(T("Errores.CredencialesIncorrectas"));
             }
 
             _usuarioDAL.ReiniciarIntentosFallidos(usuario.IdUsuario);
+            _digitoVerificadorBLL.RecalcularDV("Usuario");  
 
             if (SM.Instancia.HaySesionActiva())
             {
@@ -170,8 +195,9 @@ namespace BLL
                 Idioma idiomaFinal = SM.Instancia.IdiomaActual;
 
                 _usuarioDAL.ActualizarIdioma(usuario.IdUsuario, idiomaFinal.IdIdioma);
-
                 _bitacoraEventoBLL.Registrar(usuario.IdUsuario,usuario.NombreUsuario,"Idioma","Persistir idioma","Baja","Exitoso","Se persistió el idioma del usuario al cerrar sesión: " + idiomaFinal.Nombre + ".");
+                _digitoVerificadorBLL.RecalcularDV("Usuario"); 
+
             }
 
             _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cierre de sesión", "Baja", "Exitoso", "El usuario cerró sesión correctamente");
@@ -200,6 +226,7 @@ namespace BLL
             string descripcion = nuevoEstado ? "El administrador activó el usuario: " + usuarioSeleccionado.NombreUsuario : "El administrador desactivó el usuario: " + usuarioSeleccionado.NombreUsuario;
 
             _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", accion, "Alta", "Exitoso", descripcion);
+            _digitoVerificadorBLL.RecalcularDV("Usuario");   
             return nuevoEstado;
         }
 
@@ -219,6 +246,8 @@ namespace BLL
             Usuario administrador = SM.Instancia.UsuarioActual;
 
             _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Desbloquear Usuario", "Alta", "Exitoso", "El administrador desbloqueó el usuario: " + usuarioSeleccionado.NombreUsuario);
+            _digitoVerificadorBLL.RecalcularDV("Usuario");   
+
         }
 
 
@@ -258,6 +287,8 @@ namespace BLL
             usuario.DebeCambiarClave = false;
 
             _bitacoraEventoBLL.Registrar(usuario.IdUsuario, usuario.NombreUsuario, "Usuario", "Cambio de clave", "Alta", "Exitoso", "El usuario modificó su contraseña correctamente.");
+            _digitoVerificadorBLL.RecalcularDV("Usuario");
+
         }
 
 
@@ -354,6 +385,8 @@ namespace BLL
             _usuarioDAL.Insertar(nuevoUsuario);
             Usuario administrador = SM.Instancia.UsuarioActual;
             _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Crear Usuario", "Alta", "Exitoso","El administrador creó el usuario: " + nombreSinEspacios + " con el Rol: " + rolSeleccionado.Nombre);
+            _digitoVerificadorBLL.RecalcularDV("Usuario");   
+
         }
 
 
@@ -441,8 +474,9 @@ namespace BLL
 
             Usuario administrador = SM.Instancia.UsuarioActual;
 
-            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Modificar Usuario", "Alta", "Exitoso",
-                "El administrador modificó el usuario: " + nombreUsuario + " (Rol: " + rolSeleccionado.Nombre + ")");
+            _bitacoraEventoBLL.Registrar(administrador.IdUsuario, administrador.NombreUsuario, "Administrador", "Modificar Usuario", "Alta", "Exitoso","El administrador modificó el usuario: " + nombreUsuario + " (Rol: " + rolSeleccionado.Nombre + ")");
+            _digitoVerificadorBLL.RecalcularDV("Usuario");   // ← agregar
+
         }
 
 

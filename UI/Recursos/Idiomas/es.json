@@ -163,6 +163,7 @@
   "Errores.NoHaySesionParaReLogin": "No hay una sesión activa para realizar Re-Login.",
   "Errores.NoHaySesionParaCerrar": "No hay una sesión activa para cerrar.",
   "Errores.NoHaySesionActiva": "No hay una sesión activa.",
+  "Errores.IntegridadComprometida": "Se detectó una alteración en la integridad de los datos. El sistema requiere reparación por parte de un administrador.",
 
   "Errores.UsuarioSeleccionadoNoEncontrado": "No se encontró el usuario seleccionado.",
   "Errores.DebeSeleccionarUsuarioDesbloquear": "Debe seleccionar un usuario para desbloquear.",

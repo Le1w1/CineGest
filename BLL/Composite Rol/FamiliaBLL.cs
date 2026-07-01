@@ -10,6 +10,7 @@ namespace BLL
     {
         private readonly FamiliaDAL _familiaDAL = new FamiliaDAL();
         private readonly BitacoraEventoBLL _bitacoraEventoBLL = new BitacoraEventoBLL();
+        private readonly DigitoVerificadorBLL _digitoVerificadorBLL = new DigitoVerificadorBLL();   // ← agregar
 
         //Traductor de mensajes de error
         private static string T(string clave) => Traductor.Instancia.Traducir(clave);
@@ -37,6 +38,8 @@ namespace BLL
             familia.IdFamilia = _familiaDAL.InsertarConComposicion(familia);
 
             RegistrarBitacora("Crear Familia", "El administrador creó la Familia: " + familia.Nombre);
+            RecalcularDVFamilia();   
+
         }
 
 
@@ -58,6 +61,8 @@ namespace BLL
             _familiaDAL.ModificarConComposicion(familia);
 
             RegistrarBitacora("Modificar Familia", "El administrador modificó la Familia: " + familia.Nombre);
+            RecalcularDVFamilia(); 
+
         }
 
 
@@ -74,6 +79,8 @@ namespace BLL
 
             _familiaDAL.Eliminar(idFamilia);
             RegistrarBitacora("Eliminar Familia", "El administrador eliminó la Familia: " + f.Nombre);
+            RecalcularDVFamilia(); 
+
         }
 
 
@@ -143,6 +150,15 @@ namespace BLL
             Usuario u = SM.Instancia.UsuarioActual;
             if (u == null) return;
             _bitacoraEventoBLL.Registrar(u.IdUsuario, u.NombreUsuario,"Administrador", accion, "Alta", "Exitoso", descripcion);
+        }
+
+
+        // Recalcula el DV de las tres tablas que toca una operación de Familia.
+        private void RecalcularDVFamilia()
+        {
+            _digitoVerificadorBLL.RecalcularDV("Familia");
+            _digitoVerificadorBLL.RecalcularDV("Familia_Familia");
+            _digitoVerificadorBLL.RecalcularDV("PermisoSimple_Familia");
         }
     }
 }

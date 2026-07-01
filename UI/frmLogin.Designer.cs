@@ -42,20 +42,21 @@
             cboIdioma = new ComboBox();
             lblMensaje = new Label();
             errorProviderLogin = new ErrorProvider(components);
+            sqlCommandBuilder1 = new Microsoft.Data.SqlClient.SqlCommandBuilder();
             ((System.ComponentModel.ISupportInitialize)errorProviderLogin).BeginInit();
             SuspendLayout();
-            //
+            // 
             // lblTitulo
-            //
+            // 
             lblTitulo.Font = new Font("Segoe UI", 20F);
             lblTitulo.Location = new Point(134, 9);
             lblTitulo.Name = "lblTitulo";
             lblTitulo.Size = new Size(136, 37);
             lblTitulo.TabIndex = 0;
             lblTitulo.Text = "CineGest";
-            //
+            // 
             // lblSubtitulo
-            //
+            // 
             lblSubtitulo.Font = new Font("Segoe UI", 13F);
             lblSubtitulo.Location = new Point(124, 46);
             lblSubtitulo.Name = "lblSubtitulo";
@@ -63,44 +64,44 @@
             lblSubtitulo.TabIndex = 1;
             lblSubtitulo.Text = "Inicio de Sesión";
             lblSubtitulo.TextAlign = ContentAlignment.MiddleCenter;
-            //
+            // 
             // lblEmail
-            //
+            // 
             lblEmail.AutoSize = true;
             lblEmail.Location = new Point(68, 116);
             lblEmail.Name = "lblEmail";
             lblEmail.Size = new Size(41, 19);
             lblEmail.TabIndex = 2;
             lblEmail.Text = "Email";
-            //
+            // 
             // txtEmail
-            //
+            // 
             txtEmail.Location = new Point(69, 138);
             txtEmail.MaxLength = 100;
             txtEmail.Name = "txtEmail";
             txtEmail.Size = new Size(242, 25);
             txtEmail.TabIndex = 0;
-            //
+            // 
             // lblContrasenia
-            //
+            // 
             lblContrasenia.AutoSize = true;
             lblContrasenia.Location = new Point(69, 184);
             lblContrasenia.Name = "lblContrasenia";
             lblContrasenia.Size = new Size(79, 19);
             lblContrasenia.TabIndex = 4;
             lblContrasenia.Text = "Contraseña";
-            //
+            // 
             // txtContrasenia
-            //
+            // 
             txtContrasenia.Location = new Point(69, 206);
             txtContrasenia.MaxLength = 50;
             txtContrasenia.Name = "txtContrasenia";
             txtContrasenia.Size = new Size(242, 25);
             txtContrasenia.TabIndex = 1;
             txtContrasenia.UseSystemPasswordChar = true;
-            //
+            // 
             // chkMostrarContrasenia
-            //
+            // 
             chkMostrarContrasenia.AutoSize = true;
             chkMostrarContrasenia.Location = new Point(71, 237);
             chkMostrarContrasenia.Name = "chkMostrarContrasenia";
@@ -109,9 +110,9 @@
             chkMostrarContrasenia.Text = "Mostrar";
             chkMostrarContrasenia.UseVisualStyleBackColor = true;
             chkMostrarContrasenia.CheckedChanged += chkMostrarContrasenia_CheckedChanged;
-            //
+            // 
             // btnIngresar
-            //
+            // 
             btnIngresar.Location = new Point(68, 295);
             btnIngresar.Name = "btnIngresar";
             btnIngresar.Size = new Size(243, 37);
@@ -119,9 +120,9 @@
             btnIngresar.Text = "Ingresar";
             btnIngresar.UseVisualStyleBackColor = true;
             btnIngresar.Click += btnIngresar_Click;
-            //
+            // 
             // btnSalir
-            //
+            // 
             btnSalir.Location = new Point(68, 358);
             btnSalir.Name = "btnSalir";
             btnSalir.Size = new Size(243, 36);
@@ -129,11 +130,9 @@
             btnSalir.Text = "Salir";
             btnSalir.UseVisualStyleBackColor = true;
             btnSalir.Click += btnSalir_Click;
-            //
+            // 
             // btnVolver
-            //
-            // Mismo location/size que btnSalir. Solo uno de los dos se muestra
-            // a la vez (logica en el constructor del code-behind segun _esReLogin).
+            // 
             btnVolver.Location = new Point(68, 358);
             btnVolver.Name = "btnVolver";
             btnVolver.Size = new Size(243, 36);
@@ -142,9 +141,9 @@
             btnVolver.UseVisualStyleBackColor = true;
             btnVolver.Visible = false;
             btnVolver.Click += btnVolver_Click;
-            //
+            // 
             // cboIdioma
-            //
+            // 
             cboIdioma.DropDownStyle = ComboBoxStyle.DropDownList;
             cboIdioma.Font = new Font("Segoe UI", 9F);
             cboIdioma.FormattingEnabled = true;
@@ -153,22 +152,22 @@
             cboIdioma.Size = new Size(98, 23);
             cboIdioma.TabIndex = 10;
             cboIdioma.SelectedIndexChanged += cboIdioma_SelectedIndexChanged;
-            //
+            // 
             // lblMensaje
-            //
+            // 
             lblMensaje.ForeColor = Color.Red;
             lblMensaje.Location = new Point(68, 419);
             lblMensaje.Name = "lblMensaje";
             lblMensaje.Size = new Size(243, 53);
             lblMensaje.TabIndex = 9;
             lblMensaje.TextAlign = ContentAlignment.MiddleCenter;
-            //
+            // 
             // errorProviderLogin
-            //
+            // 
             errorProviderLogin.ContainerControl = this;
-            //
+            // 
             // frmLogin
-            //
+            // 
             AcceptButton = btnIngresar;
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -213,5 +212,6 @@
         private ComboBox cboIdioma;
         private Label lblMensaje;
         private ErrorProvider errorProviderLogin;
+        private Microsoft.Data.SqlClient.SqlCommandBuilder sqlCommandBuilder1;
     }
 }

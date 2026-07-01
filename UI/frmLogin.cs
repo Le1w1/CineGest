@@ -1,5 +1,6 @@
 using BLL;
 using Servicios;
+using Servicios.DigitoVerificadorServicio;
 
 namespace UI
 {
@@ -136,7 +137,7 @@ namespace UI
 
                 if (usuario.DebeCambiarClave)
                 {
-                    DialogResult respuesta = MessageBox.Show(t.Traducir("frmLogin.MsgCambioClaveRecomendado"),t.Traducir("frmLogin.TitleCambioClave"),MessageBoxButtons.YesNo,MessageBoxIcon.Information);
+                    DialogResult respuesta = MessageBox.Show(t.Traducir("frmLogin.MsgCambioClaveRecomendado"), t.Traducir("frmLogin.TitleCambioClave"), MessageBoxButtons.YesNo, MessageBoxIcon.Information);
 
                     if (respuesta == DialogResult.Yes)
                     {
@@ -152,8 +153,8 @@ namespace UI
                 // esta oculto y no es parte de la sesion. Sin esto, los textos del Login terminan en el idioma
                 // que el usuario haya elegido durante la sesion.
                 SM.Instancia.Desuscribir(this);
-                
-                
+
+
 
                 this.Hide();
                 menu.ShowDialog();
@@ -167,18 +168,25 @@ namespace UI
                 txtContrasenia.Clear();
                 txtEmail.Focus();
             }
+            catch (IntegridadComprometidaException ex)
+            {
+                // Integridad rota: validar credenciales minimas y, si es admin, abrir reparacion.
+                MessageBox.Show(ex.Message);
+            }
             catch (Exception ex)
             {
                 lblMensaje.Text = ex.Message;
                 MessageBox.Show(ex.Message, t.Traducir("frmLogin.LblSubtitulo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+
+
         }
 
         private void btnSalir_Click(object sender, EventArgs e)
         {
             var t = Traductor.Instancia;
 
-            DialogResult respuesta = MessageBox.Show(t.Traducir("frmLogin.MsgConfirmarSalir"),t.Traducir("frmLogin.TitleSalir"),MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+            DialogResult respuesta = MessageBox.Show(t.Traducir("frmLogin.MsgConfirmarSalir"), t.Traducir("frmLogin.TitleSalir"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (respuesta == DialogResult.Yes) Application.Exit();
         }
@@ -220,5 +228,7 @@ namespace UI
 
             return esValido;
         }
+
+
     }
 }
